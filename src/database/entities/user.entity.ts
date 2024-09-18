@@ -4,7 +4,7 @@ import { BaseEntity } from './base.entities';
 
 @Entity({ name: 'user' })
 export class UserEntity extends BaseEntity {
-  @Column({ name: 'role_id', type: 'int' })
+  @Column({ name: 'role_id', type: 'int', default: 2 })
   roleId: number;
 
   @Column({ type: 'varchar', nullable: false })
