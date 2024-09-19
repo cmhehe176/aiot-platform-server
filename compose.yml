@@ -6,20 +6,20 @@ volumes:
 
 services:
   
-  iot-server:
-    build: 
-      context: .
-      dockerfile: Dockerfile
-    command: ['yarn', 'dev']
-    depends_on:
-      database:
-        condition: service_healthy
-    networks:
-      - iot-server-net
-    ports:
-      - 3000:${PORT}/tcp
-    volumes:
-      - .:/iot-server
+  # iot-server:
+  #   build: 
+  #     context: .
+  #     dockerfile: Dockerfile
+  #   command: ['yarn', 'dev']
+  #   depends_on:
+  #     database:
+  #       condition: service_healthy
+  #   networks:
+  #     - iot-server-net
+  #   ports:
+  #     - 3000:${PORT}/tcp
+  #   volumes:
+  #     - .:/iot-server
   
   database:
     image: timescale/timescaledb:latest-pg15

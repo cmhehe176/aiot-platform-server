@@ -8,6 +8,8 @@ Iot Platform Server
   Otherwise, follow my instructions so you can run it with Docker.
 
 ```bash
+$ yarn 
+
 $ docker ps 
 # you must be check this command for test Docker health is still good
 
@@ -15,8 +17,7 @@ $ cp .env.example .env
 
 $ docker compose up -d --build
 
-# after that , 3 container will running , your app is running , check this response in
-# localhost:3000
+
 ```
 
 ## Installation
@@ -32,25 +33,24 @@ $ yarn migration
 $ yarn seed
 # create seed data (roles , users) in db
 
-# after that you can check api POST MAN
-# method Post : 
-#{
-#    "username": "admin@gmail.com",
-#    "password":"12345678"
-#}
+# access database in localhost:8080 
+# username and password in file env 
+
 ```
 
 ## Running the app
 
 ```bash
 # development
-$ yarn run start
+$ yarn start
 
 # watch mode in development
-$ yarn run dev
+$ yarn dev
+
+# you can check in localhost:3000 to print Hello World ??
 
 # production mode
-$ yarn run prod
+$ yarn prod
 ```
 
 ## Test
