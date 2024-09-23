@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserEntity } from 'src/database/entities';
 import { Repository } from 'typeorm';
@@ -52,5 +56,17 @@ export class AuthService {
     if (!checkPassword) throw new BadRequestException('No match Password');
 
     return user;
+  }
+
+  async getProfile(id: number) {
+    const user = await this.userEntity.findOne({
+      where: { id: id },
+    });
+
+    if (!user) throw new NotFoundException('User not exist or has been band');
+
+    delete user.password;
+
+    return { data: user };
   }
 }

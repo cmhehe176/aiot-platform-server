@@ -1,4 +1,11 @@
-import { Body, Controller, Post, UseGuards, Request } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Post,
+  UseGuards,
+  Request,
+  Get,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { Register } from './auth.dto';
 import { LocalAuthGuard } from './guards/local.guard';
@@ -12,10 +19,7 @@ export class AuthController {
   @Public()
   @UseGuards(LocalAuthGuard)
   @Post('login')
-  Login(
-    @Request() req,
-    // @User() user: IUser
-  ) {
+  Login(@Request() req) {
     return this.authService.login(req.user);
   }
 
@@ -23,5 +27,10 @@ export class AuthController {
   @Post('register')
   Register(@Body() data: Register) {
     return this.authService.register(data);
+  }
+
+  @Get()
+  getProfile(@User() user: IUser) {
+    return this.authService.getProfile(user.id);
   }
 }
