@@ -59,14 +59,24 @@ export class AuthService {
   }
 
   async getProfile(id: number) {
-    const user = await this.userEntity.findOne({
-      where: { id: id },
-    });
+    const user = await this.userEntity
+      .createQueryBuilder('user')
+      .leftJoinAndSelect('user.permissionProject', 'permissionProject')
+      .leftJoinAndSelect('permissionProject.project', 'project')
+      .where('user.id = :id', { id: id })
+      .getOne();
 
     if (!user) throw new NotFoundException('User not exist or has been band');
 
     delete user.password;
 
-    return { data: user };
+    const { permissionProject, ...rest } = user;
+
+    return {
+      data: {
+        ...rest,
+        project: permissionProject.map((item) => item.project),
+      },
+    };
   }
 }
