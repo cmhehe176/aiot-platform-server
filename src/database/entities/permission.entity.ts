@@ -5,7 +5,7 @@ import { ProjectEntity } from './project.entity';
 
 @Entity({ name: 'permissions' })
 export class PermissionEntity extends BaseEntity {
-  @Column({ name: ' permission', type: 'jsonb' })
+  @Column({ name: 'permission', type: 'jsonb' })
   permission: JSON;
 
   @Column({ type: 'varchar', nullable: false, name: 'project_id' })
@@ -18,7 +18,7 @@ export class PermissionEntity extends BaseEntity {
   @JoinColumn({ name: 'project_id' })
   project?: ProjectEntity;
 
-  @ManyToOne('UserEntity')
+  @ManyToOne(() => UserEntity)
   @JoinColumn({ name: 'user_id' })
   user?: UserEntity;
 }
