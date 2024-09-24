@@ -6,12 +6,12 @@ import { ProjectEntity } from './project.entity';
 @Entity({ name: 'permission_project' })
 export class PermissionProjectEntity extends BaseEntity {
   @Column({ name: 'permission', type: 'jsonb' })
-  permission: JSON;
+  permission: unknown;
 
-  @Column({ type: 'varchar', nullable: false, name: 'project_id' })
+  @Column({ type: 'int', nullable: false, name: 'project_id' })
   projectId: number;
 
-  @Column({ type: 'varchar', nullable: false, name: 'user_id' })
+  @Column({ type: 'int', nullable: false, name: 'user_id' })
   userId: number;
 
   @ManyToOne('ProjectEntity')
