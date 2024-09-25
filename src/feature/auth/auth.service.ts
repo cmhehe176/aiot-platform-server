@@ -59,14 +59,15 @@ export class AuthService {
   }
 
   async getProfile(id: number) {
-    const user = await this.userEntity.findOne({
-      where: { id: id },
-    });
+    const user = await this.userEntity
+      .createQueryBuilder('user')
+      .where('user.id = :id', { id: id })
+      .getOne();
 
     if (!user) throw new NotFoundException('User not exist or has been band');
 
     delete user.password;
 
-    return { data: user };
+    return { profile: user };
   }
 }
