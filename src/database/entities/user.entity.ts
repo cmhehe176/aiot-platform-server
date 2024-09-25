@@ -1,7 +1,7 @@
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
 import { RoleEntity } from './role.entity';
 import { BaseEntity } from './base.entities';
-import { PermissionEntity } from './permission.entity';
+import { PermissionProjectEntity } from './permission-project.entity';
 
 @Entity({ name: 'user' })
 export class UserEntity extends BaseEntity {
@@ -27,6 +27,6 @@ export class UserEntity extends BaseEntity {
   @JoinColumn({ name: 'role_id' })
   role?: RoleEntity;
 
-  @OneToMany(() => PermissionEntity, (permission) => permission.user)
-  permissions: PermissionEntity[];
+  @OneToMany(() => PermissionProjectEntity, (permission) => permission.user)
+  permissionProject: PermissionProjectEntity[];
 }
