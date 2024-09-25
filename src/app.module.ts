@@ -8,6 +8,7 @@ import { APP_GUARD } from '@nestjs/core';
 import { JwtAuthGuard } from './feature/auth/guards/auth.guard';
 import { RoleGuard } from './feature/auth/guards/role.guard';
 import { ProjectModule } from './feature/project/project.module';
+import { UserModule } from './feature/user/user.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { ProjectModule } from './feature/project/project.module';
     DatabaseModule,
     AuthModule,
     ProjectModule,
+    UserModule,
   ],
   controllers: [AppController],
   providers: [

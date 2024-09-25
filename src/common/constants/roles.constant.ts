@@ -3,3 +3,9 @@ export enum ERole {
   ADMIN = 'admin',
   USER = 'user',
 }
+
+export enum NRoles {
+  SUPER_ADMIN = 0,
+  ADMIN = 1,
+  USER = 2,
+}

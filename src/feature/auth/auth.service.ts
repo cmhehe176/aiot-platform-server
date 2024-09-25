@@ -61,8 +61,6 @@ export class AuthService {
   async getProfile(id: number) {
     const user = await this.userEntity
       .createQueryBuilder('user')
-      .leftJoinAndSelect('user.permissionProject', 'permissionProject')
-      .leftJoinAndSelect('permissionProject.project', 'project')
       .where('user.id = :id', { id: id })
       .getOne();
 
@@ -70,13 +68,6 @@ export class AuthService {
 
     delete user.password;
 
-    const { permissionProject, ...rest } = user;
-
-    return {
-      data: {
-        ...rest,
-        project: permissionProject.map((item) => item.project),
-      },
-    };
+    return { profile: user };
   }
 }

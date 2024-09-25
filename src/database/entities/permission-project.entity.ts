@@ -14,7 +14,7 @@ export class PermissionProjectEntity extends BaseEntity {
   @Column({ type: 'int', nullable: false, name: 'user_id' })
   userId: number;
 
-  @ManyToOne('ProjectEntity')
+  @ManyToOne(() => ProjectEntity)
   @JoinColumn({ name: 'project_id' })
   project?: ProjectEntity;
 
