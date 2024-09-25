@@ -14,7 +14,7 @@ export class ProjectService {
     private readonly permissionProjectEntity: Repository<PermissionProjectEntity>,
   ) {}
 
-  async listProjectOfUser(id: number) {
+  async listProjectByUser(id: number) {
     const [items, total] = await this.permissionProjectEntity.findAndCount({
       where: { userId: id },
       relations: { project: true, createdBy: true },

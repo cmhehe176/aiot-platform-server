@@ -8,8 +8,8 @@ export class ProjectController {
   constructor(private readonly projectService: ProjectService) {}
 
   @Get()
-  listProjectOfUser(@User() user: IUser) {
-    return this.projectService.listProjectOfUser(user.id);
+  listProjectByUser(@User() user: IUser) {
+    return this.projectService.listProjectByUser(user.id);
   }
 
   @Get(':id')
