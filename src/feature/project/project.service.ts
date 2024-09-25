@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PermissionProjectEntity, ProjectEntity } from 'src/database/entities';
 import { Repository } from 'typeorm';
-import { createProjectDto } from './project.dto';
+import { createProjectDto, updateProjectDto } from './project.dto';
 import { NRoles } from 'src/common/constants/roles.constant';
 
 @Injectable()
@@ -55,8 +55,8 @@ export class ProjectService {
 
     const promises = [this.permissionProjectEntity.insert(permissionProject)];
 
-    if (payload.userId) {
-      const userPromises = payload.userId.map((userId) =>
+    if (payload.userIds) {
+      const userPromises = payload.userIds.map((userId) =>
         this.addUserToProject(userId, id, (project as ProjectEntity).id),
       );
 
@@ -91,6 +91,20 @@ export class ProjectService {
     };
   }
 
+  async updateProject(payload: updateProjectDto) {
+    // const promises = [
+    //   this.projectEntity.update(
+    //     { id: payload.projectId },
+    //     { name: payload.name, description: payload.description },
+    //   ),
+    // ];
+    // const userPromise = payload.userIds.map(
+    //   (userId) => this.permissionProjectEntity,
+    // );
+    // promises.push(...userPromise);
+    // return await Promise.all(promises.map((p) => p));
+  }
+
   addUserToProject(userId: number, adminId: number, projectId: number) {
     const permissionProject = {
       createdId: adminId,
@@ -100,5 +114,24 @@ export class ProjectService {
     };
 
     return this.permissionProjectEntity.insert(permissionProject);
+  }
+
+  deleteUserOutProject(userId: number, adminId: number, projectId: number) {
+    this.permissionProjectEntity
+      .softDelete({
+        userId: userId,
+        projectId: projectId,
+      })
+      .then(() =>
+        this.permissionProjectEntity.update(
+          {
+            userId: userId,
+            projectId: projectId,
+          },
+          { deletedId: adminId },
+        ),
+      );
+
+    return { message: 'success' };
   }
 }

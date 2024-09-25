@@ -1,6 +1,15 @@
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  Put,
+  Query,
+} from '@nestjs/common';
 import { ProjectService } from './project.service';
-import { createProjectDto } from './project.dto';
+import { createProjectDto, updateProjectDto } from './project.dto';
 import { IUser, User } from 'src/common/decorators/user.decorator';
 
 @Controller('project')
@@ -20,5 +29,19 @@ export class ProjectController {
   @Post()
   Create(@Body() body: createProjectDto, @User() user: IUser) {
     return this.projectService.create(user.id, body);
+  }
+
+  @Put()
+  Update(@Body() body: updateProjectDto) {
+    return this.projectService.updateProject(body);
+  }
+
+  @Delete()
+  deleteUserOutProject(
+    @Query('userId') userId: number,
+    @Query('projectId') projectId: number,
+    @User() user: IUser,
+  ) {
+    return this.projectService.deleteUserOutProject(userId, user.id, projectId);
   }
 }
