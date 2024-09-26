@@ -91,18 +91,37 @@ export class ProjectService {
     };
   }
 
-  async updateProject(payload: updateProjectDto) {
-    // const promises = [
-    //   this.projectEntity.update(
-    //     { id: payload.projectId },
-    //     { name: payload.name, description: payload.description },
-    //   ),
-    // ];
-    // const userPromise = payload.userIds.map(
-    //   (userId) => this.permissionProjectEntity,
-    // );
-    // promises.push(...userPromise);
-    // return await Promise.all(promises.map((p) => p));
+  async updateProject(
+    projectId: number,
+    payload: updateProjectDto,
+    adminId: number,
+  ) {
+    const { data } = await this.listUserOfProject(projectId);
+    const promises = [];
+    const listUserInProject = data.map((item) => item.id);
+
+    promises.push(
+      this.projectEntity.update(
+        { id: projectId },
+        { name: payload.name, description: payload.description },
+      ),
+    );
+
+    const addUser = payload.userIds.map((userId) => {
+      if (listUserInProject.includes(userId)) return;
+
+      this.addUserToProject(userId, adminId, projectId);
+    });
+
+    const dropUser = listUserInProject
+      .filter((i) => !payload.userIds.includes(i))
+      .map((userId) => this.deleteUserOutProject(userId, adminId, projectId));
+
+    promises.push(...addUser, ...dropUser);
+
+    await Promise.all(promises.map((p) => p));
+
+    return { message: 'success' };
   }
 
   addUserToProject(userId: number, adminId: number, projectId: number) {

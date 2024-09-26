@@ -31,9 +31,13 @@ export class ProjectController {
     return this.projectService.create(user.id, body);
   }
 
-  @Put()
-  Update(@Body() body: updateProjectDto) {
-    return this.projectService.updateProject(body);
+  @Put(':id')
+  Update(
+    @Param('id') projectId: number,
+    @Body() body: updateProjectDto,
+    @User() user: IUser,
+  ) {
+    return this.projectService.updateProject(projectId, body, user.id);
   }
 
   @Delete()
