@@ -29,9 +29,11 @@ export class AuthService {
   }
 
   async register(data: Register) {
-    const checkUser = await this.userEntity.exists({
-      where: { email: data.email },
-    });
+    const checkUser = await this.userEntity
+      .createQueryBuilder('user')
+      .where('user.email = :email', { email: data.email })
+      .orWhere('user.telephone = :telephone', { telephone: data.telephone })
+      .getExists();
 
     if (checkUser) throw new BadRequestException('User already exist');
 

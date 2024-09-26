@@ -9,5 +9,5 @@ export class Register {
   telephone: string;
   email: string;
   password: string;
-  roleId: number;
+  roleId?: number;
 }

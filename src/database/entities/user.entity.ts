@@ -17,7 +17,7 @@ export class UserEntity extends BaseEntity {
   @Column({ type: 'varchar', unique: true })
   telephone: string;
 
-  @Column({ type: 'text' })
+  @Column({ type: 'text', nullable: true })
   thumbnailUrl: string;
 
   @Column({ type: 'varchar', nullable: false })
