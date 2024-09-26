@@ -22,6 +22,7 @@ export class ProjectService {
 
     const data = items.map((item) => {
       return {
+        id: item.id,
         project: item.project,
         permission: item.permission,
         createdBy: {
@@ -120,6 +121,23 @@ export class ProjectService {
     promises.push(...addUser, ...dropUser);
 
     await Promise.all(promises.map((p) => p));
+
+    return { message: 'success' };
+  }
+
+  async deleteProject(id: number, adminId: number) {
+    const promise = [
+      this.permissionProjectEntity.update(
+        { projectId: id },
+        { deletedId: adminId },
+      ),
+      this.permissionProjectEntity.softDelete({ projectId: id }),
+
+      this.projectEntity.update({ id }, { deletedId: adminId }),
+      this.projectEntity.softDelete({ id: id }),
+    ];
+
+    await Promise.all(promise.map((p) => p));
 
     return { message: 'success' };
   }

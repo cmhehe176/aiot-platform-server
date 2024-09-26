@@ -11,6 +11,7 @@ import {
 import { ProjectService } from './project.service';
 import { createProjectDto, updateProjectDto } from './project.dto';
 import { IUser, User } from 'src/common/decorators/user.decorator';
+import { ERole, Roles } from 'src/common/decorators/role.decorator';
 
 @Controller('project')
 export class ProjectController {
@@ -27,11 +28,13 @@ export class ProjectController {
   }
 
   @Post()
+  @Roles(ERole.ADMIN)
   Create(@Body() body: createProjectDto, @User() user: IUser) {
     return this.projectService.create(user.id, body);
   }
 
   @Put(':id')
+  @Roles(ERole.ADMIN)
   Update(
     @Param('id') projectId: number,
     @Body() body: updateProjectDto,
@@ -41,11 +44,18 @@ export class ProjectController {
   }
 
   @Delete()
+  @Roles(ERole.ADMIN)
   deleteUserOutProject(
     @Query('userId') userId: number,
     @Query('projectId') projectId: number,
     @User() user: IUser,
   ) {
     return this.projectService.deleteUserOutProject(userId, user.id, projectId);
+  }
+
+  @Delete(':id')
+  @Roles(ERole.ADMIN)
+  deleteProject(@Param('id') id: number, @User() user: IUser) {
+    return this.projectService.deleteProject(id, user.id);
   }
 }
