@@ -7,8 +7,11 @@ export class DeviceEntity extends BaseEntity {
   @Column({ type: 'int', nullable: false, name: 'project_id' })
   projectId: number;
 
-  @Column({ type: 'jsonb' })
+  @Column({ type: 'jsonb', nullable: true })
   data: unknown;
+
+  @Column({ type: 'boolean', name: 'is_active', default: true })
+  isActive: boolean;
 
   @Column({ type: 'varchar', nullable: false })
   name: string;

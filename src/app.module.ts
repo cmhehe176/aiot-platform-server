@@ -9,6 +9,7 @@ import { JwtAuthGuard } from './feature/auth/guards/auth.guard';
 import { RoleGuard } from './feature/auth/guards/role.guard';
 import { ProjectModule } from './feature/project/project.module';
 import { UserModule } from './feature/user/user.module';
+import { DeviceModule } from './feature/device/device.module';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { UserModule } from './feature/user/user.module';
     AuthModule,
     ProjectModule,
     UserModule,
+    DeviceModule,
   ],
   controllers: [AppController],
   providers: [
