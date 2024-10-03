@@ -2,7 +2,7 @@ networks:
   iot-server-net: {}
 
 volumes:
-  iot-server-vol: {}
+ iot-server-net: {}
 
 services:
   
@@ -57,3 +57,53 @@ services:
       - iot-server-net
     ports:
       - 8080:8080/tcp
+
+  zabbix-server:
+    image: zabbix/zabbix-server-pgsql:latest
+    container_name: zabbix-server
+    environment:
+      - DB_SERVER_HOST=database
+      - POSTGRES_DB=iot_platform
+      - POSTGRES_USER=root
+      - POSTGRES_PASSWORD=1234
+    depends_on:
+      - database
+    ports:
+      - 10051:10051
+    volumes:
+      - ./zbx_env/alertscripts:/usr/lib/zabbix/alertscripts
+      - ./zbx_env/externalscripts:/usr/lib/zabbix/externalscripts
+    networks:
+      - iot-server-net
+
+  zabbix-web:
+    image: zabbix/zabbix-web-nginx-pgsql:latest
+    container_name: zabbix-web
+    environment:
+      - ZBX_SERVER_HOST=zabbix-server
+      - DB_SERVER_HOST=postgres
+      - POSTGRES_DB=iot_platform
+      - POSTGRES_USER=root
+      - POSTGRES_PASSWORD=1234
+    depends_on:
+      - zabbix-server
+    ports:
+      - 8081:8080
+    volumes:
+      - ./zbx_env/zabbix-web:/etc/ssl/nginx
+    networks:
+      - iot-server-net
+
+  zabbix-agent:
+    image: zabbix/zabbix-agent:latest
+    container_name: zabbix-agent
+    environment:
+      - ZBX_SERVER_HOST=zabbix-server
+    depends_on:
+      - zabbix-server
+    ports:
+      - 10050:10050
+    volumes:
+      - ./zbx_env/agent-logs:/var/log/zabbix
+    networks:
+      - iot-server-net
