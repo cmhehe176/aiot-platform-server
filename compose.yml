@@ -111,7 +111,7 @@ services:
     networks:
       - iot-server-net
 
-
+# comment this container if you only want open zabbix
   apprise:
     image: caronc/apprise:latest
     container_name: apprise
