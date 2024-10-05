@@ -79,6 +79,8 @@ services:
     networks:
       - iot-server-net
 
+# comment zabbix web and zabbix-agent if you only run zabbix server
+
   zabbix-web:
     image: zabbix/zabbix-web-nginx-pgsql:latest
     container_name: zabbix-web
@@ -111,10 +113,23 @@ services:
     networks:
       - iot-server-net
 
-# comment this container if you only want open zabbix
+  # comment this container if you are HWer
   apprise:
     image: caronc/apprise:latest
     container_name: apprise
     ports:
       - 8000:8000
     restart: unless-stopped
+
+  rabbitmq:
+    image: rabbitmq:management
+    #image: rabbitmq:latest   #rabbitMq server - if only want use rabbitMq server
+    container_name: rabbitmq
+    ports:
+      - 5672:5672
+      - 15672:15672 # port for rabbitMq management
+    environment:
+      - RABBITMQ_DEFAULT_USER=1234
+      - RABBITMQ_DEFAULT_PASS=1234
+    volumes:
+      - iot-server-vol:/var/lib/rabbitmq
