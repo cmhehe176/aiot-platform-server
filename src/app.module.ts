@@ -10,6 +10,8 @@ import { RoleGuard } from './feature/auth/guards/role.guard';
 import { ProjectModule } from './feature/project/project.module';
 import { UserModule } from './feature/user/user.module';
 import { DeviceModule } from './feature/device/device.module';
+import { SocketModule } from './feature/socket/socket.module';
+import { RabbitMqModule } from './feature/rabbit-mq/rabbit-mq.module';
 
 @Module({
   imports: [
@@ -21,6 +23,8 @@ import { DeviceModule } from './feature/device/device.module';
     ProjectModule,
     UserModule,
     DeviceModule,
+    SocketModule,
+    RabbitMqModule,
   ],
   controllers: [AppController],
   providers: [

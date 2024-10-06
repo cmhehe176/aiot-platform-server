@@ -22,6 +22,7 @@ services:
 
   database:
     image: timescale/timescaledb:latest-pg15
+    container_name: postgres
     healthcheck:
       test:
         [
@@ -35,17 +36,18 @@ services:
     environment:
       - POSTGRES_USER=1234
       - POSTGRES_PASSWORD=1234
-      - POSTGRES_DB=
+      - POSTGRES_DB=iot_platform
     restart: unless-stopped
     ports:
       - 5432:5432
     networks:
       - iot-server-net
     volumes:
-      - iot-server-vol:/var/lib/pgsql
+      - iot-server-vol:/var/lib/pgdata
 
   adminer:
     image: adminer
+    container_name: adminer
     healthcheck:
       interval: 5s
       retries: 5
@@ -64,6 +66,7 @@ services:
   zabbix-server:
     image: zabbix/zabbix-server-pgsql:latest
     container_name: zabbix-server
+    restart: unless-stopped
     environment:
       - DB_SERVER_HOST=database
       - POSTGRES_DB=zabbix_db
@@ -74,16 +77,16 @@ services:
     ports:
       - 10051:10051
     volumes:
-      - ./zbx_env/alertscripts:/usr/lib/zabbix/alertscripts
-      - ./zbx_env/externalscripts:/usr/lib/zabbix/externalscripts
+      - iot-server-vol:/var/lib/zbx_env/alertscripts:/usr/lib/zabbix/alertscripts
+      - iot-server-vol:/var/lib/zbx_env/externalscripts:/usr/lib/zabbix/externalscripts
     networks:
       - iot-server-net
 
-# comment zabbix web and zabbix-agent if you only run zabbix server
-
+  # comment zabbix web and zabbix-agent if you only run zabbix server
   zabbix-web:
     image: zabbix/zabbix-web-nginx-pgsql:latest
     container_name: zabbix-web
+    restart: unless-stopped
     environment:
       - ZBX_SERVER_HOST=zabbix-server
       - DB_SERVER_HOST=database
@@ -93,9 +96,9 @@ services:
     depends_on:
       - zabbix-server
     ports:
-      - 8081:8080
+      - 8081:8080/tcp
     volumes:
-      - ./zbx_env/zabbix-web:/etc/ssl/nginx
+      - iot-server-vol:/var/lib/zbx_env/zabbix-web:/etc/ssl/nginx
     networks:
       - iot-server-net
 
@@ -109,7 +112,7 @@ services:
     ports:
       - 10050:10050
     volumes:
-      - ./zbx_env/agent-logs:/var/log/zabbix
+      - iot-server-vol:/var/lib/zbx_env/agent-logs:/var/log/zabbix
     networks:
       - iot-server-net
 
@@ -125,11 +128,14 @@ services:
     image: rabbitmq:management
     #image: rabbitmq:latest   #rabbitMq server - if only want use rabbitMq server
     container_name: rabbitmq
+    restart: unless-stopped
     ports:
       - 5672:5672
-      - 15672:15672 # port for rabbitMq management
-    environment:
-      - RABBITMQ_DEFAULT_USER=1234
-      - RABBITMQ_DEFAULT_PASS=1234
+      - 15672:15672/tcp # port for rabbitMq management
+    # environment:
+    #   - RABBITMQ_DEFAULT_USER=1234
+    #   - RABBITMQ_DEFAULT_PASS=1234
     volumes:
-      - iot-server-vol:/var/lib/rabbitmq
+      - iot-server-vol:/var/lib/rabbitmq/mnesia
+    networks:
+      - iot-server-net
