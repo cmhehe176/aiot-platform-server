@@ -23,10 +23,13 @@
     "seed": "ts-node -r tsconfig-paths/register ./node_modules/typeorm-seeding/dist/cli.js seed -n src/database/seeder-config.ts"
   },
   "dependencies": {
+    "@nestjs-modules/mailer": "^2.0.2",
     "@nestjs/common": "^10.0.0",
     "@nestjs/core": "^10.0.0",
     "@nestjs/mapped-types": "*",
     "@nestjs/platform-express": "^10.0.0",
+    "handlebars": "^4.7.8",
+    "nodemailer": "^6.9.15",
     "reflect-metadata": "^0.2.0",
     "rxjs": "^7.8.1"
   },

@@ -12,6 +12,7 @@ import { UserModule } from './feature/user/user.module';
 import { DeviceModule } from './feature/device/device.module';
 import { SocketModule } from './feature/socket/socket.module';
 import { RabbitMqModule } from './feature/rabbit-mq/rabbit-mq.module';
+import { EmailModule } from './feature/email/email.module';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { RabbitMqModule } from './feature/rabbit-mq/rabbit-mq.module';
     DeviceModule,
     SocketModule,
     RabbitMqModule,
+    EmailModule,
   ],
   controllers: [AppController],
   providers: [
