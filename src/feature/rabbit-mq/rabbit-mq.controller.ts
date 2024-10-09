@@ -13,7 +13,7 @@ export class RabbitMqController {
     return this.rabbitMqService.sendMessage();
   }
 
-  @EventPattern('message_printed')
+  @EventPattern('object')
   async handleQueue1(data: any) {
     await console.log(data);
   }

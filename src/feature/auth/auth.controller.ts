@@ -5,9 +5,10 @@ import {
   UseGuards,
   Request,
   Get,
+  Put,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { Register } from './auth.dto';
+import { ForgotPassword, Register, UpdateUserDto } from './auth.dto';
 import { LocalAuthGuard } from './guards/local.guard';
 import { Public } from 'src/common/decorators/public.decorator';
 import { IUser, User } from 'src/common/decorators/user.decorator';
@@ -32,5 +33,16 @@ export class AuthController {
   @Get()
   getProfile(@User() user: IUser) {
     return this.authService.getProfile(user.id);
+  }
+
+  @Public()
+  @Post('forgot-password')
+  forgotPassword(@Body() data: ForgotPassword) {
+    return this.authService.forgotPassword(data);
+  }
+
+  @Put('update-password')
+  updatePassword(@Body() data: { password: string }, @User() user: IUser) {
+    return this.authService.updatePassword(data.password, user);
   }
 }

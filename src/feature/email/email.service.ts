@@ -1,18 +1,17 @@
 import { Injectable } from '@nestjs/common';
 import { MailerService } from '@nestjs-modules/mailer';
 import { sendMailDto } from './email.dto';
+import Handlebars from 'handlebars';
 
 @Injectable()
 export class EmailService {
   constructor(private readonly mailService: MailerService) {}
 
-  sendMail(payload: sendMailDto) {
-    const message = `Forgot your password? If you didn't forget your password, please ignore this email!`;
+  async sendMail(payload?: sendMailDto) {
+    const { data, ...rest } = payload;
 
-    this.mailService.sendMail({
-      to: 'congndm@rabiloo.com@gmail.com',
-      subject: `How to Send Emails with Nodemailer`,
-      text: message,
-    });
+    rest.html = Handlebars.compile(rest.html)({ ...data });
+
+    return await this.mailService.sendMail({ ...rest });
   }
 }

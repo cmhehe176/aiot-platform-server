@@ -1,3 +1,5 @@
+import { IsEmail } from 'class-validator';
+
 export class Login {
   username: string;
   password: string;
@@ -10,4 +12,17 @@ export class Register {
   email: string;
   password: string;
   roleId?: number;
+}
+
+export class ForgotPassword {
+  @IsEmail()
+  email: string;
+}
+
+export class UpdateUserDto {
+  name?: string;
+  email?: string;
+  telephone?: string;
+  password?: string;
+  thumbnailUrl?: string;
 }
