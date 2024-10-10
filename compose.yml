@@ -43,7 +43,7 @@ services:
     networks:
       - iot-server-net
     volumes:
-      - iot-server-vol:/var/lib/pgdata
+      - iot-server-vol:/var/lib/postgresql
 
   adminer:
     image: adminer

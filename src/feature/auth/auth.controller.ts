@@ -8,7 +8,7 @@ import {
   Put,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { ForgotPassword, Register, UpdateUserDto } from './auth.dto';
+import { ForgotPassword, Register } from './auth.dto';
 import { LocalAuthGuard } from './guards/local.guard';
 import { Public } from 'src/common/decorators/public.decorator';
 import { IUser, User } from 'src/common/decorators/user.decorator';

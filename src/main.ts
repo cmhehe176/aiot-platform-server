@@ -12,14 +12,18 @@ async function bootstrap() {
   app.connectMicroservice<MicroserviceOptions>({
     transport: Transport.RMQ,
     options: {
-      urls: ['amqp://guest:guest@localhost:5672'],
+      urls: [
+        `amqp://${config.get('RABBITMQ_USER')}:${config.get('RABBITMQ_PASS')}@${config.get('RABBITMQ_HOST')}:${config.get<number>('RABBITMQ_PORT')}`,
+      ],
       queue: 'main_queue',
       queueOptions: {
         durable: false,
       },
     },
   });
+
   app.startAllMicroservices();
+
   await app.listen(config.get<string>('PORT'));
 }
 

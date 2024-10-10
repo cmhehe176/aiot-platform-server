@@ -11,6 +11,8 @@ export const SourceMailForgotPassword = `
 
         <div style="margin-top: 10px;">If you did not request this, please ignore this email. Your password will remain unchanged.</div>
         
+        <div style="margin-top: 10px; font-weight: bold;">Note: This link is valid for 30 minutes. After 30 minutes, it will be deactivated.</div>
+        
         <div style="margin-top: 20px;">Thank you!</div>
 
         <div style="margin-top: 20px; border-top: 1px solid #ccc; padding-top: 10px;">

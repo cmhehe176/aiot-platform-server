@@ -57,21 +57,17 @@ export class AuthService {
 
     if (!user) throw new NotFoundException('User not exist or has been band');
 
-    const { accessToken } = await this.login(user);
-
     const data = {
       subject: 'Forgot Password',
       data: {
         name: user.name,
-        link: `${this.configService.get<string>('END_POINT_HOST')}/reset-password/${accessToken}`,
+        link: `${this.configService.get<string>('END_POINT_HOST')}/reset-password/${this.jwtService.sign({ ...user }, { expiresIn: '30m' })}`,
       },
       to: [payload.email],
       html: SourceMailForgotPassword,
     };
 
-    await this.emailService.sendMail(data);
-
-    return { message: 'success' };
+    return this.emailService.sendMail(data);
   }
 
   // async update(data: UpdateUserDto, user: IUser) {
