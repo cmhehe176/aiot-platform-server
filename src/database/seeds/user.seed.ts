@@ -37,6 +37,14 @@ export default class InitUser implements Seeder {
         thumbnailUrl: '',
         roleId: 2,
       },
+      {
+        name: 'Cong ndm',
+        email: 'ndmc.system176@gmail.com',
+        telephone: '12345',
+        password: hashPassword,
+        thumbnailUrl: '',
+        roleId: 1,
+      },
     ]);
   }
 }
