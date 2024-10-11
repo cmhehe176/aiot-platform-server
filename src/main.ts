@@ -1,7 +1,8 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ConfigService } from '@nestjs/config';
-import { MicroserviceOptions, Transport } from '@nestjs/microservices';
+import { MicroserviceOptions } from '@nestjs/microservices';
+import { configureQueue } from './common/util';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -9,19 +10,9 @@ async function bootstrap() {
   const config = await app.get(ConfigService);
   app.enableCors();
 
-  app.connectMicroservice<MicroserviceOptions>({
-    transport: Transport.RMQ,
-    options: {
-      urls: [
-        config.get<string>('RABBITMQ_PUBLIC'),
-        // `amqp://${config.get('RABBITMQ_USER')}:${config.get('RABBITMQ_PASS')}@${config.get('RABBITMQ_HOST')}:${config.get<number>('RABBITMQ_PORT')}`,
-      ],
-      queue: 'main_queue',
-      queueOptions: {
-        durable: false,
-      },
-    },
-  });
+  app.connectMicroservice<MicroserviceOptions>(
+    await configureQueue(app, 'main_queue'),
+  );
 
   app.startAllMicroservices();
 
