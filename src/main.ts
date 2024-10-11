@@ -13,7 +13,8 @@ async function bootstrap() {
     transport: Transport.RMQ,
     options: {
       urls: [
-        `amqp://${config.get('RABBITMQ_USER')}:${config.get('RABBITMQ_PASS')}@${config.get('RABBITMQ_HOST')}:${config.get<number>('RABBITMQ_PORT')}`,
+        config.get<string>('RABBITMQ_PUBLIC'),
+        // `amqp://${config.get('RABBITMQ_USER')}:${config.get('RABBITMQ_PASS')}@${config.get('RABBITMQ_HOST')}:${config.get<number>('RABBITMQ_PORT')}`,
       ],
       queue: 'main_queue',
       queueOptions: {
