@@ -1,4 +1,4 @@
-import { Controller, Post } from '@nestjs/common';
+import { Controller, Get, Post } from '@nestjs/common';
 import { RabbitMqService } from './rabbit-mq.service';
 import { Public } from 'src/common/decorators/public.decorator';
 import { EventPattern } from '@nestjs/microservices';
@@ -13,8 +13,13 @@ export class RabbitMqController {
     return this.rabbitMqService.sendMessage();
   }
 
-  @EventPattern('object')
-  async handleQueue1(data: any) {
-    await console.log(data);
+  @Get()
+  getQueues() {
+    return this.rabbitMqService.getQueues();
   }
+
+  // @EventPattern('object')
+  // async handleQueue1(data: any) {
+  //   await console.log(data);
+  // }
 }
