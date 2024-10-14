@@ -11,15 +11,17 @@ export class EmailController {
   @Get()
   sendMail() {
     const data: sendMailDto = {
-      to: ['ndmc.system176@gmail.com'],
+      to: ['nguyendaominhcong@gmail.com'],
       subject: 'Test Mail',
       data: {
-        name: 'NDMC',
-        email: 'ndmcprohehe@gmail.com',
+        name: 'Test',
+        email: 'example@gmail.com',
+        description: 'example data for test mail',
       },
       html: `
       <div>SendTestMail</div>
       <div>name : {{name}}</div>
+      <div>data : {{description}}</div>
       <div>from : {{email}}</div>
       `,
     };
