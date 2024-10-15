@@ -6,7 +6,10 @@ import { CreateSupportDto, ReplyDto } from './support.dto';
 import { IUser } from 'src/common/decorators/user.decorator';
 import { EmailService } from '../email/email.service';
 import { sendMailDto } from '../email/email.dto';
-import { SourceMailSupportReply } from '../email/email.source';
+import {
+  SourceMailSupport,
+  SourceMailSupportReply,
+} from '../email/email.source';
 
 @Injectable()
 export class SupportService {
@@ -16,9 +19,22 @@ export class SupportService {
     private readonly emailService: EmailService,
   ) {}
 
-  create = (payload: CreateSupportDto, userId: number) => {
-    const support = { ...payload, userId: userId };
-    this.supportEntity.insert(support);
+  create = (payload: CreateSupportDto, user: IUser) => {
+    const support = { ...payload, userId: user.id };
+
+    const data: sendMailDto = {
+      to: [user.email],
+      subject: 'Request Support',
+      html: SourceMailSupport,
+      data: {
+        name: user.name,
+      },
+    };
+
+    Promise.all([
+      this.supportEntity.insert(support),
+      this.emailService.sendMail(data),
+    ]);
 
     return { message: 'success' };
   };

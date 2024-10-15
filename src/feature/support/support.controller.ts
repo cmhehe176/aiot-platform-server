@@ -9,7 +9,7 @@ export class SupportController {
   constructor(private readonly supportService: SupportService) {}
   @Post()
   create(@Body() payload: CreateSupportDto, @User() user: IUser) {
-    return this.supportService.create(payload, user.id);
+    return this.supportService.create(payload, user);
   }
 
   @Get()
