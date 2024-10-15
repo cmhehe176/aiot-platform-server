@@ -45,18 +45,19 @@ export class SupportService {
       .leftJoinAndSelect('support.user', 'user')
       .leftJoinAndSelect('support.admin', 'admin')
       .select([
+        'support.id',
         'support.title',
         'support.description',
         'support.createdAt',
         'support.updatedAt',
         'support.reply',
+        'support.isReplied',
         'user.id',
         'user.name',
         'user.email',
         'admin.id',
         'admin.name',
         'admin.email',
-        'support.isReplied',
       ]);
 
     if (q) {
@@ -65,9 +66,9 @@ export class SupportService {
         .orWhere('support.description LIKE :q', { q: `%${q}%` });
     }
 
-    const result = await support.getMany();
+    support.orderBy('support.createdAt', 'DESC');
 
-    return result;
+    return support.getMany();
   };
 
   reply = async (id: number, payload: ReplyDto, user: IUser) => {
@@ -88,6 +89,7 @@ export class SupportService {
         title: support.title,
         description: support.description,
         admin: user.name,
+        email: user.email,
         reply: payload.reply,
         updatedAt: new Date(),
       },

@@ -71,8 +71,9 @@ export const SourceMailSupportReply = `
         <div style="background-color: #f4f4f4; padding: 15px; border-radius: 5px; font-size: 14px; margin-bottom: 20px;">
             <strong>Title:</strong> {{title}}<br>
             <strong>Description:</strong> {{description}}<br>
-            <strong style="padding-top: 10px;">Reply:</strong> {{reply}}<br>
-            <strong>Handled By:</strong> {{admin}}<br>
+            <br>
+            <strong>Reply:</strong> {{reply}}<br>
+            <strong>Handled By:</strong> {{admin}} - {{email}}<br>
             <strong>Last Updated:</strong> {{updatedAt}}<br>
         </div>
 
