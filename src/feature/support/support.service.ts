@@ -99,7 +99,12 @@ export class SupportService {
       this.emailService.sendMail(data),
       this.supportEntity.update(
         { id },
-        { adminId: user.id, reply: payload.reply, isReplied: true },
+        {
+          adminId: user.id,
+          reply: payload.reply,
+          isReplied: true,
+          methodMessage: payload.method,
+        },
       ),
     ]);
 

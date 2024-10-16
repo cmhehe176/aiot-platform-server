@@ -1,6 +1,7 @@
 import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 import { BaseEntity } from './base.entities';
 import { UserEntity } from './user.entity';
+import { TypeMessage } from 'src/feature/support/support.dto';
 
 @Entity({ name: 'support' })
 export class SupportEntity extends BaseEntity {
@@ -18,6 +19,13 @@ export class SupportEntity extends BaseEntity {
 
   @Column({ type: 'text', nullable: true })
   reply: string;
+
+  @Column({
+    type: 'varchar',
+    name: 'method_message',
+    nullable: true,
+  })
+  methodMessage: TypeMessage;
 
   @Column({
     type: 'boolean',

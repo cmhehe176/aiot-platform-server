@@ -1,4 +1,4 @@
-import { IsString } from 'class-validator';
+import { IsIn, IsString } from 'class-validator';
 
 export class CreateSupportDto {
   @IsString()
@@ -16,5 +16,9 @@ export class ReplyDto {
   @IsString()
   reply: string;
 
-  type?: 'message' | 'email';
+  @IsString()
+  @IsIn(['message', 'email'] as const)
+  method: TypeMessage;
 }
+
+export type TypeMessage = 'message' | 'email';
