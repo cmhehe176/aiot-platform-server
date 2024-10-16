@@ -20,7 +20,7 @@ export class SupportService {
   ) {}
 
   create = (payload: CreateSupportDto, user: IUser) => {
-    const support = { ...payload, userId: user.id };
+    const support = { ...payload, userId: user.id, createdId: user.id };
 
     const data: sendMailDto = {
       to: [user.email],
@@ -52,6 +52,7 @@ export class SupportService {
         'support.updatedAt',
         'support.reply',
         'support.isReplied',
+        'support.methodMessage',
         'user.id',
         'user.name',
         'user.email',
