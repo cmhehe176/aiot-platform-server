@@ -1,15 +1,15 @@
-import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
-import { ClientProxy } from '@nestjs/microservices';
-import { AmqpConnection, RabbitSubscribe } from '@golevelup/nestjs-rabbitmq';
+import { Injectable, OnModuleInit } from '@nestjs/common';
+import { AmqpConnection } from '@golevelup/nestjs-rabbitmq';
 import { lastValueFrom } from 'rxjs';
 import { HttpService } from '@nestjs/axios';
+import { ConfigService } from '@nestjs/config';
+
 @Injectable()
 export class RabbitMqService implements OnModuleInit {
-  private queues: string[] = [];
-
   constructor(
     private readonly amqpConnection: AmqpConnection,
     private readonly httpService: HttpService,
+    private readonly configService: ConfigService,
   ) {}
 
   async onModuleInit() {
@@ -30,6 +30,7 @@ export class RabbitMqService implements OnModuleInit {
         queue: queue,
         queueOptions: {
           durable: false,
+          autoDelete: true,
         },
       },
       `handleSubcribeFor${queue}`,
@@ -54,4 +55,8 @@ export class RabbitMqService implements OnModuleInit {
 
     return data.map((i) => i.name);
   }
+
+  cancelConsume = (queue: string) => {
+    return this.amqpConnection.cancelConsumer(queue);
+  };
 }

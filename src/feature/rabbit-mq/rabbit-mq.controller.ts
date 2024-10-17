@@ -1,4 +1,4 @@
-import { Controller, Get, Post } from '@nestjs/common';
+import { Body, Controller, Get, Post } from '@nestjs/common';
 import { RabbitMqService } from './rabbit-mq.service';
 import { Public } from 'src/common/decorators/public.decorator';
 import { RabbitSubscribe } from '@golevelup/nestjs-rabbitmq';
@@ -15,24 +15,29 @@ export class RabbitMqController {
     return this.rabbitMqService.sendMessage(message, 'hello');
   }
 
-  @RabbitSubscribe({
-    exchange: '',
-    queue: 'default',
-    queueOptions: {
-      durable: false,
-    },
-  })
-  handleMessaged(message: any) {
-    console.log('Received message:', message);
-  }
+  // @RabbitSubscribe({
+  //   exchange: '',
+  //   queue: 'default',
+  //   queueOptions: {
+  //     durable: false,
+  //   },
+  // })
+  // handleMessaged(message: any) {
+  //   console.log('Received message:', message);
+  // }
 
-  @Post('test')
-  sendMessageTest() {
-    return this.rabbitMqService.createSubcribe('hello');
+  @Post('create')
+  sendMessageTest(@Body() payload: { queue: string }) {
+    return this.rabbitMqService.createSubcribe(payload.queue);
   }
 
   @Get()
   getQueues() {
     return this.rabbitMqService.getQueues();
+  }
+
+  @Post('close')
+  cancelConsume() {
+    return this.rabbitMqService.cancelConsume('handleSubcribeForhello');
   }
 }

@@ -23,6 +23,9 @@ export class UserEntity extends BaseEntity {
   @Column({ type: 'varchar', nullable: false })
   password: string;
 
+  @Column({ type: 'text', name: 'telegram_id', nullable: true })
+  telegramId: string;
+
   @ManyToOne('RoleEntity')
   @JoinColumn({ name: 'role_id' })
   role?: RoleEntity;

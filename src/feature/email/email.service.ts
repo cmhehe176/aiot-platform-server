@@ -7,7 +7,7 @@ import Handlebars from 'handlebars';
 export class EmailService {
   constructor(private readonly mailService: MailerService) {}
 
-  sendMail(payload?: sendMailDto) {
+  sendMail(payload: sendMailDto) {
     const { data, ...rest } = payload;
 
     rest.html = Handlebars.compile(rest.html)({ ...data });

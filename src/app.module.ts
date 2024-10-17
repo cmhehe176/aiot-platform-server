@@ -30,7 +30,7 @@ import { MessageModule } from './feature/message/message.module';
     RabbitMqModule,
     EmailModule,
     SupportModule,
-    // MessageModule,
+    MessageModule,
   ],
   controllers: [AppController],
   providers: [
