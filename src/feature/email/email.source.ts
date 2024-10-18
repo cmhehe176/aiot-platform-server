@@ -3,7 +3,7 @@ const footerMail = {
   telephone: '0899999999',
   url: '#',
   iurl: 'http://www.google.com',
-};
+}
 
 export const SourceMailForgotPassword = `
 <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; padding: 20px; background-color: #f4f4f4;">
@@ -31,7 +31,7 @@ export const SourceMailForgotPassword = `
         </div>
     </div>
 </div>
-`;
+`
 
 export const SourceMailSupport = `
 <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; padding: 20px; background-color: #f4f4f4;">
@@ -55,7 +55,7 @@ export const SourceMailSupport = `
         </div>
     </div>
 </div>
-`;
+`
 
 export const SourceMailSupportReply = `
 <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; padding: 20px; background-color: #f4f4f4;">
@@ -94,7 +94,7 @@ export const SourceMailSupportReply = `
         </div>
     </div>
 </div>
-`;
+`
 
 export const SourceMailSecretKey = `
 <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; padding: 20px; background-color: #f4f4f4;">
@@ -118,4 +118,4 @@ export const SourceMailSecretKey = `
         </div>
     </div>
 </div>
-`;
+`

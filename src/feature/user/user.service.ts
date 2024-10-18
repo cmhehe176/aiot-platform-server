@@ -1,7 +1,7 @@
-import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { UserEntity } from 'src/database/entities';
-import { Repository } from 'typeorm';
+import { Injectable } from '@nestjs/common'
+import { InjectRepository } from '@nestjs/typeorm'
+import { UserEntity } from 'src/database/entities'
+import { Repository } from 'typeorm'
 
 @Injectable()
 export class UserService {
@@ -23,8 +23,8 @@ export class UserService {
         'thumbnailUrl',
         'telephone',
       ],
-    });
+    })
 
-    return { items, total };
+    return { items, total }
   }
 }

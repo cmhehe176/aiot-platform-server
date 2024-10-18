@@ -1,28 +1,36 @@
-import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
-import { BaseEntity } from './base.entities';
-import { ProjectEntity } from './project.entity';
+import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm'
+import { BaseEntity } from './base.entities'
+import { ProjectEntity } from './project.entity'
 
 @Entity({ name: 'device' })
 export class DeviceEntity extends BaseEntity {
   @Column({ type: 'int', nullable: true, name: 'project_id' })
-  projectId: number;
+  projectId: number
 
   @Column({ type: 'jsonb', nullable: true })
-  data: unknown;
+  data: unknown
 
   @Column({ type: 'boolean', name: 'is_active', default: true })
-  isActive: boolean;
+  isActive: boolean
 
-  @Column({ type: 'varchar', nullable: false })
-  name: string;
-
-  @Column({ type: 'varchar', nullable: false, unique: true })
-  mac: string;
+  @Column({ type: 'varchar', nullable: true })
+  name: string
 
   @Column({ type: 'varchar', nullable: false, unique: true })
-  deviceId: string;
+  mac: string
+
+  @Column({ type: 'varchar', nullable: false, unique: true })
+  deviceId: string
+
+  @Column({
+    type: 'varchar',
+    name: 'consumer_tag',
+    nullable: false,
+    unique: true,
+  })
+  consumerTag: string
 
   @ManyToOne(() => ProjectEntity)
   @JoinColumn({ name: 'project_id' })
-  project?: ProjectEntity;
+  project?: ProjectEntity
 }

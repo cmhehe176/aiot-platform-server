@@ -1,7 +1,7 @@
-import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
-import { RabbitMqService } from './rabbit-mq.service';
-import { Public } from 'src/common/decorators/public.decorator';
-import { RabbitSubscribe } from '@golevelup/nestjs-rabbitmq';
+import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common'
+import { RabbitMqService } from './rabbit-mq.service'
+import { Public } from 'src/common/decorators/public.decorator'
+import { RabbitSubscribe } from '@golevelup/nestjs-rabbitmq'
 
 @Public()
 @Controller('rabbit')
@@ -10,7 +10,7 @@ export class RabbitMqController {
 
   @Post()
   sendMessage(@Query() payload: { queue?: string }, @Body() data: any) {
-    return this.rabbitMqService.sendMessage(data, payload.queue);
+    return this.rabbitMqService.sendMessage(data, payload.queue)
   }
 
   // @RabbitSubscribe({
@@ -26,21 +26,21 @@ export class RabbitMqController {
 
   @Post('create')
   sendMessageTest(@Body() payload: { queue: string }) {
-    return this.rabbitMqService.createSubcribe(payload.queue);
+    return this.rabbitMqService.createSubcribe(payload.queue)
   }
 
   @Get()
   getQueues() {
-    return this.rabbitMqService.getQueues();
+    return this.rabbitMqService.getQueues()
   }
 
   @Post('close')
   cancelConsume(@Body() payload: { tag: string }) {
-    return this.rabbitMqService.cancelConsume(payload.tag);
+    return this.rabbitMqService.cancelConsume(payload.tag)
   }
 
   @Get('consume')
   getConsume() {
-    return this.rabbitMqService.getConsume();
+    return this.rabbitMqService.getConsume()
   }
 }

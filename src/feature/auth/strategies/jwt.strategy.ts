@@ -1,20 +1,20 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { PassportStrategy } from '@nestjs/passport';
-import { ExtractJwt, Strategy } from 'passport-jwt';
-import { ConfigService } from '@nestjs/config';
-import { DataSource } from 'typeorm';
-import { UserEntity } from 'src/database/entities';
+import { Injectable, UnauthorizedException } from '@nestjs/common'
+import { PassportStrategy } from '@nestjs/passport'
+import { ExtractJwt, Strategy } from 'passport-jwt'
+import { ConfigService } from '@nestjs/config'
+import { DataSource } from 'typeorm'
+import { UserEntity } from 'src/database/entities'
 
 interface AuthPayload {
-  id: number | string;
-  name: string;
-  telephone: number | string;
-  email: string;
+  id: number | string
+  name: string
+  telephone: number | string
+  email: string
   role: {
-    id: number;
-    name: string;
-    alias: string;
-  };
+    id: number
+    name: string
+    alias: string
+  }
 }
 
 @Injectable()
@@ -27,19 +27,19 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
       secretOrKey: configService.get<string>('JWT_SECRET_KEY'),
-    });
+    })
   }
 
   async validate(payload: AuthPayload) {
     const user = await this.dataSource.manager.findOne(UserEntity, {
       where: { email: payload.email },
       relations: { role: true },
-    });
+    })
 
     if (!user) {
-      throw new UnauthorizedException();
+      throw new UnauthorizedException()
     }
 
-    return user;
+    return user
   }
 }

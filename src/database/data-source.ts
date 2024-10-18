@@ -1,5 +1,5 @@
-import 'dotenv/config';
-import { DataSource } from 'typeorm';
+import 'dotenv/config'
+import { DataSource } from 'typeorm'
 
 export default new DataSource({
   type: 'postgres',
@@ -10,4 +10,4 @@ export default new DataSource({
   database: process.env.POSTGRES_DB,
   entities: ['src/database/entities/index.ts'],
   migrations: ['src/database/migrations/*.ts'],
-});
+})
