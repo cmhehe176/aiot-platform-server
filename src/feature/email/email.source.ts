@@ -65,7 +65,7 @@ export const SourceMailSupportReply = `
         <div style="font-size: 16px; margin-bottom: 10px;">Dear {{name}},</div>
 
         <div style="margin: 20px 0; font-size: 16px; line-height: 1.8;">
-            We have received your support request and would like to thank you for reaching out. Below are the details of your submission:
+            We have received your support request and would like to thank you for reaching out. Below is our response to your request:
         </div>
         
         <div style="background-color: #f4f4f4; padding: 15px; border-radius: 5px; font-size: 14px; margin-bottom: 20px;">
@@ -107,7 +107,7 @@ export const SourceMailSecretKey = `
         
         <div style="margin-top: 10px;">Your secret key: <strong>{{key}}</strong></div>
         
-        <div style="margin-top: 10px;">Please enter this key into our bot on Telegram.</div>
+        <div style="margin-top: 10px;">Please enter this key into our bot in Telegram.</div>
         
         <div style="margin-top: 20px;">Thank you!</div>
 

@@ -3,38 +3,52 @@ import { AmqpConnection } from '@golevelup/nestjs-rabbitmq';
 import { lastValueFrom } from 'rxjs';
 import { HttpService } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
+import { TNotification, TObject, TSensor } from 'src/common/type';
+import { generateRandomSixDigitNumber } from 'src/common/util';
+import { InjectRepository } from '@nestjs/typeorm';
+import { DeviceEntity } from 'src/database/entities';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class RabbitMqService implements OnModuleInit {
+  private listQueue: { queue: string; consumerKey: string }[] = [];
   constructor(
+    @InjectRepository(DeviceEntity)
+    private readonly deviceEntity: Repository<DeviceEntity>,
     private readonly amqpConnection: AmqpConnection,
     private readonly httpService: HttpService,
     private readonly configService: ConfigService,
   ) {}
 
-  async onModuleInit() {
-    await this.createSubcribe();
+  onModuleInit() {
+    this.createSubcribe();
   }
 
   sendMessage(message: any, queue = 'default') {
-    return this.amqpConnection.publish('', queue, message);
+    this.amqpConnection.publish('', queue, message);
+
+    return { message: 'success' };
   }
 
   createSubcribe = async (queue = 'default') => {
-    await this.amqpConnection.createSubscriber(
-      async (message) => {
-        // add handler messsage
-        console.log(message);
-      },
-      {
-        queue: queue,
-        queueOptions: {
-          durable: false,
-          autoDelete: true,
+    this.amqpConnection
+      .createSubscriber(
+        (message: any) => this.handleMessage(message, queue),
+        {
+          queue: queue,
+          queueOptions: {
+            durable: false,
+            autoDelete: queue === 'default' ? false : true,
+          },
         },
-      },
-      `handleSubcribeFor${queue}`,
-    );
+        `handleSubcribeFor${queue}`,
+      )
+      .then((tag) => {
+        this.listQueue.push({
+          queue: queue,
+          consumerKey: tag.consumerTag,
+        });
+      });
 
     return { message: 'success' };
   };
@@ -56,7 +70,42 @@ export class RabbitMqService implements OnModuleInit {
     return data.map((i) => i.name);
   }
 
-  cancelConsume = (queue: string) => {
-    return this.amqpConnection.cancelConsumer(queue);
+  cancelConsume = (consume: string) => {
+    this.amqpConnection.cancelConsumer(consume);
+    this.listQueue = this.listQueue.filter((i) => i.consumerKey !== consume);
+
+    return { message: 'success' };
+  };
+
+  getConsume = () => {
+    return this.listQueue;
+  };
+
+  handleMessage = async (message: any, queue: string) => {
+    // console.log({ message, queue });
+    if (queue === 'default' && message.macAddress) {
+      const device = await this.deviceEntity.findOne({
+        where: { mac: message.macAddress },
+      });
+
+      const data = {
+        name: message.name,
+        mac: message.macAddress,
+        deviceId: message.macAddress + ':' + generateRandomSixDigitNumber('ID'),
+      };
+
+      if (!device)
+        await this.deviceEntity
+          .insert(data)
+          .then(() => this.createSubcribe(data.deviceId))
+          .catch((e) => console.error(e));
+      else if (!this.listQueue.some((item) => item.queue.includes(device.mac)))
+        this.createSubcribe(device.deviceId);
+
+      // some handle for device method
+
+      this.sendMessage(data, device.deviceId);
+    } else {
+    }
   };
 }
