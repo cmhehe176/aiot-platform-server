@@ -27,7 +27,7 @@ export class MessageService {
     )
 
     this.bot.on('message', this.onReceiveMessage)
-    this.bot.on('poll_answer', this.onReceivePoll)
+    this.bot.on('poll', this.onReceivePoll)
     //ignore
     // this.sendMessageToUser('7616244643', `Server started at ${new Date()}`);
   }
@@ -128,7 +128,9 @@ export class MessageService {
     }
   }
 
-  onReceivePoll = () => {}
+  onReceivePoll = (data) => {
+    console.log(data)
+  }
 
   sendMessageToUser = (userId: string, message: string) => {
     return this.bot.sendMessage(userId, message)

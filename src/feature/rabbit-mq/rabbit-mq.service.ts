@@ -44,12 +44,11 @@ export class RabbitMqService implements OnModuleInit {
         `handleSubcribeFor${queue}`,
       )
       .then((tag) => {
-        if (queue === 'default') return
-
-        this.listQueue.push({
-          queue: queue,
-          consumerKey: tag.consumerTag,
-        })
+        // if (queue === 'default') return
+        // return this.deviceEntity.insert({
+        //   deviceId: queue,
+        //   consumerTag: tag.consumerTag,
+        // })
       })
 
     return { message: 'success' }
