@@ -13,16 +13,16 @@ export class RabbitMqController {
     return this.rabbitMqService.sendMessage(data, payload.queue)
   }
 
-  @RabbitSubscribe({
-    exchange: '',
-    queue: 'default',
-    queueOptions: {
-      durable: false,
-    },
-  })
-  handleMessaged(message: any) {
-    return this.rabbitMqService.handleMessageDefault(message)
-  }
+  // @RabbitSubscribe({
+  //   exchange: '',
+  //   queue: 'default',
+  //   queueOptions: {
+  //     durable: false,
+  //   },
+  // })
+  // handleMessaged(message: any) {
+  //   console.log('Received message:', message);
+  // }
 
   @Post('create')
   sendMessageTest(@Body() payload: { queue: string }) {
@@ -39,8 +39,8 @@ export class RabbitMqController {
     return this.rabbitMqService.cancelConsume(payload.tag)
   }
 
-  // @Get('consume')
-  // getConsume() {
-  //   return this.rabbitMqService.getConsume()
-  // }
+  @Get('consume')
+  getConsume() {
+    return this.rabbitMqService.getConsume()
+  }
 }

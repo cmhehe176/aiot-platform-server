@@ -11,7 +11,7 @@ import { DeviceEntity } from 'src/database/entities'
     TypeOrmModule.forFeature([DeviceEntity]),
     RabbitMQModule.forRoot(RabbitMQModule, {
       uri: 'amqps://xiwrmyor:62e2HWf8MasbujyKE4gLeNE1bK6Yhk9O@armadillo.rmq.cloudamqp.com/xiwrmyor',
-      enableControllerDiscovery: true,
+      // enableControllerDiscovery: true,
     }),
     HttpModule,
   ],
