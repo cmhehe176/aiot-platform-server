@@ -46,9 +46,3 @@ export const createRabbitMqConfig: (
     },
   }),
 });
-
-export const EMAIL_PATTERN = /^\w+([-+._]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/;
-
-export const generateRandomSixDigitNumber = () => {
-  return 'sec' + Math.floor(100000 + Math.random() * 900000);
-};
