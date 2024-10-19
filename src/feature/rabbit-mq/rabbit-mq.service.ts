@@ -3,110 +3,109 @@ import { AmqpConnection } from '@golevelup/nestjs-rabbitmq'
 import { lastValueFrom } from 'rxjs'
 import { HttpService } from '@nestjs/axios'
 import { ConfigService } from '@nestjs/config'
-import { TNotification, TObject, TSensor } from 'src/common/type'
+import {
+  QueueDetails,
+  QueueInfo,
+  TNotification,
+  TObject,
+  TSensor,
+} from 'src/common/type'
 import { generateRandomSixDigitNumber } from 'src/common/util'
 import { InjectRepository } from '@nestjs/typeorm'
 import { DeviceEntity } from 'src/database/entities'
 import { Repository } from 'typeorm'
 
 @Injectable()
-export class RabbitMqService implements OnModuleInit {
-  private listQueue: { queue: string; consumerKey: string }[] = []
+export class RabbitMqService {
+  private readonly baseUrl: string
+  private readonly username: string
+  private readonly password: string
+
   constructor(
     @InjectRepository(DeviceEntity)
     private readonly deviceEntity: Repository<DeviceEntity>,
     private readonly amqpConnection: AmqpConnection,
     private readonly httpService: HttpService,
     private readonly configService: ConfigService,
-  ) {}
-
-  onModuleInit() {
-    this.createSubcribe()
+  ) {
+    this.baseUrl = 'https://armadillo.rmq.cloudamqp.com/api/queues/xiwrmyor'
+    this.username = 'xiwrmyor'
+    this.password = '62e2HWf8MasbujyKE4gLeNE1bK6Yhk9O'
   }
 
-  sendMessage(message: any, queue = 'default') {
+  sendMessage(message: any, queue: string) {
     this.amqpConnection.publish('', queue, message)
 
     return { message: 'success' }
   }
 
-  createSubcribe = async (queue = 'default') => {
-    this.amqpConnection
-      .createSubscriber(
-        (message: any) => this.handleMessage(message, queue),
-        {
-          queue: queue,
-          queueOptions: {
-            durable: false,
-            autoDelete: queue === 'default' ? false : true,
-          },
+  createSubcribe = (queue) => {
+    this.amqpConnection.createSubscriber(
+      (message: any) => this.handleMessage(message, queue),
+      {
+        queue: queue,
+        queueOptions: {
+          durable: false,
+          autoDelete: false,
         },
-        `handleSubcribeFor${queue}`,
-      )
-      .then((tag) => {
-        // if (queue === 'default') return
-        // return this.deviceEntity.insert({
-        //   deviceId: queue,
-        //   consumerTag: tag.consumerTag,
-        // })
-      })
+      },
+      `handleSubcribeFor${queue}`,
+    )
 
     return { message: 'success' }
   }
 
-  async getQueues() {
-    const url = 'https://armadillo.rmq.cloudamqp.com/api/queues/xiwrmyor/'
-    const username = 'xiwrmyor'
-    const password = '62e2HWf8MasbujyKE4gLeNE1bK6Yhk9O'
-
-    const response = this.httpService.get(url, {
+  async getQueues(queue = '') {
+    const response = this.httpService.get(`${this.baseUrl}/${queue}`, {
       auth: {
-        username,
-        password,
+        username: this.username,
+        password: this.password,
       },
     })
 
     const { data } = await lastValueFrom(response)
 
-    return data.map((i) => i.name)
+    if (queue) {
+      const queueDetails = data as QueueDetails
+      return {
+        queue: queueDetails.name,
+        vhost: queueDetails.vhost,
+        state: queueDetails.state,
+        consumerList: queueDetails.consumer_details.map((i) => {
+          return {
+            consumerTag: i.consumer_tag,
+            queue: i.queue,
+          }
+        }),
+      }
+    } else {
+      const listQueue = data as QueueInfo[]
+
+      return listQueue.map((item) => {
+        return {
+          consumer: item.consumers,
+          name: item.name,
+        }
+      })
+    }
   }
 
   cancelConsume = (consume: string) => {
     this.amqpConnection.cancelConsumer(consume)
-    this.listQueue = this.listQueue.filter((i) => i.consumerKey !== consume)
 
     return { message: 'success' }
   }
 
   getConsume = () => {
-    return this.listQueue
+    return this.amqpConnection
   }
 
   handleMessage = async (message: any, queue: string) => {
-    // console.log({ message, queue });
-    if (queue === 'default' && message.macAddress) {
-      const device = await this.deviceEntity.findOne({
-        where: { mac: message.macAddress },
-      })
+    console.log({ message, queue })
+  }
 
-      const data = {
-        name: message.name,
-        mac: message.macAddress,
-        deviceId: message.macAddress + ':' + generateRandomSixDigitNumber('ID'),
-      }
+  handleMessageDefault = async (message: any) => {
+    // console.log(message)
 
-      if (!device)
-        await this.deviceEntity
-          .insert(data)
-          .then(() => this.createSubcribe(data.deviceId))
-          .catch((e) => console.error(e))
-      else if (!this.listQueue.some((item) => item.queue.includes(device.mac)))
-        this.createSubcribe(device.deviceId)
-
-      // some handle for device method
-
-      this.sendMessage(data, device.deviceId)
-    } else {
-    }
   }
 }
