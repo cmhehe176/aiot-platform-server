@@ -14,23 +14,15 @@ export class MessageService {
 
     this.bot.on('message', this.onReceiveMessage);
 
-    //ignore
     this.sendMessageToUser('7616244643', `Server started at ${new Date()}`);
   }
 
   onReceiveMessage = (msg: any) => {
-    switch (msg.text) {
-      case '/start':
-        this.bot.sendMessage('7616244643', msg.from.id);
-        this.bot.sendMessage(msg.from.id, msg.from.id);
-        break;
-
-      default:
-        break;
-    }
+    this.logger.log(msg);
+    this.bot.sendMessage('7616244643', msg.from.id);
   };
 
   sendMessageToUser = (userId: string, message: string) => {
-    return this.bot.sendMessage(userId, message);
+    this.bot.sendMessage(userId, message);
   };
 }

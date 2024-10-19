@@ -30,16 +30,15 @@ export const configureQueue = async (
 };
 
 export const createRabbitMqConfig: (
-  service: string,
-  queue: string,
-) => ClientsProviderAsyncOptions = (service, queue) => ({
-  name: service,
+  data: string,
+) => ClientsProviderAsyncOptions = (queue) => ({
+  name: `${queue.toUpperCase()}`,
   transport: Transport.RMQ,
   inject: [ConfigService],
   useFactory: (configService: ConfigService) => ({
     options: {
       urls: [configService.get<string>('RABBITMQ_PUBLIC')],
-      queue: queue,
+      queue,
       queueOptions: {
         durable: false,
       },

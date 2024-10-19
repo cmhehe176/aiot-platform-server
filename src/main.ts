@@ -10,11 +10,11 @@ async function bootstrap() {
   const config = await app.get(ConfigService);
   app.enableCors();
 
-  // app.connectMicroservice<MicroserviceOptions>(
-  //   await configureQueue(app, 'main_queue'),
-  // );
+  app.connectMicroservice<MicroserviceOptions>(
+    await configureQueue(app, 'main_queue'),
+  );
 
-  // app.startAllMicroservices();
+  app.startAllMicroservices();
 
   await app.listen(config.get<string>('PORT'));
 }
