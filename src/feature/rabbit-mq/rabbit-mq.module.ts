@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common'
+import { ConfigModule, ConfigService } from '@nestjs/config'
 import { RabbitMqService } from './rabbit-mq.service'
 import { RabbitMqController } from './rabbit-mq.controller'
 import { RabbitMQModule } from '@golevelup/nestjs-rabbitmq'
@@ -9,9 +10,13 @@ import { DeviceEntity } from 'src/database/entities'
 @Module({
   imports: [
     TypeOrmModule.forFeature([DeviceEntity]),
-    RabbitMQModule.forRoot(RabbitMQModule, {
-      uri: 'amqps://xiwrmyor:62e2HWf8MasbujyKE4gLeNE1bK6Yhk9O@armadillo.rmq.cloudamqp.com/xiwrmyor',
-      enableControllerDiscovery: true,
+    RabbitMQModule.forRootAsync(RabbitMQModule, {
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => ({
+        uri: configService.get<string>('RABBITMQ_PUBLIC'),
+        enableControllerDiscovery: true,
+      }),
+      inject: [ConfigService],
     }),
     HttpModule,
   ],
