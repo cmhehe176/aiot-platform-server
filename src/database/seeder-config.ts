@@ -1,4 +1,4 @@
-import 'dotenv/config'
+import 'dotenv/config';
 
 export default {
   type: 'postgres',
@@ -10,4 +10,4 @@ export default {
   entities: ['src/database/entities/index.ts'],
   migrations: ['src/database/migrations/*.ts'],
   seeds: ['src/database/seeds/*.seed.ts'],
-}
+};

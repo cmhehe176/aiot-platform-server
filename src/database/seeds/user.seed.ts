@@ -1,16 +1,16 @@
-import { Connection } from 'typeorm'
-import { Factory, Seeder } from 'typeorm-seeding'
-import { UserEntity } from '../entities'
-import * as argon from 'argon2'
+import { Connection } from 'typeorm';
+import { Factory, Seeder } from 'typeorm-seeding';
+import { UserEntity } from '../entities';
+import * as argon from 'argon2';
 
 export default class InitUser implements Seeder {
   public async run(factory: Factory, connection: Connection): Promise<any> {
-    const hashPassword = await argon.hash(process.env.SEED_PASSWORD)
+    const hashPassword = await argon.hash(process.env.SEED_PASSWORD);
     const randomPhone = () => {
       const phone =
-        Math.floor(Math.random() * (999999999 - 100000000 + 1)) + 100000000
-      return 0 + phone.toString()
-    }
+        Math.floor(Math.random() * (999999999 - 100000000 + 1)) + 100000000;
+      return 0 + phone.toString();
+    };
 
     await connection.getRepository(UserEntity).insert([
       {
@@ -45,6 +45,6 @@ export default class InitUser implements Seeder {
         thumbnailUrl: '',
         roleId: 1,
       },
-    ])
+    ]);
   }
 }

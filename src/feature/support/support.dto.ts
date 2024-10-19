@@ -1,24 +1,24 @@
-import { IsIn, IsString } from 'class-validator'
+import { IsIn, IsString } from 'class-validator';
 
 export class CreateSupportDto {
   @IsString()
-  title: string
+  title: string;
 
   @IsString()
-  description: string
+  description: string;
 }
 
 export class GetListDto {
-  q?: string
+  q?: string;
 }
 
 export class ReplyDto {
   @IsString()
-  reply: string
+  reply: string;
 
   @IsString()
   @IsIn(['message', 'email'] as const)
-  method: TypeMessage
+  method: TypeMessage;
 }
 
-export type TypeMessage = 'message' | 'email'
+export type TypeMessage = 'message' | 'email';

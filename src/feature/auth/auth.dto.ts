@@ -1,29 +1,29 @@
-import { IsEmail, IsString } from 'class-validator'
+import { IsEmail, IsString } from 'class-validator';
 
 export class Login {
-  username: string
-  password: string
-  roleId?: string
+  username: string;
+  password: string;
+  roleId?: string;
 }
 
 export class Register {
-  name: string
-  telephone: string
-  email: string
-  password: string
-  roleId?: number
+  name: string;
+  telephone: string;
+  email: string;
+  password: string;
+  roleId?: number;
 }
 
 export class ForgotPassword {
   @IsEmail()
   @IsString()
-  email: string
+  email: string;
 }
 
 export class UpdateUserDto {
-  name?: string
-  email?: string
-  telephone?: string
-  password?: string
-  thumbnailUrl?: string
+  name?: string;
+  email?: string;
+  telephone?: string;
+  password?: string;
+  thumbnailUrl?: string;
 }

@@ -1,5 +1,5 @@
-import { Controller, Get, Param } from '@nestjs/common'
-import { UserService } from './user.service'
+import { Controller, Get, Param } from '@nestjs/common';
+import { UserService } from './user.service';
 
 @Controller('user')
 export class UserController {
@@ -7,6 +7,6 @@ export class UserController {
 
   @Get('role/:id')
   getListUserByRole(@Param('id') id: number) {
-    return this.userService.getListUserByRole(id)
+    return this.userService.getListUserByRole(id);
   }
 }

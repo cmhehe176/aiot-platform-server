@@ -1,19 +1,19 @@
-import { BadRequestException, INestApplication } from '@nestjs/common'
-import { ConfigService } from '@nestjs/config'
+import { BadRequestException, INestApplication } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import {
   Transport,
   RmqOptions,
   ClientsProviderAsyncOptions,
-} from '@nestjs/microservices'
-import { TNotification, TObject, TSensor } from './type'
-import { Repository } from 'typeorm'
-import { DeviceEntity } from 'src/database/entities'
+} from '@nestjs/microservices';
+import { TNotification, TObject, TSensor } from './type';
+import { Repository } from 'typeorm';
+import { DeviceEntity } from 'src/database/entities';
 
 export const configureQueue = async (
   app: INestApplication<any>,
   queue: string,
 ) => {
-  const configService: ConfigService<unknown, boolean> = app.get(ConfigService)
+  const configService: ConfigService<unknown, boolean> = app.get(ConfigService);
 
   const mainQueue: RmqOptions = {
     transport: Transport.RMQ,
@@ -27,10 +27,10 @@ export const configureQueue = async (
         durable: false,
       },
     },
-  }
+  };
 
-  return mainQueue
-}
+  return mainQueue;
+};
 
 export const createRabbitMqConfig: (
   service: string,
@@ -48,26 +48,26 @@ export const createRabbitMqConfig: (
       },
     },
   }),
-})
+});
 
-export const EMAIL_PATTERN = /^\w+([-+._]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/
+export const EMAIL_PATTERN = /^\w+([-+._]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/;
 
 export const generateRandomSixDigitNumber = (string = 'sec') => {
-  return string + Math.floor(100000 + Math.random() * 900000)
-}
+  return string + Math.floor(100000 + Math.random() * 900000);
+};
 
 export const generateTypeMessage = (message_id) => {
-  const type = message_id.slice(0, 3)
+  const type = message_id.slice(0, 3);
 
   switch (type) {
     case 'not':
-      return 'notification'
+      return 'notification';
     case 'sen':
-      return 'sensor'
+      return 'sensor';
     case 'obj':
-      return 'object'
+      return 'object';
 
     default:
-      return undefined
+      return undefined;
   }
-}
+};
