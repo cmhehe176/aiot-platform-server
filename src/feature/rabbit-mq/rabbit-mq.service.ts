@@ -1,57 +1,39 @@
-import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
-import { ClientProxy } from '@nestjs/microservices';
-import { AmqpConnection, RabbitSubscribe } from '@golevelup/nestjs-rabbitmq';
-import { lastValueFrom } from 'rxjs';
 import { HttpService } from '@nestjs/axios';
+import { Inject, Injectable } from '@nestjs/common';
+import { ClientProxy } from '@nestjs/microservices';
+import amqp from 'amqp-connection-manager';
+import { ChannelWrapper, AmqpConnectionManager } from 'amqp-connection-manager';
 @Injectable()
-export class RabbitMqService implements OnModuleInit {
-  private queues: string[] = [];
+export class RabbitMqService {
+  private readonly connection: AmqpConnectionManager;
+  private channel: ChannelWrapper;
 
   constructor(
-    private readonly amqpConnection: AmqpConnection,
+    @Inject('RABBITMQ_SERVICE') private client: ClientProxy,
     private readonly httpService: HttpService,
   ) {}
 
-  async onModuleInit() {
-    await this.createSubcribe();
-  }
-
-  sendMessage(message: any, queue = 'default') {
-    return this.amqpConnection.publish('', queue, message);
-  }
-
-  createSubcribe = async (queue = 'default') => {
-    await this.amqpConnection.createSubscriber(
-      async (message) => {
-        // add handler messsage
-        console.log(message);
-      },
-      {
-        queue: queue,
-        queueOptions: {
-          durable: false,
-        },
-      },
-      `handleSubcribeFor${queue}`,
-    );
+  sendMessage() {
+    const message = { text: 'This is test mail from Server' };
+    this.client.emit('config', message);
 
     return { message: 'success' };
-  };
-
-  async getQueues() {
-    const url = 'https://armadillo.rmq.cloudamqp.com/api/queues/xiwrmyor/';
-    const username = 'xiwrmyor';
-    const password = '62e2HWf8MasbujyKE4gLeNE1bK6Yhk9O';
-
-    const response = this.httpService.get(url, {
-      auth: {
-        username,
-        password,
-      },
-    });
-
-    const { data } = await lastValueFrom(response);
-
-    return data.map((i) => i.name);
   }
+
+  // async getQueues() {
+  //   const url = 'https://armadillo.rmq.cloudamqp.com/api/queues/xiwrmyor/';
+  //   const username = 'xiwrmyor';
+  //   const password = '62e2HWf8MasbujyKE4gLeNE1bK6Yhk9O';
+
+  //   const response = this.httpService.get(url, {
+  //     auth: {
+  //       username,
+  //       password,
+  //     },
+  //   });
+
+  //   const { data } = await lastValueFrom(response);
+
+  //   return data;
+  // }
 }
