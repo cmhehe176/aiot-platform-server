@@ -22,6 +22,14 @@ export class DeviceEntity extends BaseEntity {
   @Column({ type: 'varchar', nullable: false, unique: true })
   deviceId: string
 
+  @Column({
+    type: 'varchar',
+    name: 'consumer_tag',
+    nullable: false,
+    unique: true,
+  })
+  consumerTag: string
+
   @ManyToOne(() => ProjectEntity)
   @JoinColumn({ name: 'project_id' })
   project?: ProjectEntity

@@ -9,8 +9,8 @@ export class RabbitMqController {
   constructor(private readonly rabbitMqService: RabbitMqService) {}
 
   @Post()
-  sendMessage(@Query() query: { queue?: string }, @Body() data: any) {
-    return this.rabbitMqService.sendMessage(data, query.queue)
+  sendMessage(@Query() payload: { queue?: string }, @Body() data: any) {
+    return this.rabbitMqService.sendMessage(data, payload.queue)
   }
 
   @RabbitSubscribe({
@@ -30,8 +30,8 @@ export class RabbitMqController {
   }
 
   @Get()
-  getQueues(@Query() payload: { queue: string }) {
-    return this.rabbitMqService.getQueues(payload.queue)
+  getQueues() {
+    return this.rabbitMqService.getQueues()
   }
 
   @Post('close')
