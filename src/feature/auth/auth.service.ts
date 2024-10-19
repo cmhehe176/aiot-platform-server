@@ -2,17 +2,17 @@ import {
   BadRequestException,
   Injectable,
   NotFoundException,
-} from '@nestjs/common'
-import { InjectRepository } from '@nestjs/typeorm'
-import { UserEntity } from 'src/database/entities'
-import { Repository } from 'typeorm'
-import { ForgotPassword, Register, UpdateUserDto } from './auth.dto'
-import * as argon from 'argon2'
-import { JwtService } from '@nestjs/jwt'
-import { EmailService } from '../email/email.service'
-import { SourceMailForgotPassword } from 'src/feature/email/email.source'
-import { ConfigService } from '@nestjs/config'
-import { IUser } from 'src/common/decorators/user.decorator'
+} from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { UserEntity } from 'src/database/entities';
+import { Repository } from 'typeorm';
+import { ForgotPassword, Register, UpdateUserDto } from './auth.dto';
+import * as argon from 'argon2';
+import { JwtService } from '@nestjs/jwt';
+import { EmailService } from '../email/email.service';
+import { SourceMailForgotPassword } from 'src/feature/email/email.source';
+import { ConfigService } from '@nestjs/config';
+import { IUser } from 'src/common/decorators/user.decorator';
 @Injectable()
 export class AuthService {
   constructor(
@@ -29,9 +29,9 @@ export class AuthService {
       email: user.email,
       telephone: user.telephone,
       roleId: user.roleId,
-    }
+    };
 
-    return { accessToken: await this.jwtService.sign(payload) }
+    return { accessToken: await this.jwtService.sign(payload) };
   }
 
   async register(data: Register) {
@@ -39,23 +39,23 @@ export class AuthService {
       .createQueryBuilder('user')
       .where('user.email = :email', { email: data.email })
       .orWhere('user.telephone = :telephone', { telephone: data.telephone })
-      .getExists()
+      .getExists();
 
-    if (checkUser) throw new BadRequestException('User already exist')
+    if (checkUser) throw new BadRequestException('User already exist');
 
-    data.password = await argon.hash(data.password)
+    data.password = await argon.hash(data.password);
 
-    await this.userEntity.insert(data)
+    await this.userEntity.insert(data);
 
-    return { message: 'success' }
+    return { message: 'success' };
   }
 
   async forgotPassword(payload: ForgotPassword) {
     const user = await this.userEntity.findOne({
       where: { email: payload.email },
-    })
+    });
 
-    if (!user) throw new NotFoundException('User not exist or has been band')
+    if (!user) throw new NotFoundException('User not exist or has been band');
 
     const data = {
       subject: 'Forgot Password',
@@ -65,9 +65,9 @@ export class AuthService {
       },
       to: [payload.email],
       html: SourceMailForgotPassword,
-    }
+    };
 
-    return this.emailService.sendMail(data)
+    return this.emailService.sendMail(data);
   }
 
   // async update(data: UpdateUserDto, user: IUser) {
@@ -94,9 +94,9 @@ export class AuthService {
     await this.userEntity.update(
       { id: user.id },
       { password: await argon.hash(password) },
-    )
+    );
 
-    return { message: 'success' }
+    return { message: 'success' };
   }
 
   async verify(username: string, password: string) {
@@ -104,27 +104,27 @@ export class AuthService {
       .createQueryBuilder('user')
       .where('user.email = :username', { username })
       .orWhere('user.telephone = :username', { username })
-      .getOne()
+      .getOne();
 
-    if (!user) throw new BadRequestException(' No match User')
+    if (!user) throw new BadRequestException(' No match User');
 
-    const checkPassword = await argon.verify(user.password, password)
+    const checkPassword = await argon.verify(user.password, password);
 
-    if (!checkPassword) throw new BadRequestException('No match Password')
+    if (!checkPassword) throw new BadRequestException('No match Password');
 
-    return user
+    return user;
   }
 
   async getProfile(id: number) {
     const user = await this.userEntity
       .createQueryBuilder('user')
       .where('user.id = :id', { id: id })
-      .getOne()
+      .getOne();
 
-    if (!user) throw new NotFoundException('User not exist or has been band')
+    if (!user) throw new NotFoundException('User not exist or has been band');
 
-    delete user.password
+    delete user.password;
 
-    return { profile: user }
+    return { profile: user };
   }
 }

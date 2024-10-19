@@ -1,18 +1,13 @@
-import { Module } from '@nestjs/common'
-import { RabbitMqService } from './rabbit-mq.service'
-import { RabbitMqController } from './rabbit-mq.controller'
-import { RabbitMQModule } from '@golevelup/nestjs-rabbitmq'
-import { HttpModule } from '@nestjs/axios'
-import { TypeOrmModule } from '@nestjs/typeorm'
-import { DeviceEntity } from 'src/database/entities'
+import { Module } from '@nestjs/common';
+import { RabbitMqService } from './rabbit-mq.service';
+import { RabbitMqController } from './rabbit-mq.controller';
+import { ClientsModule } from '@nestjs/microservices';
+import { createRabbitMqConfig } from 'src/common/util';
+import { HttpModule } from '@nestjs/axios';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([DeviceEntity]),
-    RabbitMQModule.forRoot(RabbitMQModule, {
-      uri: 'amqps://xiwrmyor:62e2HWf8MasbujyKE4gLeNE1bK6Yhk9O@armadillo.rmq.cloudamqp.com/xiwrmyor',
-      enableControllerDiscovery: true,
-    }),
+    ClientsModule.registerAsync([createRabbitMqConfig('RABBITMQ_SERVICE')]),
     HttpModule,
   ],
   controllers: [RabbitMqController],

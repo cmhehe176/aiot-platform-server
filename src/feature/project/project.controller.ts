@@ -7,11 +7,11 @@ import {
   Post,
   Put,
   Query,
-} from '@nestjs/common'
-import { ProjectService } from './project.service'
-import { createProjectDto, updateProjectDto } from './project.dto'
-import { IUser, User } from 'src/common/decorators/user.decorator'
-import { ERole, Roles } from 'src/common/decorators/role.decorator'
+} from '@nestjs/common';
+import { ProjectService } from './project.service';
+import { createProjectDto, updateProjectDto } from './project.dto';
+import { IUser, User } from 'src/common/decorators/user.decorator';
+import { ERole, Roles } from 'src/common/decorators/role.decorator';
 
 @Controller('project')
 export class ProjectController {
@@ -19,18 +19,18 @@ export class ProjectController {
 
   @Get()
   listProjectByUser(@User() user: IUser) {
-    return this.projectService.listProjectByUser(user.id)
+    return this.projectService.listProjectByUser(user.id);
   }
 
   @Get(':id')
   listUserOfProject(@Param('id') id: number) {
-    return this.projectService.listUserOfProject(id)
+    return this.projectService.listUserOfProject(id);
   }
 
   @Post()
   @Roles(ERole.ADMIN)
   Create(@Body() body: createProjectDto, @User() user: IUser) {
-    return this.projectService.create(user.id, body)
+    return this.projectService.create(user.id, body);
   }
 
   @Put(':id')
@@ -40,7 +40,7 @@ export class ProjectController {
     @Body() body: updateProjectDto,
     @User() user: IUser,
   ) {
-    return this.projectService.updateProject(projectId, body, user.id)
+    return this.projectService.updateProject(projectId, body, user.id);
   }
 
   @Delete()
@@ -50,12 +50,12 @@ export class ProjectController {
     @Query('projectId') projectId: number,
     @User() user: IUser,
   ) {
-    return this.projectService.deleteUserOutProject(userId, user.id, projectId)
+    return this.projectService.deleteUserOutProject(userId, user.id, projectId);
   }
 
   @Delete(':id')
   @Roles(ERole.ADMIN)
   deleteProject(@Param('id') id: number, @User() user: IUser) {
-    return this.projectService.deleteProject(id, user.id)
+    return this.projectService.deleteProject(id, user.id);
   }
 }

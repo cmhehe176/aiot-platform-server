@@ -1,15 +1,22 @@
-import { NestFactory } from '@nestjs/core'
-import { AppModule } from './app.module'
-import { ConfigService } from '@nestjs/config'
+import { NestFactory } from '@nestjs/core';
+import { AppModule } from './app.module';
+import { ConfigService } from '@nestjs/config';
+import { MicroserviceOptions } from '@nestjs/microservices';
+import { configureQueue } from './common/util';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule)
+  const app = await NestFactory.create(AppModule);
 
-  app.enableCors()
+  const config = await app.get(ConfigService);
+  app.enableCors();
 
-  const config = await app.get(ConfigService)
+  app.connectMicroservice<MicroserviceOptions>(
+    await configureQueue(app, 'main_queue'),
+  );
 
-  await app.listen(config.get<string>('PORT'))
+  app.startAllMicroservices();
+
+  await app.listen(config.get<string>('PORT'));
 }
 
-bootstrap()
+bootstrap();
