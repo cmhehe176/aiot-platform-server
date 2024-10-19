@@ -4,7 +4,7 @@ import { ProjectEntity } from './project.entity';
 
 @Entity({ name: 'device' })
 export class DeviceEntity extends BaseEntity {
-  @Column({ type: 'int', nullable: true, name: 'project_id' })
+  @Column({ type: 'int', nullable: false, name: 'project_id' })
   projectId: number;
 
   @Column({ type: 'jsonb', nullable: true })
@@ -15,12 +15,6 @@ export class DeviceEntity extends BaseEntity {
 
   @Column({ type: 'varchar', nullable: false })
   name: string;
-
-  @Column({ type: 'varchar', nullable: false, unique: true })
-  mac: string;
-
-  @Column({ type: 'varchar', nullable: false, unique: true })
-  deviceId: string;
 
   @ManyToOne(() => ProjectEntity)
   @JoinColumn({ name: 'project_id' })

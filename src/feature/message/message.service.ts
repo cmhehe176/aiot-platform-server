@@ -27,9 +27,9 @@ export class MessageService {
     );
 
     this.bot.on('message', this.onReceiveMessage);
-    this.bot.on('poll_answer', this.onReceivePoll);
+
     //ignore
-    // this.sendMessageToUser('7616244643', `Server started at ${new Date()}`);
+    this.sendMessageToUser('7616244643', `Server started at ${new Date()}`);
   }
 
   onReceiveMessage = async (msg: any) => {
@@ -86,7 +86,7 @@ export class MessageService {
 
             const data: sendMailDto = {
               to: [msg.text],
-              subject: 'Verify Telegram',
+              subject: 'Verify telegram',
               data: {
                 key: key,
                 name: checkUser.name,
@@ -119,8 +119,6 @@ export class MessageService {
       }
 
       if (msg.text === '/start') {
-        this.sendMessageToUser(msg.from.id, 'hello');
-        this.sendPoll(msg.from.id);
         return;
       }
     } catch (error) {
@@ -128,24 +126,7 @@ export class MessageService {
     }
   };
 
-  onReceivePoll = () => {};
-
   sendMessageToUser = (userId: string, message: string) => {
     return this.bot.sendMessage(userId, message);
-  };
-
-  sendPoll = (userId: string) => {
-    const question = 'Bạn có thích ăn pizza không?';
-    const options = ['Có', 'Không'];
-    const explanation =
-      'Cảm ơn bạn đã tham gia! <b>Pizza</b> là món ăn phổ biến nhất trên thế giới!';
-
-    return this.bot.sendPoll(userId, question, options, {
-      is_anonymous: true,
-      allows_multiple_answers: false,
-      type: 'regular',
-      explanation_parse_mode: 'HTML',
-      explanation: explanation,
-    });
   };
 }
