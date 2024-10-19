@@ -3,23 +3,17 @@ import { AmqpConnection } from '@golevelup/nestjs-rabbitmq'
 import { lastValueFrom } from 'rxjs'
 import { HttpService } from '@nestjs/axios'
 import { ConfigService } from '@nestjs/config'
-import {
-  QueueDetails,
-  QueueInfo,
-  TNotification,
-  TObject,
-  TSensor,
-} from 'src/common/type'
+import { QueueDetails, QueueInfo } from 'src/common/type'
 import { generateRandomSixDigitNumber } from 'src/common/util'
 import { InjectRepository } from '@nestjs/typeorm'
 import { DeviceEntity } from 'src/database/entities'
 import { Repository } from 'typeorm'
-
 @Injectable()
 export class RabbitMqService {
   private readonly baseUrl: string
   private readonly username: string
   private readonly password: string
+  private consumerTimers: Map<string, NodeJS.Timeout> = new Map()
 
   constructor(
     @InjectRepository(DeviceEntity)
@@ -39,18 +33,26 @@ export class RabbitMqService {
     return { message: 'success' }
   }
 
-  createSubcribe = (queue) => {
-    this.amqpConnection.createSubscriber(
-      (message: any) => this.handleMessage(message, queue),
-      {
-        queue: queue,
-        queueOptions: {
-          durable: false,
-          autoDelete: false,
+  createSubcribe = async (queue) => {
+    const listQueue = await this.getQueues().catch((e) => e)
+    const check = (listQueue as QueueInfo[]).some((i) => i.name === queue)
+
+    if (check) return
+
+    this.amqpConnection
+      .createSubscriber(
+        (message: any) => this.handleMessage(message, queue),
+        {
+          queue: queue,
+          queueOptions: {
+            durable: false,
+            autoDelete: true,
+          },
         },
-      },
-      `handleSubcribeFor${queue}`,
-    )
+        `handleSubcribeFor${queue}`,
+      )
+      .then((tag) => this.resetConsumerTimer(tag.consumerTag, queue))
+      .catch((e) => console.error(e))
 
     return { message: 'success' }
   }
@@ -63,49 +65,105 @@ export class RabbitMqService {
       },
     })
 
-    const { data } = await lastValueFrom(response)
+    const { data }: any = await lastValueFrom(response)
 
     if (queue) {
-      const queueDetails = data as QueueDetails
+      const queueDetails: QueueDetails = data as QueueDetails
+
       return {
         queue: queueDetails.name,
         vhost: queueDetails.vhost,
         state: queueDetails.state,
-        consumerList: queueDetails.consumer_details.map((i) => {
+        consumer_details: queueDetails.consumer_details.map((i) => {
           return {
-            consumerTag: i.consumer_tag,
+            consumer_tag: i.consumer_tag,
             queue: i.queue,
           }
         }),
-      }
+      } as unknown as QueueDetails
     } else {
       const listQueue = data as QueueInfo[]
 
       return listQueue.map((item) => {
         return {
-          consumer: item.consumers,
+          consumers: item.consumers,
           name: item.name,
-        }
+        } as unknown as QueueInfo
       })
     }
+  }
+
+  handleMessage = async (message: any, queue: string) => {
+    console.log({ message, queue })
+    const listQueue = await this.getQueues(queue).catch((e) => e)
+    const tag = (listQueue as QueueDetails).consumer_details[0].consumer_tag
+
+    this.resetConsumerTimer(tag, queue)
+  }
+
+  handleMessageDefault = async (message: any) => {
+    if (!message.message_id || !message.macAddress) return
+
+    const data = {
+      data: {},
+      mac: message.macAddress,
+      deviceId: message.macAddress + ':' + generateRandomSixDigitNumber('ID'),
+    }
+
+    const device = await this.deviceEntity.findOne({
+      where: { mac: data.mac },
+    })
+
+    if (device) {
+      const listQueue = await this.getQueues().catch((e) => e)
+
+      const check = (listQueue as QueueInfo[]).some(
+        (item) => item.name === device.deviceId,
+      )
+
+      if (check) return
+
+      this.createSubcribe(device.deviceId)
+
+      return
+    }
+
+    this.createSubcribe(data.deviceId)
+
+    this.deviceEntity
+      .insert(data)
+      // change here if have change something like queue
+      .then(() => this.sendMessage({ queue: data.deviceId }, 'test'))
+      .catch((e) => e)
+
+    return
   }
 
   cancelConsume = (consume: string) => {
     this.amqpConnection.cancelConsumer(consume)
 
+    if (this.consumerTimers.has(consume)) {
+      clearTimeout(this.consumerTimers.get(consume))
+
+      this.consumerTimers.delete(consume)
+    }
+
     return { message: 'success' }
   }
 
-  getConsume = () => {
-    return this.amqpConnection
-  }
+  resetConsumerTimer(tag: string, queue = 'default', timeout = 300000) {
+    if (this.consumerTimers.has(tag)) {
+      clearTimeout(this.consumerTimers.get(tag))
+    }
 
-  handleMessage = async (message: any, queue: string) => {
-    console.log({ message, queue })
-  }
+    const timer = setTimeout(() => {
+      this.cancelConsume(tag)
+      this.consumerTimers.delete(tag)
+      console.log(
+        `Consumer cho queue : ${queue} - ${tag} đã bị huỷ do không nhận được tin nhắn.`,
+      )
+    }, timeout)
 
-  handleMessageDefault = async (message: any) => {
-    // console.log(message)
-
+    this.consumerTimers.set(tag, timer)
   }
 }
