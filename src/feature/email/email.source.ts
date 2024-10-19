@@ -3,7 +3,7 @@ const footerMail = {
   telephone: '0899999999',
   url: '#',
   iurl: 'http://www.google.com',
-};
+}
 
 export const SourceMailForgotPassword = `
 <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; padding: 20px; background-color: #f4f4f4;">
@@ -31,7 +31,7 @@ export const SourceMailForgotPassword = `
         </div>
     </div>
 </div>
-`;
+`
 
 export const SourceMailSupport = `
 <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; padding: 20px; background-color: #f4f4f4;">
@@ -55,7 +55,7 @@ export const SourceMailSupport = `
         </div>
     </div>
 </div>
-`;
+`
 
 export const SourceMailSupportReply = `
 <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; padding: 20px; background-color: #f4f4f4;">
@@ -65,7 +65,7 @@ export const SourceMailSupportReply = `
         <div style="font-size: 16px; margin-bottom: 10px;">Dear {{name}},</div>
 
         <div style="margin: 20px 0; font-size: 16px; line-height: 1.8;">
-            We have received your support request and would like to thank you for reaching out. Below are the details of your submission:
+            We have received your support request and would like to thank you for reaching out. Below is our response to your request:
         </div>
         
         <div style="background-color: #f4f4f4; padding: 15px; border-radius: 5px; font-size: 14px; margin-bottom: 20px;">
@@ -94,4 +94,28 @@ export const SourceMailSupportReply = `
         </div>
     </div>
 </div>
-`;
+`
+
+export const SourceMailSecretKey = `
+<div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; padding: 20px; background-color: #f4f4f4;">
+    <div style="background: white; padding: 20px; border-radius: 5px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);">
+        <div style="font-size: 24px; font-weight: bold; margin-bottom: 20px;">Your Secret Key</div>
+        
+        <div>Dear {{name}},</div>
+
+        <div style="margin-top: 10px;">Thank you for using our service! Here is the key to connect with your Telegram:</div>
+        
+        <div style="margin-top: 10px;">Your secret key: <strong>{{key}}</strong></div>
+        
+        <div style="margin-top: 10px;">Please enter this key into our bot in Telegram.</div>
+        
+        <div style="margin-top: 20px;">Thank you!</div>
+
+        <div style="margin-top: 20px; border-top: 1px solid #ccc; padding-top: 10px;">
+            <div style="font-weight: bold;">${footerMail.title}</div>
+            <div>TEL: ${footerMail.telephone} </div>
+            <div>URL: <a href="${footerMail.url}" style="color: #007BFF; text-decoration: none;">${footerMail.iurl}</a></div>
+        </div>
+    </div>
+</div>
+`

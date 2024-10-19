@@ -1,17 +1,17 @@
 import { MigrationInterface, QueryRunner } from 'typeorm'
 
-export class FixUserEntity1727332389504 implements MigrationInterface {
-  name = 'FixUserEntity1727332389504'
+export class AddFieldDevice1729244084480 implements MigrationInterface {
+  name = 'AddFieldDevice1729244084480'
 
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(
-      `ALTER TABLE "user" ALTER COLUMN "thumbnailUrl" DROP NOT NULL`,
+      `ALTER TABLE "device" ALTER COLUMN "name" DROP NOT NULL`,
     )
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(
-      `ALTER TABLE "user" ALTER COLUMN "thumbnailUrl" SET NOT NULL`,
+      `ALTER TABLE "device" ALTER COLUMN "name" SET NOT NULL`,
     )
   }
 }

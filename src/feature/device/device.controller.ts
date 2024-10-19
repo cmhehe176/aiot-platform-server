@@ -6,10 +6,10 @@ import {
   ParseIntPipe,
   Post,
   Put,
-} from '@nestjs/common';
-import { DeviceService } from './device.service';
-import { ERole, Roles } from 'src/common/decorators/role.decorator';
-import { IUser, User } from 'src/common/decorators/user.decorator';
+} from '@nestjs/common'
+import { DeviceService } from './device.service'
+import { ERole, Roles } from 'src/common/decorators/role.decorator'
+import { IUser, User } from 'src/common/decorators/user.decorator'
 
 @Controller('device')
 export class DeviceController {
@@ -17,16 +17,16 @@ export class DeviceController {
   @Post()
   @Roles(ERole.ADMIN)
   CreateDevice(@Body() data: any, @User() user: IUser) {
-    return this.deviceService.CreateDevice(data, user.id);
+    return this.deviceService.CreateDevice(data, user.id)
   }
 
   @Put(':id')
   UpdateDevice(@Param('id') id: number, @Body() data: any) {
-    return this.deviceService.UpdateDevice(data, id);
+    return this.deviceService.UpdateDevice(data, id)
   }
 
   @Get(':id')
   getList(@Param('id', ParseIntPipe) ProjectId: number, @User() user: IUser) {
-    return this.deviceService.getListDevice(user, ProjectId);
+    return this.deviceService.getListDevice(user, ProjectId)
   }
 }

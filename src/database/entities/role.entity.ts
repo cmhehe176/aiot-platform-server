@@ -1,17 +1,17 @@
-import { Column, Entity, OneToMany, PrimaryColumn } from 'typeorm';
-import { UserEntity } from './user.entity';
+import { Column, Entity, OneToMany, PrimaryColumn } from 'typeorm'
+import { UserEntity } from './user.entity'
 
 @Entity({ name: 'roles' })
 export class RoleEntity {
   @PrimaryColumn()
-  id: number;
+  id: number
 
   @Column({ type: 'varchar' })
-  name: string;
+  name: string
 
   @Column({ type: 'varchar', unique: true })
-  alias: string;
+  alias: string
 
   @OneToMany(() => UserEntity, (user) => user.roleId)
-  user: UserEntity[];
+  user: UserEntity[]
 }

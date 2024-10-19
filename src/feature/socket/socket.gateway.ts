@@ -3,9 +3,9 @@ import {
   OnGatewayDisconnect,
   OnGatewayInit,
   WebSocketGateway,
-} from '@nestjs/websockets';
-import { SocketService } from './socket.service';
-import { Socket } from 'socket.io';
+} from '@nestjs/websockets'
+import { SocketService } from './socket.service'
+import { Socket } from 'socket.io'
 
 @WebSocketGateway({
   namespace: 'socket',
@@ -19,14 +19,14 @@ export class SocketGateway
   constructor(private readonly socketService: SocketService) {}
 
   afterInit() {
-    console.log('Server initialized');
+    console.log('Server initialized')
   }
 
   handleConnection(client: Socket) {
-    console.log('Client connected ' + client.id);
+    console.log('Client connected ' + client.id)
   }
 
   handleDisconnect(client: Socket) {
-    console.log('Client disconnected ' + client.id);
+    console.log('Client disconnected ' + client.id)
   }
 }
