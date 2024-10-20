@@ -5,11 +5,14 @@ import { RabbitMqController } from './rabbit-mq.controller'
 import { RabbitMQModule } from '@golevelup/nestjs-rabbitmq'
 import { HttpModule } from '@nestjs/axios'
 import { TypeOrmModule } from '@nestjs/typeorm'
-import { DeviceEntity } from 'src/database/entities'
+import { DeviceEntity, UserEntity } from 'src/database/entities'
+import { MessageService } from '../message/message.service'
+import { MessageModule } from '../message/message.module'
+import { EmailService } from '../email/email.service'
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([DeviceEntity]),
+    TypeOrmModule.forFeature([DeviceEntity, UserEntity]),
     RabbitMQModule.forRootAsync(RabbitMQModule, {
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
@@ -19,8 +22,9 @@ import { DeviceEntity } from 'src/database/entities'
       inject: [ConfigService],
     }),
     HttpModule,
+    MessageModule,
   ],
   controllers: [RabbitMqController],
-  providers: [RabbitMqService],
+  providers: [RabbitMqService, MessageService, EmailService],
 })
 export class RabbitMqModule {}

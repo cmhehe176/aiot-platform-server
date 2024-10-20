@@ -8,8 +8,9 @@ import { generateRandomSixDigitNumber } from 'src/common/util'
 import { InjectRepository } from '@nestjs/typeorm'
 import { DeviceEntity } from 'src/database/entities'
 import { Repository } from 'typeorm'
+import { MessageService } from '../message/message.service'
 @Injectable()
-export class RabbitMqService {
+export class RabbitMqService implements OnModuleInit {
   private readonly baseUrl: string
   private readonly username: string
   private readonly password: string
@@ -18,17 +19,23 @@ export class RabbitMqService {
   constructor(
     @InjectRepository(DeviceEntity)
     private readonly deviceEntity: Repository<DeviceEntity>,
+
     private readonly amqpConnection: AmqpConnection,
     private readonly httpService: HttpService,
     private readonly configService: ConfigService,
+    private readonly messageService: MessageService,
   ) {
     this.baseUrl = 'https://armadillo.rmq.cloudamqp.com/api/queues/xiwrmyor'
     this.username = 'xiwrmyor'
     this.password = '62e2HWf8MasbujyKE4gLeNE1bK6Yhk9O'
   }
 
+  onModuleInit() {
+    this.createQueue('sendDefault')
+  }
+
   sendMessage(message: any, queue: string) {
-    this.amqpConnection.publish('', queue, message)
+    this.amqpConnection.publish('', queue, message).catch((e) => e)
 
     return { message: 'success' }
   }
@@ -95,6 +102,8 @@ export class RabbitMqService {
 
   handleMessage = async (message: any, queue: string) => {
     console.log({ message, queue })
+    this.messageService.sendMessageToUser('7616244643', message.message_id)
+
     const listQueue = await this.getQueues(queue).catch((e) => e)
     const tag = (listQueue as QueueDetails).consumer_details[0].consumer_tag
 
@@ -133,7 +142,7 @@ export class RabbitMqService {
     this.deviceEntity
       .insert(data)
       // change here if have change something like queue
-      .then(() => this.sendMessage({ queue: data.deviceId }, 'test'))
+      .then(() => this.sendMessage({ queue: data.deviceId }, 'sendDefault'))
       .catch((e) => e)
 
     return
@@ -165,5 +174,21 @@ export class RabbitMqService {
     }, timeout)
 
     this.consumerTimers.set(tag, timer)
+  }
+
+  createQueue(queueName: string) {
+    return this.amqpConnection.managedChannel
+      .addSetup((channel) => channel.assertQueue(queueName, { durable: true }))
+      .then(() => console.log(`Queue "${queueName}" đã được tạo`))
+      .catch((e) => e)
+  }
+
+  deleteQueue(queueName: string) {
+    return this.amqpConnection.managedChannel
+      .addSetup((channel) =>
+        channel.deleteQueue(queueName, { ifUnused: false, ifEmpty: false }),
+      )
+      .then(() => console.log(`Queue "${queueName}" đã được xóa.`))
+      .catch((e) => e)
   }
 }

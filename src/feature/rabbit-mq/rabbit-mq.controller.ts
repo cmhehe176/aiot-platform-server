@@ -20,12 +20,12 @@ export class RabbitMqController {
       durable: false,
     },
   })
-  handleMessaged(message: any) {
+  handleMessage(message: any) {
     return this.rabbitMqService.handleMessageDefault(message)
   }
 
   @Post('create')
-  sendMessageTest(@Body() payload: { queue: string }) {
+  create(@Body() payload: { queue: string }) {
     return this.rabbitMqService.createSubcribe(payload.queue)
   }
 
@@ -39,8 +39,13 @@ export class RabbitMqController {
     return this.rabbitMqService.cancelConsume(payload.tag)
   }
 
-  // @Get('consume')
-  // getConsume() {
-  //   return this.rabbitMqService.getConsume()
-  // }
+  @Post('create-queue')
+  createQueue(@Body() payload: { queue: string }) {
+    return this.rabbitMqService.createQueue(payload.queue)
+  }
+
+  @Post('delete-queue')
+  deleteQueue(@Body() payload: { queue: string }) {
+    return this.rabbitMqService.deleteQueue(payload.queue)
+  }
 }

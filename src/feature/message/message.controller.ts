@@ -1,6 +1,7 @@
 import { Controller, Post } from '@nestjs/common'
 import { MessageService } from './message.service'
 import { Public } from 'src/common/decorators/public.decorator'
+import { PollDto } from './message.dto'
 
 @Controller('message')
 export class MessageController {
@@ -9,7 +10,14 @@ export class MessageController {
   @Public()
   @Post('poll')
   sendPoll() {
-    return this.messageService.sendPoll('7616244643')
+    const data: PollDto = {
+      question: 'Bạn có thích dùng sản phẩm của chúng tôi không?',
+      options: ['Có', 'Không'],
+      explanation:
+        'Cảm ơn bạn đã tham gia! <b>AIot Platform</b> là sản phẩm xịn nhất trên thế giới!',
+    }
+
+    return this.messageService.sendPoll('-1002345395149', data)
   }
 
   @Public()

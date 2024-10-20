@@ -8,6 +8,7 @@ import { EmailService } from '../email/email.service'
 import { InjectRepository } from '@nestjs/typeorm'
 import { sendMailDto } from '../email/email.dto'
 import { SourceMailSecretKey } from '../email/email.source'
+import { PollDto } from './message.dto'
 
 @Injectable()
 export class MessageService {
@@ -34,6 +35,8 @@ export class MessageService {
 
   onReceiveMessage = async (msg: any) => {
     if (!msg.text) return
+    //disable group chat
+    if (msg.chat.type !== 'private') return
 
     if (msg.text.length === 9 && msg.text.startsWith('sec')) {
       if (!this.temp?.key)
@@ -120,7 +123,6 @@ export class MessageService {
 
       if (msg.text === '/start') {
         this.sendMessageToUser(msg.from.id, 'hello')
-        this.sendPoll(msg.from.id)
         return
       }
     } catch (error) {
@@ -132,22 +134,17 @@ export class MessageService {
     console.log(data)
   }
 
-  sendMessageToUser = (userId: string, message: string) => {
+  sendMessageToUser = (userId: string, message: any) => {
     return this.bot.sendMessage(userId, message)
   }
 
-  sendPoll = (userId: string) => {
-    const question = 'Bạn có thích ăn pizza không?'
-    const options = ['Có', 'Không']
-    const explanation =
-      'Cảm ơn bạn đã tham gia! <b>Pizza</b> là món ăn phổ biến nhất trên thế giới!'
-
-    return this.bot.sendPoll(userId, question, options, {
-      is_anonymous: true,
+  sendPoll = (userId: string, data: PollDto) => {
+    return this.bot.sendPoll(userId, data.question, data.options, {
+      is_anonymous: false,
       allows_multiple_answers: false,
       type: 'regular',
       explanation_parse_mode: 'HTML',
-      explanation: explanation,
+      explanation: data.explanation,
     })
   }
 }
