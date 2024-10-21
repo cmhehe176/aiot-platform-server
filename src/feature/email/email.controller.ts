@@ -1,31 +1,26 @@
-import { Controller, Get } from '@nestjs/common'
+import { Body, Controller, Post } from '@nestjs/common'
 import { EmailService } from './email.service'
 import { Public } from 'src/common/decorators/public.decorator'
 import { sendMailDto } from './email.dto'
+import { SourceTestMail } from './email.source'
 
 @Controller('email')
 export class EmailController {
   constructor(private readonly emailService: EmailService) {}
 
   @Public()
-  @Get()
-  sendMail() {
+  @Post()
+  sendMail(@Body() payload: { email: string }) {
     const data: sendMailDto = {
-      to: ['nguyendaominhcong@gmail.com'],
+      to: [payload.email],
       subject: 'Test Mail',
       data: {
-        name: 'Test',
-        email: 'example@gmail.com',
-        description: 'example data for test mail',
+        name: 'Test User',
+        description: 'Example data for test mail',
       },
-      html: `
-      <div>SendTestMail</div>
-      <div>name : {{name}}</div>
-      <div>data : {{description}}</div>
-      <div>from : {{email}}</div>
-      `,
+      html: SourceTestMail,
     }
-
+    console.log(data)
     return this.emailService.sendMail(data)
   }
 }

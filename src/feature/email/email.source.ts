@@ -119,3 +119,28 @@ export const SourceMailSecretKey = `
     </div>
 </div>
 `
+export const SourceTestMail = `
+<div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; padding: 20px; background-color: #f4f4f4;">
+    <div style="background: white; padding: 20px; border-radius: 5px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);">
+        <div style="font-size: 24px; font-weight: bold; margin-bottom: 20px;">Test Mail</div>
+        
+        <div>Dear {{name}},</div>
+
+        <div style="margin-top: 10px;">Thank you for helping us test our service! This email serves as a sample to ensure everything is working as expected.</div>
+        
+        <div style="margin-top: 10px;">We appreciate your effort in testing, and we hope you have a great time exploring the features.</div>
+
+        <div style="margin-top: 10px;"><strong>Description of email Test:</strong> {{description}}</div>
+        
+        <div style="margin-top: 10px;">If you encounter any issues or have feedback, please don't hesitate to share it with us.</div>
+        
+        <div style="margin-top: 20px;">Happy testing, and thank you for your valuable time!</div>
+
+        <div style="margin-top: 20px; border-top: 1px solid #ccc; padding-top: 10px;">
+            <div style="font-weight: bold;">${footerMail.title}</div>
+            <div>TEL: ${footerMail.telephone}</div>
+            <div>URL: <a href="${footerMail.url}" style="color: #007BFF; text-decoration: none;">${footerMail.iurl}</a></div>
+        </div>
+    </div>
+</div>
+`
