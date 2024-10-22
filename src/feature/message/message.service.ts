@@ -29,6 +29,9 @@ export class MessageService {
 
     this.bot.on('message', this.onReceiveMessage)
     this.bot.on('poll', this.onReceivePoll)
+
+    //disable error polling_error message
+    this.bot.on('polling_error', (e) => e)
     //ignore
     // this.sendMessageToUser('7616244643', `Server started at ${new Date()}`);
   }
@@ -48,16 +51,20 @@ export class MessageService {
           'Please input your email again',
         )
 
-      if (this.temp.key === msg.text) {
-        this.userEntity.update(
-          { email: this.temp.email },
-          { telegramId: msg.from.id },
-        )
-      }
+      if (this.temp.key === msg.text)
+        this.userEntity
+          .update({ email: this.temp.email }, { telegramId: msg.from.id })
+          .then(() =>
+            this.sendMessageToUser(
+              msg.from.id,
+              `Done, hello ${msg.from.last_name}`,
+            ),
+          )
+          .catch((e) => e)
 
       this.temp = { email: '', key: '' }
 
-      return this.sendMessageToUser(msg.from.id, 'Done')
+      return
     }
 
     try {
@@ -139,12 +146,14 @@ export class MessageService {
   }
 
   sendPoll = (userId: string, data: PollDto) => {
-    return this.bot.sendPoll(userId, data.question, data.options, {
-      is_anonymous: false,
-      allows_multiple_answers: false,
-      type: 'regular',
-      explanation_parse_mode: 'HTML',
-      explanation: data.explanation,
-    })
+    return this.bot
+      .sendPoll(userId, data.question, data.options, {
+        is_anonymous: false,
+        allows_multiple_answers: false,
+        type: 'regular',
+        // explanation_parse_mode: 'HTML',
+        // explanation: data.explanation,
+      })
+      .catch((e) => e)
   }
 }
