@@ -5,7 +5,7 @@ export class createProjectDto {
 }
 
 export class updateProjectDto {
-  name: string
+  name?: string
   userIds?: number[]
-  description: string
+  description?: string
 }

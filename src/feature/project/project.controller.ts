@@ -22,6 +22,12 @@ export class ProjectController {
     return this.projectService.listProjectByUser(user.id)
   }
 
+  @Get('list')
+  @Roles(ERole.ADMIN)
+  listProject() {
+    return this.projectService.listProject()
+  }
+
   @Get(':id')
   listUserOfProject(@Param('id') id: number) {
     return this.projectService.listUserOfProject(id)

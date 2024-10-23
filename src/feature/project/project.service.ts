@@ -4,6 +4,7 @@ import { PermissionProjectEntity, ProjectEntity } from 'src/database/entities'
 import { Repository } from 'typeorm'
 import { createProjectDto, updateProjectDto } from './project.dto'
 import { NRoles } from 'src/common/constants/roles.constant'
+import { IUser } from 'src/common/decorators/user.decorator'
 
 @Injectable()
 export class ProjectService {
@@ -36,6 +37,16 @@ export class ProjectService {
     })
 
     return { data, total }
+  }
+
+  async listProject() {
+    const projects = await this.projectEntity.find({
+      relations: { createdBy: true },
+    })
+
+    projects.forEach((item) => delete item.createdBy.password)
+
+    return projects
   }
 
   async create(id: number, payload: createProjectDto) {
@@ -108,17 +119,19 @@ export class ProjectService {
       ),
     )
 
-    const addUser = payload.userIds.map((userId) => {
-      if (listUserInProject.includes(userId)) return
+    if (payload.userIds) {
+      const addUser = payload.userIds.map((userId) => {
+        if (listUserInProject.includes(userId)) return
 
-      this.addUserToProject(userId, adminId, projectId)
-    })
+        this.addUserToProject(userId, adminId, projectId)
+      })
 
-    const dropUser = listUserInProject
-      .filter((i) => !payload.userIds.includes(i))
-      .map((userId) => this.deleteUserOutProject(userId, adminId, projectId))
+      const dropUser = listUserInProject
+        .filter((i) => !payload.userIds.includes(i))
+        .map((userId) => this.deleteUserOutProject(userId, adminId, projectId))
 
-    promises.push(...addUser, ...dropUser)
+      promises.push(...addUser, ...dropUser)
+    }
 
     await Promise.all(promises.map((p) => p))
 
