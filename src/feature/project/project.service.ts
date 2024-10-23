@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { PermissionProjectEntity, ProjectEntity } from 'src/database/entities'
-import { Repository } from 'typeorm'
+import { FindOptionsWhere, Like, Repository } from 'typeorm'
 import { createProjectDto, updateProjectDto } from './project.dto'
 import { NRoles } from 'src/common/constants/roles.constant'
 import { IUser } from 'src/common/decorators/user.decorator'
@@ -39,8 +39,13 @@ export class ProjectService {
     return { data, total }
   }
 
-  async listProject() {
+  async listProject(query) {
+    const where: FindOptionsWhere<ProjectEntity> = {
+      name: Like(`%${query}%`),
+    }
+
     const projects = await this.projectEntity.find({
+      where: query ? where : query,
       relations: { createdBy: true },
     })
 

@@ -24,8 +24,8 @@ export class ProjectController {
 
   @Get('list')
   @Roles(ERole.ADMIN)
-  listProject() {
-    return this.projectService.listProject()
+  listProject(@Query() query: { q?: string }) {
+    return this.projectService.listProject(query.q)
   }
 
   @Get(':id')
