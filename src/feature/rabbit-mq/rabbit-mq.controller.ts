@@ -15,7 +15,7 @@ export class RabbitMqController {
 
   @RabbitSubscribe({
     exchange: '',
-    queue: 'default',
+    queue: 'mac',
     queueOptions: {
       durable: false,
     },

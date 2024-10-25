@@ -1,5 +1,5 @@
 import { Injectable, OnModuleInit } from '@nestjs/common'
-import { AmqpConnection } from '@golevelup/nestjs-rabbitmq'
+import { AmqpConnection, Nack } from '@golevelup/nestjs-rabbitmq'
 import { lastValueFrom } from 'rxjs'
 import { HttpService } from '@nestjs/axios'
 import { ConfigService } from '@nestjs/config'
@@ -31,7 +31,7 @@ export class RabbitMqService implements OnModuleInit {
   }
 
   onModuleInit() {
-    this.createQueue('sendDefault')
+    this.createQueue('default')
   }
 
   sendMessage(message: any, queue: string) {
@@ -39,10 +39,11 @@ export class RabbitMqService implements OnModuleInit {
 
     return { message: 'success' }
   }
-
+  // This is not the best solution. If there is some free time, the flow needs to be improved.
+  // If have Nack and message requeue , it will make more consume => waste memory => need to fix
   createSubcribe = async (queue) => {
     const listQueue = await this.getQueues().catch((e) => e)
-    const check = (listQueue as QueueInfo[]).some((i) => i.name === queue)
+    const check = await (listQueue as QueueInfo[]).some((i) => i.name === queue)
 
     if (check) return
 
@@ -74,6 +75,7 @@ export class RabbitMqService implements OnModuleInit {
 
     const { data }: any = await lastValueFrom(response)
 
+    // This is not the best solution. If there is some free time, the flow needs to be improved.
     if (queue) {
       const queueDetails: QueueDetails = data as QueueDetails
 
@@ -111,8 +113,10 @@ export class RabbitMqService implements OnModuleInit {
   }
 
   handleMessageDefault = async (message: any) => {
+    // return new Nack(true)
     if (!message.message_id || !message.macAddress) return
 
+    // This is not the best solution. If there is some free time, the flow needs to be improved.
     const data = {
       data: {},
       mac: message.macAddress,
@@ -142,8 +146,8 @@ export class RabbitMqService implements OnModuleInit {
     this.deviceEntity
       .insert(data)
       // change here if have change something like queue
-      .then(() => this.sendMessage({ queue: data.deviceId }, 'sendDefault'))
-      .catch((e) => e)
+      .then(() => this.sendMessage({ queue: data.deviceId }, 'default'))
+      .catch((e) => console.log(e))
 
     return
   }
@@ -160,7 +164,7 @@ export class RabbitMqService implements OnModuleInit {
     return { message: 'success' }
   }
 
-  resetConsumerTimer(tag: string, queue = 'default', timeout = 300000) {
+  resetConsumerTimer(tag: string, queue = 'default', timeout = 30000) {
     if (this.consumerTimers.has(tag)) {
       clearTimeout(this.consumerTimers.get(tag))
     }

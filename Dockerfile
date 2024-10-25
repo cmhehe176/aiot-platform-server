@@ -1,15 +1,17 @@
-FROM node:20.17.0
+FROM node:20.17.0-alpine
 
-WORKDIR /base
+WORKDIR /iot-server
 
-COPY package.json yarn.lock ./
+RUN set -eux; \
+	apk add --update --no-cache git build-base; \
+	corepack enable
 
-RUN npm install -g --force yarn 
+COPY --chown=node:node package.json yarn.lock ./
 
-RUN yarn
+RUN yarn install
 
 COPY . .
 
 COPY .env.example .env
 
-CMD [ "yarn", "dev", "--", "--host" ]
+CMD ["yarn", "dev", "--", "--host"]
