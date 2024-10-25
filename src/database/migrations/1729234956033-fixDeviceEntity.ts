@@ -5,7 +5,7 @@ export class FixDeviceEntity1729234956033 implements MigrationInterface {
 
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(
-      `ALTER TABLE "device" ADD "mac" character varying NOT NULL`,
+      `ALTER TABLE "device" ADD "mac_address" character varying NOT NULL`,
     )
     await queryRunner.query(
       `ALTER TABLE "device" ADD CONSTRAINT "UQ_9875427736a57d18fc692e2d5ab" UNIQUE ("mac_address")`,
