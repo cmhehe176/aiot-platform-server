@@ -104,7 +104,7 @@ export class RabbitMqService implements OnModuleInit {
 
   handleMessage = async (message: any, queue: string) => {
     console.log({ message, queue })
-    this.messageService.sendMessageToUser('7616244643', message.message_id)
+    this.messageService.sendMessageToUser('-1002345395149', message.message_id)
 
     const listQueue = await this.getQueues(queue).catch((e) => e)
     const tag = (listQueue as QueueDetails).consumer_details[0].consumer_tag
@@ -164,7 +164,7 @@ export class RabbitMqService implements OnModuleInit {
     return { message: 'success' }
   }
 
-  resetConsumerTimer(tag: string, queue = 'default', timeout = 30000) {
+  resetConsumerTimer(tag: string, queue = 'default', timeout = 300000) {
     if (this.consumerTimers.has(tag)) {
       clearTimeout(this.consumerTimers.get(tag))
     }
