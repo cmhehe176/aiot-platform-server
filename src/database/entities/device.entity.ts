@@ -17,7 +17,7 @@ export class DeviceEntity extends BaseEntity {
   name: string
 
   @Column({ type: 'varchar', nullable: false, unique: true })
-  mac: string
+  mac_address: string
 
   @Column({ type: 'varchar', nullable: false, unique: true })
   deviceId: string

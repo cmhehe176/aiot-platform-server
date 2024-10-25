@@ -15,7 +15,7 @@ export class RabbitMqController {
 
   @RabbitSubscribe({
     exchange: '',
-    queue: 'mac',
+    queue: 'device_registry',
     queueOptions: {
       durable: false,
     },

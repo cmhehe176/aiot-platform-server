@@ -31,7 +31,7 @@ export class RabbitMqService implements OnModuleInit {
   }
 
   onModuleInit() {
-    this.createQueue('default')
+    this.createQueue('accepted_devices')
   }
 
   sendMessage(message: any, queue: string) {
@@ -39,6 +39,7 @@ export class RabbitMqService implements OnModuleInit {
 
     return { message: 'success' }
   }
+
   // This is not the best solution. If there is some free time, the flow needs to be improved.
   // If have Nack and message requeue , it will make more consume => waste memory => need to fix
   createSubcribe = async (queue) => {
@@ -114,17 +115,17 @@ export class RabbitMqService implements OnModuleInit {
 
   handleMessageDefault = async (message: any) => {
     // return new Nack(true)
-    if (!message.message_id || !message.macAddress) return
+    if (!message.mac_address) return
 
     // This is not the best solution. If there is some free time, the flow needs to be improved.
     const data = {
-      data: {},
-      mac: message.macAddress,
-      deviceId: message.macAddress + ':' + generateRandomSixDigitNumber('ID'),
+      data: message.data,
+      mac_address: message.mac_address,
+      deviceId: message.mac_address + ':' + generateRandomSixDigitNumber('ID'),
     }
 
     const device = await this.deviceEntity.findOne({
-      where: { mac: data.mac },
+      where: { mac_address: data.mac_address },
     })
 
     if (device) {
@@ -143,10 +144,16 @@ export class RabbitMqService implements OnModuleInit {
 
     this.createSubcribe(data.deviceId)
 
+    const sendData = {
+      mac_address: data.mac_address,
+      device_id: data.deviceId,
+      heartbeat_duration: 5,
+    }
+
     this.deviceEntity
       .insert(data)
       // change here if have change something like queue
-      .then(() => this.sendMessage({ queue: data.deviceId }, 'default'))
+      .then(() => this.sendMessage(sendData, 'accepted_devices'))
       .catch((e) => console.log(e))
 
     return

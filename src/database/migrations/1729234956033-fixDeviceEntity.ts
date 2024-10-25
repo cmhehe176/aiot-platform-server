@@ -8,7 +8,7 @@ export class FixDeviceEntity1729234956033 implements MigrationInterface {
       `ALTER TABLE "device" ADD "mac" character varying NOT NULL`,
     )
     await queryRunner.query(
-      `ALTER TABLE "device" ADD CONSTRAINT "UQ_9875427736a57d18fc692e2d5ab" UNIQUE ("mac")`,
+      `ALTER TABLE "device" ADD CONSTRAINT "UQ_9875427736a57d18fc692e2d5ab" UNIQUE ("mac_address")`,
     )
     await queryRunner.query(
       `ALTER TABLE "device" ADD "deviceId" character varying NOT NULL`,
@@ -44,6 +44,6 @@ export class FixDeviceEntity1729234956033 implements MigrationInterface {
     await queryRunner.query(
       `ALTER TABLE "device" DROP CONSTRAINT "UQ_9875427736a57d18fc692e2d5ab"`,
     )
-    await queryRunner.query(`ALTER TABLE "device" DROP COLUMN "mac"`)
+    await queryRunner.query(`ALTER TABLE "device" DROP COLUMN "mac_address"`)
   }
 }
