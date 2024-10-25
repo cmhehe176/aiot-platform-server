@@ -6,6 +6,8 @@ RUN set -eux; \
 	apk add --update --no-cache git build-base; \
 	corepack enable
 
+RUN yarn global add @nestjs/cli
+
 COPY --chown=node:node package.json yarn.lock ./
 
 RUN yarn install
