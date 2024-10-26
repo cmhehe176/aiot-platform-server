@@ -1,22 +1,28 @@
 ## Description
 
-Iot Platform Server
+AIot Platform Server
 
-## Setup Database
+## Setup Database and Project
 
 If you are familiar with using PostgreSQL on desktop and it's running stably, you can skip this step.
 Otherwise, follow my instructions so you can run it with Docker.
+( you must fullfilled file .env to connect this service )
 
 ```bash
-$ yarn
-
-$ docker ps
 # you must be check this command for test Docker health is still good
+$ docker ps
 
+# you must fullfilled in this file .env to access server and database
 $ cp .env.example .env
 
+# use this command for build or rebuild this images
 $ docker compose up -d --build
 
+# only use this command for first time run images , use command below this command to pull lib and migration database to server
+$ docker exec -it server sh -c "yarn && yarn migration && yarn seed && exit"
+
+# if your code is change or lib change , you need to rebuild this images by use this command
+$ docker exec -it server sh -c "yarn && yarn migration && exit"
 
 ```
 
@@ -26,6 +32,7 @@ You have to be in the directory containing the Docker Compose file ( compose.yam
 
 ```bash
 
+# you must fullfilled .env to connect this service
 $ docker ps
 # you must be check this command for test Docker is still running
 
