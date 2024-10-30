@@ -2,7 +2,7 @@ import 'dotenv/config'
 
 export default {
   type: 'postgres',
-  host: '127.0.0.1',
+  host: process.env.HOST,
   port: +process.env.POSTGRES_DB_PORT,
   username: process.env.POSTGRES_USER,
   password: process.env.POSTGRES_PASSWORD,
