@@ -1,5 +1,5 @@
 import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm'
-import { BaseEntity } from './base.entities'
+import { BaseEntity } from './base.entity'
 import { ProjectEntity } from './project.entity'
 
 @Entity({ name: 'device' })

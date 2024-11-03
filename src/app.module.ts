@@ -10,11 +10,14 @@ import { RoleGuard } from './feature/auth/guards/role.guard'
 import { ProjectModule } from './feature/project/project.module'
 import { UserModule } from './feature/user/user.module'
 import { DeviceModule } from './feature/device/device.module'
-import { SocketModule } from './feature/socket/socket.module'
+// import { SocketModule } from './feature/socket/socket.module'
 import { RabbitMqModule } from './feature/rabbit-mq/rabbit-mq.module'
 import { EmailModule } from './feature/email/email.module'
 import { SupportModule } from './feature/support/support.module'
 import { MessageModule } from './feature/message/message.module'
+import { StorageModule } from './feature/storage/storage.module'
+import { DashboardModule } from './feature/dashboard/dashboard.module'
+import { SocketModule } from './feature/socket/socket.module'
 
 @Module({
   imports: [
@@ -31,6 +34,9 @@ import { MessageModule } from './feature/message/message.module'
     EmailModule,
     SupportModule,
     MessageModule,
+    StorageModule,
+    DashboardModule,
+    DeviceModule,
   ],
   controllers: [AppController],
   providers: [

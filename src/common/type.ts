@@ -1,6 +1,6 @@
 export type TObject = {
   message_id: string
-  timestamp: string
+  timestamp: string | Date
   location: {
     id: string
     lat: number
@@ -61,7 +61,7 @@ export type TObject = {
 
 export type TNotification = {
   message_id: string
-  timestamp: string
+  timestamp: string | Date
   location: {
     id: string
     lat: number
@@ -79,7 +79,7 @@ export type TNotification = {
 
 export type TSensor = {
   message_id: string
-  timestamp: string
+  timestamp: string | Date
   location: {
     id: string
     lat: number
@@ -143,7 +143,7 @@ export type QueueDetails = {
     min_heap_size: number
     minor_gcs: number
   }
-  head_message_timestamp: string | null
+  head_message_timestamp: string | Date | null
   idle_since: string
   incoming: any[]
   memory: number

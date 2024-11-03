@@ -21,9 +21,21 @@ export class MessageController {
   }
 
   @Public()
-  @Post('mess')
-  sendMess() {
+  @Post('send-message')
+  sendMessage() {
     //-1002345395149
     return this.messageService.sendMessageToUser('7616244643', 'hello')
+  }
+
+  @Public()
+  @Post('send-image')
+  sendImage() {
+    //-1002345395149
+
+    return this.messageService.sendPhoto(
+      '7616244643',
+      'https://gratisography.com/wp-content/uploads/2024/10/gratisography-cool-cat-1035x780.jpg',
+      'anh conmeo',
+    )
   }
 }

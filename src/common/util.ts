@@ -1,13 +1,10 @@
-import { BadRequestException, INestApplication } from '@nestjs/common'
+import { INestApplication } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import {
   Transport,
   RmqOptions,
   ClientsProviderAsyncOptions,
 } from '@nestjs/microservices'
-import { TNotification, TObject, TSensor } from './type'
-import { Repository } from 'typeorm'
-import { DeviceEntity } from 'src/database/entities'
 
 export const configureQueue = async (
   app: INestApplication<any>,
@@ -56,7 +53,7 @@ export const generateRandomSixDigitNumber = (string = 'sec') => {
   return string + Math.floor(100000 + Math.random() * 900000)
 }
 
-export const generateTypeMessage = (message_id) => {
+export const generateTypeMessage = (message_id: string) => {
   const type = message_id.slice(0, 3)
 
   switch (type) {
@@ -71,3 +68,6 @@ export const generateTypeMessage = (message_id) => {
       return undefined
   }
 }
+
+export const imageError =
+  'https://media.istockphoto.com/id/827247322/vector/danger-sign-vector-icon-attention-caution-illustration-business-concept-simple-flat-pictogram.jpg?s=612x612&w=0&k=20&c=BvyScQEVAM94DrdKVybDKc_s0FBxgYbu-Iv6u7yddbs='

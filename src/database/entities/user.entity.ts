@@ -1,6 +1,6 @@
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm'
 import { RoleEntity } from './role.entity'
-import { BaseEntity } from './base.entities'
+import { BaseEntity } from './base.entity'
 import { PermissionProjectEntity } from './permission-project.entity'
 
 @Entity({ name: 'user' })

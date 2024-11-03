@@ -1,5 +1,6 @@
 networks:
-  iot-server-net: {}
+  iot-server-net:
+    name: network
 
 volumes:
   postgres-data: {}

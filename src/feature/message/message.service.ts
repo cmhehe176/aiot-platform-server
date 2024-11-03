@@ -142,7 +142,13 @@ export class MessageService {
   }
 
   sendMessageToUser = (userId: string, message: any) => {
-    return this.bot.sendMessage(userId, message)
+    return this.bot.sendMessage(userId, message).catch(console.error)
+  }
+
+  sendPhoto(userId: string, photoPath: string, caption = '') {
+    return this.bot
+      .sendPhoto(userId, photoPath, { caption: caption })
+      .catch(console.error)
   }
 
   sendPoll = (userId: string, data: PollDto) => {
@@ -154,6 +160,6 @@ export class MessageService {
         // explanation_parse_mode: 'HTML',
         // explanation: data.explanation,
       })
-      .catch((e) => e)
+      .catch(console.error)
   }
 }

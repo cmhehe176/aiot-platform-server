@@ -1,5 +1,5 @@
 import { Column, Entity, OneToMany } from 'typeorm'
-import { BaseEntity } from './base.entities'
+import { BaseEntity } from './base.entity'
 import { DeviceEntity } from './device.entity'
 import { PermissionProjectEntity } from './permission-project.entity'
 

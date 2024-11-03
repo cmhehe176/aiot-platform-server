@@ -1,22 +1,22 @@
 import {
   OnGatewayConnection,
-  OnGatewayDisconnect,
   OnGatewayInit,
   WebSocketGateway,
+  WebSocketServer,
 } from '@nestjs/websockets'
 import { SocketService } from './socket.service'
-import { Socket } from 'socket.io'
+import { Server, Socket } from 'socket.io'
 
 @WebSocketGateway({
   namespace: 'socket',
   cors: {
-    origin: 'http://localhost:4000',
+    origin: '*',
   },
 })
-export class SocketGateway
-  implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
-{
+export class SocketGateway implements OnGatewayInit, OnGatewayConnection {
   constructor(private readonly socketService: SocketService) {}
+  @WebSocketServer()
+  server: Server
 
   afterInit() {
     console.log('Server initialized')
@@ -26,7 +26,7 @@ export class SocketGateway
     console.log('Client connected ' + client.id)
   }
 
-  handleDisconnect(client: Socket) {
-    console.log('Client disconnected ' + client.id)
+  sendEmit(even: string, data?: any) {
+    return this.server.emit(even, data)
   }
 }

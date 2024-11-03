@@ -9,5 +9,6 @@ import { UserEntity } from 'src/database/entities'
   imports: [TypeOrmModule.forFeature([UserEntity])],
   controllers: [MessageController],
   providers: [MessageService, EmailService],
+  exports: [MessageService],
 })
 export class MessageModule {}

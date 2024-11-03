@@ -4,6 +4,7 @@ import { NRoles } from 'src/common/constants/roles.constant'
 import { IUser } from 'src/common/decorators/user.decorator'
 import { DeviceEntity, PermissionProjectEntity } from 'src/database/entities'
 import { Repository } from 'typeorm'
+import { SocketGateway } from '../socket/socket.gateway'
 
 @Injectable()
 export class DeviceService {
@@ -12,6 +13,7 @@ export class DeviceService {
     private readonly deviceEntity: Repository<DeviceEntity>,
     @InjectRepository(PermissionProjectEntity)
     private readonly permissionProjectEntity: Repository<PermissionProjectEntity>,
+    private readonly socket: SocketGateway,
   ) {}
 
   CreateDevice = async (payload: any, adminId: number) => {
@@ -25,7 +27,7 @@ export class DeviceService {
   UpdateDevice = async (payload: any, id: number) => {
     await this.deviceEntity.update(
       { id: id },
-      { name: payload.name, isActive: payload.isActive },
+      { name: payload.name, projectId: payload.projectId },
     )
 
     return { message: 'success' }
@@ -44,5 +46,9 @@ export class DeviceService {
     }
 
     return this.deviceEntity.find()
+  }
+
+  sendDataUpdate = () => {
+    return this.socket.sendEmit('test', true)
   }
 }

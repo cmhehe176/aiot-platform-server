@@ -15,7 +15,7 @@ export default class InitUser implements Seeder {
     await connection.getRepository(UserEntity).insert([
       {
         name: 'Super Admin',
-        email: process.env.EMAIL_SUPER_ADMIN,
+        email: 'super_admin@gmail.com',
         telephone: randomPhone(),
         password: hashPassword,
         thumbnailUrl: '',
@@ -23,7 +23,7 @@ export default class InitUser implements Seeder {
       },
       {
         name: 'Admin',
-        email: process.env.EMAIL_ADMIN,
+        email: 'admin@gmail.com',
         telephone: randomPhone(),
         password: hashPassword,
         thumbnailUrl: '',
@@ -31,7 +31,7 @@ export default class InitUser implements Seeder {
       },
       {
         name: 'User',
-        email: process.env.EMAIL_USER,
+        email: 'user@gmail.com',
         telephone: randomPhone(),
         password: hashPassword,
         thumbnailUrl: '',

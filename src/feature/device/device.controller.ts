@@ -10,6 +10,7 @@ import {
 import { DeviceService } from './device.service'
 import { ERole, Roles } from 'src/common/decorators/role.decorator'
 import { IUser, User } from 'src/common/decorators/user.decorator'
+import { Public } from 'src/common/decorators/public.decorator'
 
 @Controller('device')
 export class DeviceController {
@@ -26,7 +27,13 @@ export class DeviceController {
   }
 
   @Get(':id')
-  getList(@Param('id', ParseIntPipe) ProjectId: number, @User() user: IUser) {
-    return this.deviceService.getListDevice(user, ProjectId)
+  getList(@Param('id', ParseIntPipe) projectId: number, @User() user: IUser) {
+    return this.deviceService.getListDevice(user, projectId)
+  }
+
+  @Public()
+  @Get('test')
+  testEmit() {
+    return this.deviceService.sendDataUpdate()
   }
 }
