@@ -29,8 +29,11 @@ import { SocketModule } from '../socket/socket.module'
     RabbitMQModule.forRootAsync(RabbitMQModule, {
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
-        uri: configService.get<string>('RABBITMQ_PUBLIC'),
+        uri: configService.get<string>('RABBITMQ_URI'),
         enableControllerDiscovery: true,
+        connectionOptions: {
+          heartbeat: 30,
+        },
       }),
       inject: [ConfigService],
     }),
