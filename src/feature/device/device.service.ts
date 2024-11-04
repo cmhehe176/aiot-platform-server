@@ -34,18 +34,16 @@ export class DeviceService {
   }
 
   getListDevice = async (user: IUser, projectId: number) => {
-    if (user.role.id === NRoles.USER) {
-      const checkUser = await this.permissionProjectEntity.exists({
-        where: { userId: user.id, projectId: projectId },
-      })
+    if (!projectId) return this.deviceEntity.find()
 
-      if (!checkUser)
-        throw new BadRequestException('Not Found device in  project ')
+    const checkUser = await this.permissionProjectEntity.exists({
+      where: { userId: user.id, projectId: projectId },
+    })
 
-      return this.deviceEntity.find({ where: { projectId } })
-    }
+    if (!checkUser && user.role.id === NRoles.USER)
+      throw new BadRequestException('Not Found device in  project ')
 
-    return this.deviceEntity.find()
+    return this.deviceEntity.find({ where: { projectId } })
   }
 
   sendDataUpdate = () => {

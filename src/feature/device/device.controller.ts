@@ -1,12 +1,4 @@
-import {
-  Body,
-  Controller,
-  Get,
-  Param,
-  ParseIntPipe,
-  Post,
-  Put,
-} from '@nestjs/common'
+import { Body, Controller, Get, Param, Post, Put, Query } from '@nestjs/common'
 import { DeviceService } from './device.service'
 import { ERole, Roles } from 'src/common/decorators/role.decorator'
 import { IUser, User } from 'src/common/decorators/user.decorator'
@@ -15,6 +7,7 @@ import { Public } from 'src/common/decorators/public.decorator'
 @Controller('device')
 export class DeviceController {
   constructor(private readonly deviceService: DeviceService) {}
+
   @Post()
   @Roles(ERole.ADMIN)
   CreateDevice(@Body() data: any, @User() user: IUser) {
@@ -26,9 +19,9 @@ export class DeviceController {
     return this.deviceService.UpdateDevice(data, id)
   }
 
-  @Get(':id')
-  getList(@Param('id', ParseIntPipe) projectId: number, @User() user: IUser) {
-    return this.deviceService.getListDevice(user, projectId)
+  @Get()
+  getList(@Query() query: { projectId: number }, @User() user: IUser) {
+    return this.deviceService.getListDevice(user, query.projectId)
   }
 
   @Public()
