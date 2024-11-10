@@ -1,9 +1,10 @@
-import { Injectable } from '@nestjs/common'
+import { BadRequestException, Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { ObjectEntity } from 'src/database/entities'
 import { Repository } from 'typeorm'
 import { getObjectDto } from './object.dto'
 import { TObject } from 'src/common/type'
+import { genereateObject } from 'src/common/util'
 @Injectable()
 export class ObjectService {
   constructor(
@@ -50,18 +51,21 @@ export class ObjectService {
       .skip((page - 1) * limit)
       .getManyAndCount()
 
-    // const test = data.map((item) => {
-    //   if (!item.object_list || !item.event_list) return item
-
-    //   const evenList = item.event_list as TObject['event_list']
-    // })
-
     return { data, total }
   }
 
-  getDetailObject(message_id: string) {
-    return this.objectEntity
+  async getDetailObject(message_id: string) {
+    const object = await this.objectEntity
       .findOne({ where: { message_id: message_id } })
       .catch(console.error)
+
+    if (!object)
+      throw new BadRequestException(
+        'Object not found , please check message_id',
+      )
+
+    const result = genereateObject(object)
+
+    return result
   }
 }

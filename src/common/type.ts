@@ -15,48 +15,32 @@ export type TObject = {
       type: string
     }
   }
-  number_of_objects: number
-  object_list: Array<{
-    Human?: {
-      id: string
-      gender: string
-      age: string
-      bbox: {
-        topleftx: number
-        toplefty: number
-        bottomrightx: number
-        bottomrighty: number
-      }
-      image_URL?: string
+  object_list: {
+    concat(tmp: { type: string; action: string; object_id: string; video_URL: string }): unknown
+    id: string
+    bbox: {
+      topleftx: number
+      toplefty: number
+      bottomrightx: number
+      bottomrighty: number
     }
-    Vehicle?: {
-      id: string
-      type: string
-      brand: string
-      color: string
-      Licence: string
-      bbox: {
-        topleftx: number
-        toplefty: number
-        bottomrightx: number
-        bottomrighty: number
-      }
-      image_URL?: string
+    object: {
+      type: 'human' | 'vehicle' | string
+      age?: string
+      gender?: string
+      brand?: string
+      color?: string
+      licence?: string
+      category?: string
     }
-  }>
-  number_of_events: number
-  event_list: Array<{
-    human_event?: {
-      object_id: string
-      action: string
-      video_URL: string
-    }
-    vehicle_event?: {
-      object_id: string
-      action: string
-      video_URL: string
-    }
-  }>
+    image_URL: string
+  }[]
+  event_list: {
+    type: string
+    action: string
+    object_id: string
+    video_URL: string
+  }[]
 }
 
 export type TNotification = {

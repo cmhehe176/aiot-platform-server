@@ -5,6 +5,8 @@ import {
   RmqOptions,
   ClientsProviderAsyncOptions,
 } from '@nestjs/microservices'
+import { TObject } from './type'
+import { ObjectEntity } from 'src/database/entities'
 
 export const configureQueue = async (
   app: INestApplication<any>,
@@ -71,3 +73,18 @@ export const generateTypeMessage = (message_id: string) => {
 
 export const imageError =
   'https://media.istockphoto.com/id/827247322/vector/danger-sign-vector-icon-attention-caution-illustration-business-concept-simple-flat-pictogram.jpg?s=612x612&w=0&k=20&c=BvyScQEVAM94DrdKVybDKc_s0FBxgYbu-Iv6u7yddbs='
+
+export const genereateObject = (object: ObjectEntity) => {
+  const list = object.object_list as TObject['object_list']
+  const event = object.event_list as TObject['event_list']
+
+  list.forEach((i, index, array) => {
+    const tmp = event.find((e) => e.object_id === i.id)
+
+    array[index] = { ...i, ...tmp }
+  })
+
+  delete object.event_list
+
+  return object
+}
