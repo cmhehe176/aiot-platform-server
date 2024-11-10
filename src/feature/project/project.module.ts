@@ -8,5 +8,6 @@ import { PermissionProjectEntity, ProjectEntity } from 'src/database/entities'
   imports: [TypeOrmModule.forFeature([ProjectEntity, PermissionProjectEntity])],
   controllers: [ProjectController],
   providers: [ProjectService],
+  exports: [ProjectService],
 })
 export class ProjectModule {}

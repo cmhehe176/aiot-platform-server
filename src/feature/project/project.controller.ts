@@ -22,6 +22,11 @@ export class ProjectController {
     return this.projectService.listProjectByUser(user.id)
   }
 
+  @Get('dashboard/list')
+  getListProjectByRole(@User() user: IUser) {
+    return this.projectService.getListProjectByRole(user)
+  }
+
   @Get('list')
   @Roles(ERole.ADMIN)
   listProject(@Query() query: { q?: string }) {

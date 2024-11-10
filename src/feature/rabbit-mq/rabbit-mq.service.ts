@@ -143,7 +143,7 @@ export class RabbitMqService implements OnModuleInit {
       }
 
       // change here if have change something like queue name
-      this.deviceEntity.insert(data)
+      this.deviceEntity.insert(data).catch(console.error)
 
       this.sendMessage(sendData, 'accepted_devices')
     } catch (error) {
@@ -241,8 +241,11 @@ export class RabbitMqService implements OnModuleInit {
       this.deviceEntity
         .exists({ where: { deviceId: queue, isActive: true } })
         .then((check) => {
-          if (check)
+          if (check) {
             this.deviceEntity.update({ deviceId: queue }, { isActive: false })
+
+            this.socket.sendEmit('refreshApi', true)
+          }
         })
         .catch(console.error)
 

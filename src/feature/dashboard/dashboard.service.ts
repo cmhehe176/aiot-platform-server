@@ -22,7 +22,15 @@ export class DashboardService {
       skip: (page - 1) * limit,
     })
 
-    return { data: items.map((i) => i.id), total }
+    return {
+      data: items.map((i) => {
+        return {
+          id: i.id,
+          label: i.message_id,
+        }
+      }),
+      total,
+    }
   }
 
   async listAll() {

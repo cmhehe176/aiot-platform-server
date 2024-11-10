@@ -2,7 +2,6 @@ import { Body, Controller, Get, Param, Post, Put, Query } from '@nestjs/common'
 import { DeviceService } from './device.service'
 import { ERole, Roles } from 'src/common/decorators/role.decorator'
 import { IUser, User } from 'src/common/decorators/user.decorator'
-import { Public } from 'src/common/decorators/public.decorator'
 
 @Controller('device')
 export class DeviceController {
@@ -15,6 +14,7 @@ export class DeviceController {
   }
 
   @Put(':id')
+  @Roles(ERole.ADMIN)
   UpdateDevice(@Param('id') id: number, @Body() data: any) {
     return this.deviceService.UpdateDevice(data, id)
   }
@@ -24,9 +24,8 @@ export class DeviceController {
     return this.deviceService.getListDevice(user, query.projectId)
   }
 
-  @Public()
   @Get('test')
-  testEmit() {
-    return this.deviceService.sendDataUpdate()
+  test(@User() user: IUser) {
+    return this.deviceService.getDeviceOfUser(user)
   }
 }

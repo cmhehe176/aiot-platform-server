@@ -18,7 +18,7 @@ export class ProjectService {
   async listProjectByUser(id: number) {
     const [items, total] = await this.permissionProjectEntity.findAndCount({
       where: { userId: id },
-      relations: { project: true, createdBy: true },
+      relations: { project: { device: true }, createdBy: true },
     })
 
     const data = items.map((item) => {
@@ -39,14 +39,14 @@ export class ProjectService {
     return { data, total }
   }
 
-  async listProject(query) {
+  async listProject(query?: string) {
     const where: FindOptionsWhere<ProjectEntity> = {
       name: Like(`%${query}%`),
     }
 
     const projects = await this.projectEntity.find({
-      where: query ? where : query,
-      relations: { createdBy: true },
+      where: query ? where : null,
+      relations: { createdBy: true, device: true },
     })
 
     projects.forEach((item) => delete item.createdBy.password)
@@ -188,5 +188,29 @@ export class ProjectService {
       )
 
     return { message: 'success' }
+  }
+
+  getListProjectByRole = async (user: IUser) => {
+    const isAdmin = user.role.id === NRoles.ADMIN
+
+    const mapProjectDevices = (project) => {
+      return {
+        id: project.id,
+        name: project.name,
+        device: project.device.map((device) => ({
+          id: device.id,
+          name: device.name,
+          deviceId: device.deviceId,
+        })),
+      }
+    }
+
+    if (isAdmin) {
+      const projects = await this.listProject()
+      return projects.map(mapProjectDevices)
+    }
+
+    const userProjects = await this.listProjectByUser(user.id)
+    return userProjects.data.map((item) => mapProjectDevices(item.project))
   }
 }
