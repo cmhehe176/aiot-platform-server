@@ -7,7 +7,7 @@ import { InjectRepository } from '@nestjs/typeorm'
 import { NRoles } from 'src/common/constants/roles.constant'
 import { IUser } from 'src/common/decorators/user.decorator'
 import { DeviceEntity, PermissionProjectEntity } from 'src/database/entities'
-import { Repository } from 'typeorm'
+import { DataSource, Repository } from 'typeorm'
 import { SocketGateway } from '../socket/socket.gateway'
 import { ProjectService } from '../project/project.service'
 
@@ -17,9 +17,9 @@ export class DeviceService {
     @InjectRepository(DeviceEntity)
     private readonly deviceEntity: Repository<DeviceEntity>,
     @InjectRepository(PermissionProjectEntity)
-    private readonly permissionProjectEntity: Repository<PermissionProjectEntity>,
     private readonly socket: SocketGateway,
     private readonly projectService: ProjectService,
+    private readonly dataSource: DataSource,
   ) {}
 
   CreateDevice = async (payload: any, adminId: number) => {
@@ -50,9 +50,11 @@ export class DeviceService {
         },
       })
 
-    const checkUser = await this.permissionProjectEntity.exists({
-      where: { userId: user.id, projectId: projectId },
-    })
+    const checkUser = await this.dataSource
+      .getRepository(PermissionProjectEntity)
+      .exists({
+        where: { userId: user.id, projectId: projectId },
+      })
 
     if (!checkUser && user.role.id === NRoles.USER)
       throw new BadRequestException('Not Found device in project ')

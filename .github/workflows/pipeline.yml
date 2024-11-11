@@ -6,6 +6,12 @@ on:
       - main
   workflow_dispatch:
     inputs:
+      build:
+        description: 'Build'
+        required: true
+        default: 'true'
+        type: boolean
+
       deploy:
         description: 'Deploy'
         required: true
@@ -15,6 +21,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    if: ${{ github.event.inputs.build == 'true' }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4

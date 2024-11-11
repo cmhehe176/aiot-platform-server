@@ -3,16 +3,16 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common'
-import { InjectRepository } from '@nestjs/typeorm'
-import { UserEntity } from 'src/database/entities'
-import { Repository } from 'typeorm'
-import { ForgotPassword, Register, UpdateUserDto } from './auth.dto'
-import * as argon from 'argon2'
-import { JwtService } from '@nestjs/jwt'
-import { EmailService } from '../email/email.service'
-import { SourceMailForgotPassword } from 'src/feature/email/email.source'
 import { ConfigService } from '@nestjs/config'
+import { JwtService } from '@nestjs/jwt'
+import { InjectRepository } from '@nestjs/typeorm'
+import * as argon from 'argon2'
 import { IUser } from 'src/common/decorators/user.decorator'
+import { UserEntity } from 'src/database/entities'
+import { SourceMailForgotPassword } from 'src/feature/email/email.source'
+import { Repository } from 'typeorm'
+import { EmailService } from '../email/email.service'
+import { ForgotPassword, Register } from './auth.dto'
 @Injectable()
 export class AuthService {
   constructor(

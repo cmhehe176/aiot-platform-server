@@ -3,7 +3,6 @@ import { InjectRepository } from '@nestjs/typeorm'
 import { ObjectEntity } from 'src/database/entities'
 import { Repository } from 'typeorm'
 import { getObjectDto } from './object.dto'
-import { TObject } from 'src/common/type'
 import { genereateObject } from 'src/common/util'
 @Injectable()
 export class ObjectService {
