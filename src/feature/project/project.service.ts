@@ -1,6 +1,10 @@
 import { Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
-import { PermissionProjectEntity, ProjectEntity } from 'src/database/entities'
+import {
+  DeviceEntity,
+  PermissionProjectEntity,
+  ProjectEntity,
+} from 'src/database/entities'
 import { FindOptionsWhere, Like, Repository } from 'typeorm'
 import { createProjectDto, updateProjectDto } from './project.dto'
 import { NRoles } from 'src/common/constants/roles.constant'
@@ -13,6 +17,8 @@ export class ProjectService {
     private readonly projectEntity: Repository<ProjectEntity>,
     @InjectRepository(PermissionProjectEntity)
     private readonly permissionProjectEntity: Repository<PermissionProjectEntity>,
+    @InjectRepository(DeviceEntity)
+    private readonly deviceEntity: Repository<DeviceEntity>,
   ) {}
 
   async listProjectByUser(id: number) {
@@ -143,16 +149,13 @@ export class ProjectService {
     return { message: 'success' }
   }
 
-  async deleteProject(id: number, adminId: number) {
+  async deleteProject(id: number) {
     const promise = [
-      this.permissionProjectEntity.update(
-        { projectId: id },
-        { deletedId: adminId },
-      ),
-      this.permissionProjectEntity.softDelete({ projectId: id }),
+      this.deviceEntity.update({ projectId: id }, { projectId: null }),
 
-      this.projectEntity.update({ id }, { deletedId: adminId }),
-      this.projectEntity.softDelete({ id: id }),
+      this.permissionProjectEntity.delete({ projectId: id }),
+
+      this.projectEntity.delete({ id: id }),
     ]
 
     await Promise.all(promise.map((p) => p))

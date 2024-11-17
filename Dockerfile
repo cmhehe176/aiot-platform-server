@@ -1,19 +1,31 @@
-FROM node:20.17.0-alpine
+FROM node:20.17.0-alpine as base
 
-WORKDIR /iot-server
+WORKDIR /app
 
 RUN set -eux; \
 	apk add --update --no-cache git build-base; \
 	corepack enable
 
-RUN yarn global add @nestjs/cli
-
 COPY --chown=node:node package.json yarn.lock ./
 
-RUN yarn install
+RUN yarn global add @nestjs/cli
+
+RUN yarn install --frozen-lockfile
 
 COPY . .
 
-COPY .env.example .env
+RUN yarn build
 
-CMD ["yarn", "dev", "--", "--host"]
+FROM base as production
+
+WORKDIR /app
+
+COPY --from=base /app/dist app/dist
+COPY --from=base /app/package.json app/package.json
+COPY --from=base /app/yarn.lock app/yarn.lock
+
+RUN yarn install --frozen-lockfile. --prod
+
+CMD [ "node", "dist/main.js" ]
+
+

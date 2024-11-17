@@ -12,6 +12,7 @@ import { ProjectService } from './project.service'
 import { createProjectDto, updateProjectDto } from './project.dto'
 import { IUser, User } from 'src/common/decorators/user.decorator'
 import { ERole, Roles } from 'src/common/decorators/role.decorator'
+import { query } from 'express'
 
 @Controller('project')
 export class ProjectController {
@@ -57,16 +58,19 @@ export class ProjectController {
   @Delete()
   @Roles(ERole.ADMIN)
   deleteUserOutProject(
-    @Query('userId') userId: number,
-    @Query('projectId') projectId: number,
+    @Query() query: { userId: number; projectId: number },
     @User() user: IUser,
   ) {
-    return this.projectService.deleteUserOutProject(userId, user.id, projectId)
+    return this.projectService.deleteUserOutProject(
+      query.userId,
+      user.id,
+      query.projectId,
+    )
   }
 
   @Delete(':id')
   @Roles(ERole.ADMIN)
-  deleteProject(@Param('id') id: number, @User() user: IUser) {
-    return this.projectService.deleteProject(id, user.id)
+  deleteProject(@Param('id') id: number) {
+    return this.projectService.deleteProject(id)
   }
 }
