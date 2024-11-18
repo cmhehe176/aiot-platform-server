@@ -9,24 +9,24 @@ volumes:
   minio-vol: {}
 
 services:
-  # iot-server:
-  #   build:
-  #     context: .
-  #     dockerfile: Dockerfile
-  #   command: ['yarn', 'dev']
-  #   container_name: server
-  #   depends_on:
-  #     database:
-  #       condition: service_healthy
-  #   networks:
-  #     - iot-server-net
-  #   ports:
-  #     - 3000:${PORT}/tcp
-  #   volumes:
-  #     - .:/iot-server
-  #     # - ./src:/iot-server/src
-  #     # - ./.env:/iot-server/.env
-  #     # - /iot-server/node_modules
+  iot-server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: ['yarn', 'dev']
+    container_name: server
+    depends_on:
+      database:
+        condition: service_healthy
+    networks:
+      - iot-server-net
+    ports:
+      - 3000:${PORT}/tcp
+    volumes:
+      - .:/iot-server
+      # - ./src:/iot-server/src
+      # - ./.env:/iot-server/.env
+      # - /iot-server/node_modules
 
   database:
     image: timescale/timescaledb:latest-pg15

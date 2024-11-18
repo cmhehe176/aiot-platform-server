@@ -16,6 +16,8 @@ COPY . .
 
 RUN yarn build
 
+# =====================================Production==============================================
+
 FROM base as production
 
 WORKDIR /app
@@ -24,7 +26,7 @@ COPY --from=base /app/dist app/dist
 COPY --from=base /app/package.json app/package.json
 COPY --from=base /app/yarn.lock app/yarn.lock
 
-RUN yarn install --frozen-lockfile. --prod
+RUN yarn install --frozen-lockfile --prod
 
 CMD [ "node", "dist/main.js" ]
 

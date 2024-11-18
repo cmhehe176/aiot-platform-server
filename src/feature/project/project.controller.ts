@@ -12,7 +12,6 @@ import { ProjectService } from './project.service'
 import { createProjectDto, updateProjectDto } from './project.dto'
 import { IUser, User } from 'src/common/decorators/user.decorator'
 import { ERole, Roles } from 'src/common/decorators/role.decorator'
-import { query } from 'express'
 
 @Controller('project')
 export class ProjectController {

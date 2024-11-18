@@ -39,7 +39,7 @@ export class SupportService {
     return { message: 'success' }
   }
 
-  getList = async (q?: string) => {
+  getList = (q?: string) => {
     const support = this.supportEntity
       .createQueryBuilder('support')
       .leftJoinAndSelect('support.user', 'user')

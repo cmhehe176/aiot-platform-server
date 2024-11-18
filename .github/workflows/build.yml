@@ -1,4 +1,4 @@
-name: CI/CD Pipeline
+name: Build
 
 on:
   push:
@@ -10,12 +10,6 @@ on:
         description: 'Build'
         required: true
         default: 'true'
-        type: boolean
-
-      deploy:
-        description: 'Deploy'
-        required: true
-        default: 'false'
         type: boolean
 
 jobs:
@@ -42,9 +36,6 @@ jobs:
           push: true
           file: ./Dockerfile
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.SERVER_NAME }}:latest
-
-      # - name: Cleanup Docker storage
-      #   run: docker system prune -a -f
 
   deploy:
     runs-on: ubuntu-latest
@@ -78,5 +69,6 @@ jobs:
       - name: Cleanup Docker storage on remote server
         run: |
           ssh -o StrictHostKeyChecking=no -i cloud.pem ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} '
-            sudo docker system prune -a -f
+            sudo docker system prune -a -f &&
+            sudo sh -c "sync; echo 3 > /proc/sys/vm/drop_caches"
           '

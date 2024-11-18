@@ -31,8 +31,9 @@ import { SocketModule } from '../socket/socket.module'
       useFactory: async (configService: ConfigService) => ({
         uri: configService.get<string>('RABBITMQ_URI'),
         enableControllerDiscovery: true,
-        connectionOptions: {
-          heartbeat: 30,
+        connectionManagerOptions: {
+          heartbeatIntervalInSeconds: 30,
+          reconnectTimeInSeconds: 10,
         },
       }),
       inject: [ConfigService],

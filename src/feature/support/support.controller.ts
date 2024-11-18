@@ -7,6 +7,7 @@ import { ERole, Roles } from 'src/common/decorators/role.decorator'
 @Controller('support')
 export class SupportController {
   constructor(private readonly supportService: SupportService) {}
+
   @Post()
   create(@Body() payload: CreateSupportDto, @User() user: IUser) {
     return this.supportService.create(payload, user)

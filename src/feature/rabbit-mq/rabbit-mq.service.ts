@@ -139,7 +139,8 @@ export class RabbitMqService implements OnModuleInit {
       const sendData = {
         mac_address: data.mac_address,
         device_id: data.deviceId,
-        heartbeat_duration: 5,
+        heartbeat_duration: 30,
+        reconnect_time_in_seconds: 10,
       }
 
       // change here if have change something like queue name
