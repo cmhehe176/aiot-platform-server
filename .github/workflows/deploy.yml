@@ -3,8 +3,8 @@ name: Deploy
 on:
   workflow_dispatch:
     inputs:
-      build:
-        description: 'Build'
+      deploy:
+        description: 'Deploy'
         required: true
         default: 'true'
         type: boolean
@@ -12,7 +12,6 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    needs: build
     if: ${{ github.event.inputs.deploy == 'true' }}
     steps:
       - name: Checkout code
@@ -36,7 +35,7 @@ jobs:
           ssh -o StrictHostKeyChecking=no -i cloud.pem ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} '
             sudo docker stop ${{ secrets.SERVER_NAME }} || true &&
             sudo docker rm ${{ secrets.SERVER_NAME }} || true &&
-            sudo docker run -d --restart unless-stopped --name ${{ secrets.SERVER_NAME }} -p 3000:3000 --env-file aiot_server/.env  ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.SERVER_NAME }}:latest
+            sudo docker run -d --restart unless-stopped --name ${{ secrets.SERVER_NAME }} --network network -p 3000:3000 --env-file aiot_server/.env  ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.SERVER_NAME }}:latest
           '
 
       - name: Cleanup Storage
