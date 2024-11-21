@@ -30,6 +30,17 @@ export class ObjectService {
         })
     }
 
+    if (payload.type) {
+      query.andWhere(
+        `EXISTS (
+       SELECT 1
+       FROM jsonb_array_elements(object.object_list::jsonb) AS type
+       WHERE type->'object'->>'type' = :type
+    )`,
+        { type: payload.type },
+      )
+    }
+
     if (payload.start) {
       query.andWhere('object.timestamp >= :start', { start: payload.start })
     }
@@ -48,6 +59,7 @@ export class ObjectService {
     const [data, total] = await query
       .take(limit)
       .skip((page - 1) * limit)
+      .orderBy('object.timestamp', 'DESC')
       .getManyAndCount()
 
     return { data, total }

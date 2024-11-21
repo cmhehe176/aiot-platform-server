@@ -4,5 +4,6 @@ export class getObjectDto {
   q?: string
   start?: Date | string
   end?: Date | string
+  type?: string
   device_id: number
 }
