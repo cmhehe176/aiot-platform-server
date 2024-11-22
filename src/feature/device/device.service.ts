@@ -45,6 +45,7 @@ export class DeviceService {
 
     if (!projectId)
       return this.deviceEntity.find({
+        relations: { project: true },
         order: {
           createdAt: 'DESC',
         },
@@ -61,6 +62,7 @@ export class DeviceService {
 
     return this.deviceEntity.find({
       where: { projectId },
+      relations: { project: true },
       order: {
         createdAt: 'DESC',
       },
