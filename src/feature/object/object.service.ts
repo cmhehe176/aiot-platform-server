@@ -17,8 +17,13 @@ export class ObjectService {
 
     const query = this.objectEntity
       .createQueryBuilder('object')
-      .where('object.device_id = :device_id', { device_id: payload.device_id })
       .leftJoinAndSelect('object.device', 'device')
+
+    if (payload.device_id) {
+      query.andWhere('object.device_id = :device_id', {
+        device_id: payload.device_id,
+      })
+    }
 
     if (payload.q) {
       query

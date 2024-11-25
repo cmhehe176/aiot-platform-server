@@ -17,10 +17,13 @@ export class NotificationService {
 
     const query = this.notiEntity
       .createQueryBuilder('notification')
-      .where('notification.device_id = :device_id', {
+      .leftJoinAndSelect('notification.device', 'device')
+
+    if (payload.device_id) {
+      query.andWhere('notification.device_id = :device_id', {
         device_id: payload.device_id,
       })
-      .leftJoinAndSelect('notification.device', 'device')
+    }
 
     if (payload.q) {
       query

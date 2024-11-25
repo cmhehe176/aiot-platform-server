@@ -17,8 +17,13 @@ export class SensorService {
 
     const query = this.sensorEntity
       .createQueryBuilder('sensor')
-      .where('sensor.device_id = :device_id', { device_id: payload.device_id })
       .leftJoinAndSelect('sensor.device', 'device')
+
+    if (payload.device_id) {
+      query.andWhere('sensor.device_id = :device_id', {
+        device_id: payload.device_id,
+      })
+    }
 
     if (payload.q) {
       query
