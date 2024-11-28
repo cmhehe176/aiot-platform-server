@@ -170,6 +170,8 @@ export class RabbitMqService implements OnModuleInit {
       .createSubscriber(
         (message: any) => this.handleMessage(message, queue),
         {
+          exchange: '',
+          routingKey: queue,
           queue: queue,
           queueOptions: {
             durable: false,
@@ -197,6 +199,8 @@ export class RabbitMqService implements OnModuleInit {
     // This is not the best solution. If there is some free time, the flow needs to be improved.
     if (queue) {
       const queueDetails = data as QueueDetails
+
+      return data
 
       return {
         queue: queueDetails.name,

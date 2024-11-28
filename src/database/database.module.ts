@@ -16,7 +16,7 @@ import * as entities from './entities'
         password: configService.get('POSTGRES_PASSWORD'),
         database: configService.get('POSTGRES_DB'),
         entities: Object.values(entities),
-        synchronize: false,
+        synchronize: true,
         autoLoadEntities: false,
         migrations: ['dist/database/migrations/*.ts'],
       }),
