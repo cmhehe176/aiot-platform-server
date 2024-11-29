@@ -16,7 +16,6 @@ export type TObject = {
     }
   }
   object_list: {
-    concat(tmp: { type: string; action: string; object_id: string; video_URL: string }): unknown
     id: string
     bbox: {
       topleftx: number

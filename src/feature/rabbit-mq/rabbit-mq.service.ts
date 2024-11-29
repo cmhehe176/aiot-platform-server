@@ -56,14 +56,14 @@ export class RabbitMqService implements OnModuleInit {
 
   handleMessage = async (message: any, queue: string) => {
     // console.log({ message, queue })
-    if (!message.message_id) return
+    if (!message.payload.message_id) return
     // this.messageService.sendMessageToUser('-1002345395149', message.message_id)
 
     // This is not the best solution. If there is some free time, the flow needs to be improved.
     const tag = ((await this.getQueues(queue)) as QueueDetails)
       .consumer_details[0].consumer_tag
 
-    const type = message.message_id.slice(0, 3)
+    // const type = message.message_id.slice(0, 3)
 
     const device = await this.deviceEntity.findOne({
       where: { deviceId: queue },
@@ -77,19 +77,19 @@ export class RabbitMqService implements OnModuleInit {
     }
 
     try {
-      switch (type) {
-        case 'not':
-          this.notificationMessage(message as TNotification, device.id)
+      switch (message.message_type) {
+        case 'notification':
+          this.notificationMessage(message.payload as TNotification, device.id)
           break
-        case 'obj':
-          this.objectMessage(message as TObject, device.id)
+        case 'object':
+          this.objectMessage(message.payload as TObject, device.id)
           break
-        case 'sen':
-          this.sensorMessage(message as TSensor, device.id)
+        case 'sensor':
+          this.sensorMessage(message.payload as TSensor, device.id)
           break
 
         default:
-          return new Nack(true)
+          return
       }
     } catch (error) {
       console.error(error)
