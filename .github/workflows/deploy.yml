@@ -24,7 +24,7 @@ jobs:
 
       - name: Pull Docker Image
         run: |
-          ssh -o StrictHostKeyChecking=no -i cloud.pem ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} '
+          ssh -o StrictHostKeyChecking=no -i cloud.pem -p 24700 ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} '
             echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin &&
             
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.SERVER_NAME }}:latest
@@ -32,7 +32,7 @@ jobs:
 
       - name: Rebuild Container
         run: |
-          ssh -o StrictHostKeyChecking=no -i cloud.pem ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} '
+          ssh -o StrictHostKeyChecking=no -i cloud.pem -p 24700 ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} '
             sudo docker stop ${{ secrets.SERVER_NAME }} || true &&
             sudo docker rm ${{ secrets.SERVER_NAME }} || true &&
             sudo docker run -d --restart unless-stopped --name ${{ secrets.SERVER_NAME }} --network network -p 3000:3000 --env-file aiot_server/.env  ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.SERVER_NAME }}:latest
@@ -40,7 +40,7 @@ jobs:
 
       - name: Cleanup Storage
         run: |
-          ssh -o StrictHostKeyChecking=no -i cloud.pem ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} '
+          ssh -o StrictHostKeyChecking=no -i cloud.pem -p 24700 ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} '
             sudo docker system prune -a -f &&
             sudo sh -c "sync; echo 3 > /proc/sys/vm/drop_caches"
           '
