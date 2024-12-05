@@ -116,15 +116,26 @@ export class AuthService {
   }
 
   async getProfile(id: number) {
-    const user = await this.userEntity
-      .createQueryBuilder('user')
-      .where('user.id = :id', { id: id })
-      .getOne()
+    const user = await this.userEntity.findOne({
+      where: { id: id },
+      relations: {
+        permissionProject: {
+          project: {
+            device: true,
+          },
+        },
+      },
+    })
 
     if (!user) throw new NotFoundException('User not exist or has been band')
 
-    delete user.password
+    const profile = {
+      ...user,
+      project: user.permissionProject.map((p) => p.project),
+    }
+    delete profile.password
+    delete profile.permissionProject
 
-    return { profile: user }
+    return { profile }
   }
 }
