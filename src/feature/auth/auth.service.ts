@@ -13,6 +13,8 @@ import { SourceMailForgotPassword } from 'src/feature/email/email.source'
 import { Repository } from 'typeorm'
 import { EmailService } from '../email/email.service'
 import { ForgotPassword, Register } from './auth.dto'
+import { ProjectService } from '../project/project.service'
+import { NRoles } from 'src/common/constants/roles.constant'
 @Injectable()
 export class AuthService {
   constructor(
@@ -21,6 +23,7 @@ export class AuthService {
     private jwtService: JwtService,
     private emailService: EmailService,
     private configService: ConfigService,
+    private readonly projectService: ProjectService,
   ) {}
 
   async login(user: UserEntity) {
@@ -131,8 +134,12 @@ export class AuthService {
 
     const profile = {
       ...user,
-      project: user.permissionProject.map((p) => p.project),
+      project:
+        user.roleId === NRoles.USER
+          ? user.permissionProject.map((p) => p.project)
+          : await this.projectService.listProject(),
     }
+
     delete profile.password
     delete profile.permissionProject
 

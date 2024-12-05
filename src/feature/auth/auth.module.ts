@@ -8,6 +8,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config'
 import { LocalStrategy } from './strategies/local.strategy'
 import { JwtStrategy } from './strategies/jwt.strategy'
 import { EmailService } from '../email/email.service'
+import { ProjectModule } from '../project/project.module'
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { EmailService } from '../email/email.service'
       }),
       inject: [ConfigService],
     }),
+    ProjectModule,
   ],
   controllers: [AuthController],
   providers: [AuthService, LocalStrategy, JwtStrategy, EmailService],
