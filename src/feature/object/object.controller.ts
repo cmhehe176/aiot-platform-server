@@ -1,19 +1,17 @@
 import { Body, Controller, Get, Query } from '@nestjs/common'
 import { ObjectService } from './object.service'
 import { getObjectDto } from './object.dto'
-import { Public } from 'src/common/decorators/public.decorator'
+import { IUser, User } from 'src/common/decorators/user.decorator'
 
 @Controller('object')
 export class ObjectController {
   constructor(private readonly objectService: ObjectService) {}
 
-  @Public()
   @Get()
-  getObject(@Query() query: getObjectDto) {
-    return this.objectService.getObject(query)
+  getObject(@Query() query: getObjectDto, @User() user: IUser) {
+    return this.objectService.getObject(query, user)
   }
 
-  @Public()
   @Get('detail')
   getDetailObject(@Body() payload: { message_id: string }) {
     return this.objectService.getDetailObject(payload.message_id)

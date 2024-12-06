@@ -4,20 +4,36 @@ import { ObjectEntity } from 'src/database/entities'
 import { Repository } from 'typeorm'
 import { getObjectDto } from './object.dto'
 import { genereateObject } from 'src/common/util'
+import { DeviceService } from '../device/device.service'
+import { IUser } from 'src/common/decorators/user.decorator'
 @Injectable()
 export class ObjectService {
   constructor(
     @InjectRepository(ObjectEntity)
     private readonly objectEntity: Repository<ObjectEntity>,
+    private readonly deviceService: DeviceService,
   ) {}
 
-  async getObject(payload: getObjectDto) {
+  async getObject(payload: getObjectDto, user: IUser) {
     const page = payload.page || 1
     const limit = payload.limit || 20
 
     const query = this.objectEntity
       .createQueryBuilder('object')
       .leftJoinAndSelect('object.device', 'device')
+
+    if (payload.project_id) {
+      const listDevice = await this.deviceService.getListDevice(
+        user,
+        payload.project_id,
+      )
+
+      const listDeviceId = listDevice.map((d) => d.id)
+
+      query.andWhere('object.device_id IN (:...device_ids)', {
+        device_ids: listDeviceId,
+      })
+    }
 
     if (payload.device_id) {
       query.andWhere('object.device_id = :device_id', {
@@ -67,7 +83,7 @@ export class ObjectService {
       .orderBy('object.timestamp', 'DESC')
       .getManyAndCount()
 
-    return { data, total }
+    return { data: data.map((d) => genereateObject(d)), total }
   }
 
   async getDetailObject(message_id: string) {
