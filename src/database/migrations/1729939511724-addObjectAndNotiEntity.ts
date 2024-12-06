@@ -10,8 +10,8 @@ export class AddObjectAndNotiEntity1729939511724 implements MigrationInterface {
         await queryRunner.query(`CREATE UNIQUE INDEX "IDX_noti_message_id_timestamp" ON "notification" ("timestamp") `);
         await queryRunner.query(`ALTER TABLE "object" ADD CONSTRAINT "FK_2ab9da0e3abd130f1b6bf078ac1" FOREIGN KEY ("device_id") REFERENCES "device"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`);
         await queryRunner.query(`ALTER TABLE "notification" ADD CONSTRAINT "FK_c561e3d2a734732fd473200d51e" FOREIGN KEY ("device_id") REFERENCES "device"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`);
-        await queryRunner.query(`SELECT create_hypertable('notification', 'timestamp');`);
-        await queryRunner.query(`SELECT create_hypertable('object', 'timestamp');`);
+        // await queryRunner.query(`SELECT create_hypertable('notification', 'timestamp');`);
+        // await queryRunner.query(`SELECT create_hypertable('object', 'timestamp');`);
     }
 
     public async down(queryRunner: QueryRunner): Promise<void> {

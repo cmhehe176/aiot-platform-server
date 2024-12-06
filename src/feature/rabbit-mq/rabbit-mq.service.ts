@@ -279,20 +279,11 @@ export class RabbitMqService implements OnModuleInit {
   }
 
   objectMessage = async (message: TObject, deviceId: number) => {
-    message.object_list.forEach(async (i) => {
-      // const photoUrl = i.Human
-      //   ? i.Human.image_URL
-      //   : i.Vehicle.image_URL || imageError
-
-      // const description = i.Human
-      //   ? `${i.Human.gender} - ${i.Human.age}`
-      //   : `${i.Vehicle.brand} - ${i.Vehicle.brand} - ${i.Vehicle.color} - ${i.Vehicle.type} - ${i.Vehicle.Licence}` ||
-      //     'No description available'
-
+    message.object_list.forEach(async (object) => {
       await this.messageService.sendPhoto(
         this.configService.get('TELEGRAM_ID_GROUP'),
-        `photoUrl`,
-        `description`,
+        object.image_URL,
+        `${message.timestamp} - ${message.specs.description} - ${object.object.type} - ${object.object.type === 'human' ? object.object.age + object.object.gender : object.object.brand + object.object.category + object.object.color + object.object.licence}`,
       )
     })
 

@@ -1,6 +1,9 @@
-import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm'
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm'
 import { BaseEntity } from './base.entity'
 import { ProjectEntity } from './project.entity'
+import { ObjectEntity } from './object.entity'
+import { NotificationEntity } from './notification.entity'
+import { SensorEntity } from './sensor.entity'
 
 @Entity({ name: 'device' })
 export class DeviceEntity extends BaseEntity {
@@ -25,4 +28,13 @@ export class DeviceEntity extends BaseEntity {
   @ManyToOne(() => ProjectEntity)
   @JoinColumn({ name: 'project_id' })
   project?: ProjectEntity
+
+  @OneToMany(() => ObjectEntity, (object) => object.device)
+  object: ObjectEntity[]
+
+  @OneToMany(() => NotificationEntity, (not) => not.device)
+  notification: NotificationEntity[]
+
+  @OneToMany(() => SensorEntity, (sensor) => sensor.device)
+  sensor: SensorEntity[]
 }

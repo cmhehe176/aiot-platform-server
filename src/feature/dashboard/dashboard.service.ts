@@ -1,45 +1,37 @@
-import { Injectable } from '@nestjs/common'
-import { InjectRepository } from '@nestjs/typeorm'
-import { SensorEntity } from 'src/database/entities'
-import { Repository } from 'typeorm'
+import { BadRequestException, Injectable } from '@nestjs/common'
+import { DataSource, Repository } from 'typeorm'
+import { getDashboardDto } from './dashboard.dto'
+import {
+  NotificationEntity,
+  ObjectEntity,
+  SensorEntity,
+} from 'src/database/entities'
 
 @Injectable()
 export class DashboardService {
-  constructor(
-    @InjectRepository(SensorEntity)
-    private readonly sensorEntity: Repository<SensorEntity>,
-  ) {}
+  private objectEntity: Repository<ObjectEntity>
+  private sensorEntity: Repository<SensorEntity>
+  private notificationEntity: Repository<NotificationEntity>
 
-  async list(query: { page?: number; limit?: number }) {
-    const limit = query.limit || 20
-    const page = query.page || 1
-
-    const [items, total] = await this.sensorEntity.findAndCount({
-      order: {
-        id: 'DESC',
-      },
-      take: limit,
-      skip: (page - 1) * limit,
-    })
-
-    return {
-      data: items.map((i) => {
-        return {
-          id: i.id,
-          label: i.message_id,
-        }
-      }),
-      total,
-    }
+  constructor(private readonly dataSource: DataSource) {
+    this.objectEntity = this.dataSource.getRepository(ObjectEntity)
+    this.sensorEntity = this.dataSource.getRepository(SensorEntity)
+    this.notificationEntity = this.dataSource.getRepository(NotificationEntity)
   }
 
-  async listAll() {
-    const [items, total] = await this.sensorEntity.findAndCount({
-      order: {
-        id: 'DESC',
-      },
-    })
+  getDashboard = async (device_id: number) => {
+    if (!device_id) throw new BadRequestException('device id not valid')
 
-    return { data: items.map((i) => i.id), total }
+    const [object, sensor, noti] = await Promise.all([
+      this.objectEntity.countBy({ device_id }),
+      this.sensorEntity.countBy({ device_id }),
+      this.notificationEntity.countBy({ device_id }),
+    ])
+
+    return {
+      object,
+      sensor,
+      noti,
+    }
   }
 }

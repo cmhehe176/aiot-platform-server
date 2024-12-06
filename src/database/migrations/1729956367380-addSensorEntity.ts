@@ -8,7 +8,7 @@ export class AddSensorEntity1729956367380 implements MigrationInterface {
         await queryRunner.query(`CREATE UNIQUE INDEX "IDX_sensor_message_id_timestamp" ON "sensor" ("timestamp") `);
         await queryRunner.query(`ALTER TABLE "object" DROP COLUMN "notification_id"`);
         await queryRunner.query(`ALTER TABLE "sensor" ADD CONSTRAINT "FK_494d5193129326848128d786cdb" FOREIGN KEY ("device_id") REFERENCES "device"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`);
-        await queryRunner.query(`SELECT create_hypertable('sensor', 'timestamp');`);
+        // await queryRunner.query(`SELECT create_hypertable('sensor', 'timestamp');`);
   
     }
 
