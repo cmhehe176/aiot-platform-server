@@ -283,7 +283,7 @@ export class RabbitMqService implements OnModuleInit {
       await this.messageService.sendPhoto(
         this.configService.get('TELEGRAM_ID_GROUP'),
         object.image_URL,
-        `${message.timestamp} - ${message.specs.description} - ${object.object.type} - ${object.object.type === 'human' ? object.object.age + object.object.gender : object.object.brand + object.object.category + object.object.color + object.object.licence}`,
+        `${message.timestamp} - ${message.specs.description} - ${object.object.type} - ${object.object.type === 'human' ? object.object.age + '-' + object.object.gender : object.object.brand + '-' + object.object.category + '-' + object.object.color + '-' + object.object.licence}`,
       )
     })
 
