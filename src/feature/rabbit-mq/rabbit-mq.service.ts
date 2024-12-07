@@ -101,10 +101,13 @@ export class RabbitMqService implements OnModuleInit {
     if (!message.mac_address) return
 
     // This is not the best solution. If there is some free time, the flow needs to be improved.
+    const uniqueId = generateRandomSixDigitNumber('ID')
+
     const data = {
       data: message.data,
       mac_address: message.mac_address,
-      deviceId: message.mac_address + ':' + generateRandomSixDigitNumber('ID'),
+      deviceId: message.mac_address + ':' + uniqueId,
+      name: uniqueId,
     }
 
     try {
@@ -119,7 +122,7 @@ export class RabbitMqService implements OnModuleInit {
           (item) => item.name === device.deviceId,
         )
 
-        if (check) return``
+        if (check) return
         this.createSubcribe(device.deviceId)
 
         if (!device.isActive)

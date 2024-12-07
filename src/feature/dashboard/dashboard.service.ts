@@ -1,19 +1,19 @@
-import { BadRequestException, Injectable } from '@nestjs/common'
+import { Injectable } from '@nestjs/common'
 import { DataSource, Repository } from 'typeorm'
-import { getDashboardDto } from './dashboard.dto'
 import {
+  DeviceEntity,
   NotificationEntity,
   ObjectEntity,
   SensorEntity,
 } from 'src/database/entities'
 import { DeviceService } from '../device/device.service'
-import { IUser } from 'src/common/decorators/user.decorator'
 
 @Injectable()
 export class DashboardService {
   private objectEntity: Repository<ObjectEntity>
   private sensorEntity: Repository<SensorEntity>
   private notificationEntity: Repository<NotificationEntity>
+  private deviceEntity: Repository<DeviceEntity>
 
   constructor(
     private readonly dataSource: DataSource,
@@ -22,29 +22,53 @@ export class DashboardService {
     this.objectEntity = this.dataSource.getRepository(ObjectEntity)
     this.sensorEntity = this.dataSource.getRepository(SensorEntity)
     this.notificationEntity = this.dataSource.getRepository(NotificationEntity)
+    this.deviceEntity = this.dataSource.getRepository(DeviceEntity)
   }
 
-  getTotalByDevice = async (device_id: number) => {
-    if (!device_id) throw new BadRequestException('device id not valid')
+  getDashboard = async () => {
+    const allDevice = await this.deviceEntity.find({
+      select: ['id', 'name', 'projectId'],
+      order: {
+        id: 'ASC',
+      },
+    })
 
-    const [object, sensor, noti] = await Promise.all([
-      this.objectEntity.countBy({ device_id }),
-      this.sensorEntity.countBy({ device_id }),
-      this.notificationEntity.countBy({ device_id }),
-    ])
+    await this.getMessageAllDevice(allDevice)
 
     return {
-      object,
-      sensor,
-      noti,
+      allDevice: await this.getMessageAllDevice(allDevice),
+      statusDevice: await this.getStatusDevice(),
     }
   }
 
-  getTotalByProject = async (projectId: number, user: IUser) => {
-    const listDevice = await this.deviceService.getListDevice(user, projectId)
+  getStatusDevice = async () => {
+    const total = await this.deviceEntity.count()
+    const deviceActive = await this.deviceEntity.countBy({ isActive: true })
+    const deviceinActive = total - deviceActive
 
-    const listDeviceId = listDevice.map((device) => device.id)
+    return { total, deviceActive, deviceinActive }
+  }
 
-    return 'hello'
+  getMessageAllDevice = async (allDevice) => {
+    const result = []
+
+    for (const device of allDevice) {
+      const [object, sensor, notification] = await Promise.all([
+        this.objectEntity.countBy({ device_id: device.id }),
+        this.sensorEntity.countBy({ device_id: device.id }),
+        this.notificationEntity.countBy({ device_id: device.id }),
+      ])
+
+      result.push({
+        id: device.id,
+        projectId: device.projectId,
+        name: device.name,
+        object,
+        sensor,
+        notification,
+      })
+    }
+
+    return result
   }
 }
