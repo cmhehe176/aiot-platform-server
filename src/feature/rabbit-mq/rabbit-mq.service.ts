@@ -55,15 +55,12 @@ export class RabbitMqService implements OnModuleInit {
   }
 
   handleMessage = async (message: any, queue: string) => {
-    // console.log({ message, queue })
     if (!message.payload.message_id) return
     // this.messageService.sendMessageToUser('-1002345395149', message.message_id)
 
     // This is not the best solution. If there is some free time, the flow needs to be improved.
     const tag = ((await this.getQueues(queue)) as QueueDetails)
       .consumer_details[0].consumer_tag
-
-    // const type = message.message_id.slice(0, 3)
 
     const device = await this.deviceEntity.findOne({
       where: { deviceId: queue },
@@ -122,7 +119,7 @@ export class RabbitMqService implements OnModuleInit {
           (item) => item.name === device.deviceId,
         )
 
-        if (check) return
+        if (check) return``
         this.createSubcribe(device.deviceId)
 
         if (!device.isActive)
@@ -198,9 +195,8 @@ export class RabbitMqService implements OnModuleInit {
 
     // This is not the best solution. If there is some free time, the flow needs to be improved.
     if (queue) {
+      // return data
       const queueDetails = data as QueueDetails
-
-      return data
 
       return {
         queue: queueDetails.name,
@@ -280,11 +276,13 @@ export class RabbitMqService implements OnModuleInit {
 
   objectMessage = async (message: TObject, deviceId: number) => {
     message.object_list.forEach(async (object) => {
-      await this.messageService.sendPhoto(
-        this.configService.get('TELEGRAM_ID_GROUP'),
-        object.image_URL ?? imageError,
-        `${message.timestamp} - ${message.specs.description} - ${object.object.type} - ${object.object.type === 'human' ? object.object.age + '-' + object.object.gender : object.object.brand + '-' + object.object.category + '-' + object.object.color + '-' + object.object.licence}`,
-      )
+      await this.messageService
+        .sendPhoto(
+          this.configService.get('TELEGRAM_ID_GROUP'),
+          object.image_URL ?? imageError,
+          `${message.timestamp} - ${message.specs.description} - ${object.object.type} - ${object.object.type === 'human' ? object.object.age + '-' + object.object.gender : object.object.brand + '-' + object.object.category + '-' + object.object.color + '-' + object.object.licence}`,
+        )
+        .catch(console.error)
     })
 
     const object = {

@@ -6,6 +6,8 @@ import {
   ObjectEntity,
   SensorEntity,
 } from 'src/database/entities'
+import { DeviceService } from '../device/device.service'
+import { IUser } from 'src/common/decorators/user.decorator'
 
 @Injectable()
 export class DashboardService {
@@ -13,13 +15,16 @@ export class DashboardService {
   private sensorEntity: Repository<SensorEntity>
   private notificationEntity: Repository<NotificationEntity>
 
-  constructor(private readonly dataSource: DataSource) {
+  constructor(
+    private readonly dataSource: DataSource,
+    private readonly deviceService: DeviceService,
+  ) {
     this.objectEntity = this.dataSource.getRepository(ObjectEntity)
     this.sensorEntity = this.dataSource.getRepository(SensorEntity)
     this.notificationEntity = this.dataSource.getRepository(NotificationEntity)
   }
 
-  getDashboard = async (device_id: number) => {
+  getTotalByDevice = async (device_id: number) => {
     if (!device_id) throw new BadRequestException('device id not valid')
 
     const [object, sensor, noti] = await Promise.all([
@@ -33,5 +38,13 @@ export class DashboardService {
       sensor,
       noti,
     }
+  }
+
+  getTotalByProject = async (projectId: number, user: IUser) => {
+    const listDevice = await this.deviceService.getListDevice(user, projectId)
+
+    const listDeviceId = listDevice.map((device) => device.id)
+
+    return 'hello'
   }
 }
