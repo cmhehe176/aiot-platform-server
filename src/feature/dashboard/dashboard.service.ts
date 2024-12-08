@@ -1,5 +1,11 @@
 import { Injectable } from '@nestjs/common'
-import { DataSource, Repository } from 'typeorm'
+import {
+  DataSource,
+  FindOptionsWhere,
+  LessThanOrEqual,
+  MoreThanOrEqual,
+  Repository,
+} from 'typeorm'
 import {
   DeviceEntity,
   NotificationEntity,
@@ -25,19 +31,21 @@ export class DashboardService {
     this.deviceEntity = this.dataSource.getRepository(DeviceEntity)
   }
 
-  getDashboard = async (projectId) => {
+  getDashboard = async (projectId, startDate, endDate) => {
+    const whereCondition: FindOptionsWhere<DeviceEntity> = projectId
+      ? { projectId }
+      : {}
+
     const [allDevice, total] = await this.deviceEntity.findAndCount({
-      where: { projectId },
+      where: whereCondition,
       select: ['id', 'name', 'projectId', 'isActive'],
       order: {
         id: 'ASC',
       },
     })
 
-    await this.getMessageDevice(allDevice)
-
     return {
-      messageDevice: await this.getMessageDevice(allDevice),
+      messageDevice: await this.getMessageDevice(allDevice, startDate, endDate),
       statusDevice: await this.getStatusDevice(allDevice, total),
     }
   }
@@ -46,8 +54,6 @@ export class DashboardService {
     let deviceActive = 0
 
     allDevice.forEach((device) => {
-      console.log(device)
-
       if (device.isActive) deviceActive++
     })
 
@@ -58,14 +64,47 @@ export class DashboardService {
     }
   }
 
-  getMessageDevice = async (allDevice) => {
+  getMessageDevice = async (allDevice, startDate?, endDate?) => {
     const result = []
 
+    const objectQuery = this.objectEntity.createQueryBuilder('object')
+    const notiQuery = this.objectEntity.createQueryBuilder('noti')
+    const sensorQuery = this.objectEntity.createQueryBuilder('sensor')
+
+    if (startDate && endDate) {
+      objectQuery.andWhere('object.timestamp BETWEEN :start AND :end', {
+        start: startDate,
+        end: endDate,
+      })
+
+      notiQuery.andWhere('noti.timestamp BETWEEN :start AND :end', {
+        start: startDate,
+        end: endDate,
+      })
+
+      sensorQuery.andWhere('sensor.timestamp BETWEEN :start AND :end', {
+        start: startDate,
+        end: endDate,
+      })
+    }
+
     for (const device of allDevice) {
+      objectQuery.andWhere('object.device_id = :device_id', {
+        device_id: device.id,
+      })
+
+      notiQuery.andWhere('noti.device_id = :device_id', {
+        device_id: device.id,
+      })
+
+      sensorQuery.andWhere('sensor.device_id = :device_id', {
+        device_id: device.id,
+      })
+
       const [object, sensor, notification] = await Promise.all([
-        this.objectEntity.countBy({ device_id: device.id }),
-        this.sensorEntity.countBy({ device_id: device.id }),
-        this.notificationEntity.countBy({ device_id: device.id }),
+        objectQuery.getCount(),
+        sensorQuery.getCount(),
+        notiQuery.getCount(),
       ])
 
       result.push({

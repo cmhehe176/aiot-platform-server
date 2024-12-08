@@ -6,7 +6,13 @@ export class DashboardController {
   constructor(private readonly dashboardService: DashboardService) {}
 
   @Get()
-  getDashboard(@Query() query: { projectId?: string }) {
-    return this.dashboardService.getDashboard(query.projectId)
+  getDashboard(
+    @Query() query: { projectId?: string; startDate: any; endDate: any },
+  ) {
+    return this.dashboardService.getDashboard(
+      query.projectId,
+      query.startDate,
+      query.endDate,
+    )
   }
 }
