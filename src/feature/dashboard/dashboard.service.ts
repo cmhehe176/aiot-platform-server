@@ -1,11 +1,5 @@
 import { Injectable } from '@nestjs/common'
-import {
-  DataSource,
-  FindOptionsWhere,
-  LessThanOrEqual,
-  MoreThanOrEqual,
-  Repository,
-} from 'typeorm'
+import { DataSource, FindOptionsWhere, Repository } from 'typeorm'
 import {
   DeviceEntity,
   NotificationEntity,
@@ -48,6 +42,11 @@ export class DashboardService {
       messageDevice: await this.getMessageDevice(allDevice, startDate, endDate),
       statusDevice: await this.getStatusDevice(allDevice, total),
       typeDetect: await this.getTypeDetect(allDevice, startDate, endDate),
+      notificationType: await this.getNotificationType(
+        allDevice,
+        startDate,
+        endDate,
+      ),
     }
   }
 
@@ -184,6 +183,63 @@ export class DashboardService {
         human,
         vehicle,
         all,
+      })
+    }
+
+    return result
+  }
+
+  getNotificationType = async (allDevice, startDate?, endDate?) => {
+    const result = []
+
+    const notificationQuery =
+      this.notificationEntity.createQueryBuilder('notification')
+
+    if (startDate && endDate) {
+      notificationQuery.andWhere(
+        'notification.timestamp BETWEEN :start AND :end',
+        {
+          start: startDate,
+          end: endDate,
+        },
+      )
+    }
+
+    for (const device of allDevice) {
+      notificationQuery.andWhere('notification.device_id = :device_id', {
+        device_id: device.id,
+      })
+
+      const [object, sensor] = await Promise.all([
+        notificationQuery
+          .andWhere(
+            `EXISTS (
+            SELECT 1
+            FROM jsonb_array_elements(notification.external_messages::jsonb) AS element
+            WHERE element->>'type' = :type
+          )`,
+            { type: 'object' },
+          )
+          .getCount(),
+
+        notificationQuery
+          .andWhere(
+            `EXISTS (
+            SELECT 1
+            FROM jsonb_array_elements(notification.external_messages::jsonb) AS element
+            WHERE element->>'type' = :type
+          )`,
+            { type: 'sensor' },
+          )
+          .getCount(),
+      ])
+
+      result.push({
+        id: device.id,
+        projectId: device.projectId,
+        name: device.name,
+        object,
+        sensor,
       })
     }
 
