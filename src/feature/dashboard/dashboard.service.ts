@@ -47,6 +47,7 @@ export class DashboardService {
     return {
       messageDevice: await this.getMessageDevice(allDevice, startDate, endDate),
       statusDevice: await this.getStatusDevice(allDevice, total),
+      typeDetect: await this.getTypeDetect(allDevice, startDate, endDate),
     }
   }
 
@@ -114,6 +115,75 @@ export class DashboardService {
         object,
         sensor,
         notification,
+      })
+    }
+
+    return result
+  }
+
+  getTypeDetect = async (allDevice, startDate?, endDate?) => {
+    const result = []
+
+    const objectQuery = this.objectEntity.createQueryBuilder('object')
+
+    if (startDate && endDate) {
+      objectQuery.andWhere('object.timestamp BETWEEN :start AND :end', {
+        start: startDate,
+        end: endDate,
+      })
+    }
+
+    for (const device of allDevice) {
+      objectQuery.andWhere('object.device_id = :device_id', {
+        device_id: device.id,
+      })
+
+      const [human, vehicle, all] = await Promise.all([
+        objectQuery
+          .andWhere(
+            `EXISTS (
+       SELECT 1
+       FROM jsonb_array_elements(object.object_list::jsonb) AS type
+       WHERE type->'object'->>'type' = :type
+    )`,
+            { type: 'human' },
+          )
+          .getCount(),
+
+        objectQuery
+          .andWhere(
+            `EXISTS (
+       SELECT 1
+       FROM jsonb_array_elements(object.object_list::jsonb) AS type
+       WHERE type->'object'->>'type' = :type
+    )`,
+            { type: 'vehicle' },
+          )
+          .getCount(),
+
+        objectQuery
+          .andWhere(
+            `EXISTS (
+      SELECT 1
+      FROM jsonb_array_elements(object.object_list::jsonb) AS type
+      WHERE type->'object'->>'type' = :type1
+    ) AND EXISTS (
+      SELECT 1
+      FROM jsonb_array_elements(object.object_list::jsonb) AS type
+      WHERE type->'object'->>'type' = :type2
+    )`,
+            { type1: 'human', type2: 'vehicle' },
+          )
+          .getCount(),
+      ])
+
+      result.push({
+        id: device.id,
+        projectId: device.projectId,
+        name: device.name,
+        human,
+        vehicle,
+        all,
       })
     }
 
