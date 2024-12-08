@@ -25,8 +25,9 @@ export class DashboardService {
     this.deviceEntity = this.dataSource.getRepository(DeviceEntity)
   }
 
-  getDashboard = async () => {
+  getDashboard = async (projectId) => {
     const allDevice = await this.deviceEntity.find({
+      where: { projectId },
       select: ['id', 'name', 'projectId'],
       order: {
         id: 'ASC',
