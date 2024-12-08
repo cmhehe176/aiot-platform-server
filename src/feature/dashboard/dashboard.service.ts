@@ -34,10 +34,10 @@ export class DashboardService {
       },
     })
 
-    await this.getMessageAllDevice(allDevice)
+    await this.getMessageDevice(allDevice)
 
     return {
-      allDevice: await this.getMessageAllDevice(allDevice),
+      messageDevice: await this.getMessageDevice(allDevice),
       statusDevice: await this.getStatusDevice(),
     }
   }
@@ -50,7 +50,7 @@ export class DashboardService {
     return { total, deviceActive, deviceinActive }
   }
 
-  getMessageAllDevice = async (allDevice) => {
+  getMessageDevice = async (allDevice) => {
     const result = []
 
     for (const device of allDevice) {
