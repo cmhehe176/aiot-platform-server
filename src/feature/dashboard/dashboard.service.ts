@@ -26,9 +26,9 @@ export class DashboardService {
   }
 
   getDashboard = async (projectId) => {
-    const allDevice = await this.deviceEntity.find({
+    const [allDevice, total] = await this.deviceEntity.findAndCount({
       where: { projectId },
-      select: ['id', 'name', 'projectId'],
+      select: ['id', 'name', 'projectId', 'isActive'],
       order: {
         id: 'ASC',
       },
@@ -38,16 +38,24 @@ export class DashboardService {
 
     return {
       messageDevice: await this.getMessageDevice(allDevice),
-      statusDevice: await this.getStatusDevice(),
+      statusDevice: await this.getStatusDevice(allDevice, total),
     }
   }
 
-  getStatusDevice = async () => {
-    const total = await this.deviceEntity.count()
-    const deviceActive = await this.deviceEntity.countBy({ isActive: true })
-    const deviceinActive = total - deviceActive
+  getStatusDevice = async (allDevice: DeviceEntity[], total) => {
+    let deviceActive = 0
 
-    return { total, deviceActive, deviceinActive }
+    allDevice.forEach((device) => {
+      console.log(device)
+
+      if (device.isActive) deviceActive++
+    })
+
+    return {
+      total,
+      deviceActive,
+      deviceInActive: total - deviceActive,
+    }
   }
 
   getMessageDevice = async (allDevice) => {
