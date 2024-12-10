@@ -122,7 +122,16 @@ export class RabbitMqService implements OnModuleInit {
           (item) => item.name === device.deviceId,
         )
 
-        if (check) return
+        if (check)
+          return this.sendMessage(
+            {
+              mac_address: data.mac_address,
+              status: false,
+              message: `Queue for ${data.mac_address} was created, please use your ID !!`,
+            },
+            'accepted_devices',
+          )
+
         this.createSubcribe(device.deviceId)
 
         if (!device.isActive)
@@ -131,7 +140,14 @@ export class RabbitMqService implements OnModuleInit {
             { isActive: true },
           )
 
-        return
+        return this.sendMessage(
+          {
+            mac_address: data.mac_address,
+            status: true,
+            message: `Queue for ${data.mac_address} was recreated successfully !!`,
+          },
+          'accepted_devices',
+        )
       }
 
       this.createSubcribe(data.deviceId)
