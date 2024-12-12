@@ -116,9 +116,7 @@ export class ProjectService {
     })
 
     return {
-      data: items
-        .map((item) => item.user)
-        .filter((item) => item.roleId !== NRoles.ADMIN),
+      data: items.map((item) => item.user),
       total,
     }
   }
