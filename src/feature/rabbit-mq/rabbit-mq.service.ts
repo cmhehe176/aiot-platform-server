@@ -140,9 +140,11 @@ export class RabbitMqService implements OnModuleInit {
             { isActive: true },
           )
 
+        // ????????????
         return this.sendMessage(
           {
             mac_address: data.mac_address,
+            device_id: device.deviceId,
             status: true,
             message: `Queue for ${data.mac_address} was recreated successfully !!`,
           },
