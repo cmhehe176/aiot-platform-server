@@ -86,6 +86,15 @@ export class ProjectService {
       promises.push(...userPromises)
     }
 
+    if (payload.deviceIds) {
+      for (const devciceId of payload.deviceIds) {
+        await this.deviceEntity.update(
+          { id: devciceId },
+          { projectId: (project as ProjectEntity).id },
+        )
+      }
+    }
+
     await Promise.all(promises.map((promise) => promise))
 
     return { message: 'success' }

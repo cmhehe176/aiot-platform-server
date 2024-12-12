@@ -67,6 +67,10 @@ export class DeviceService {
     })
   }
 
+  getListDeviceFree = () => {
+    return this.deviceEntity.find({ where: { projectId: null } })
+  }
+
   getDeviceOfUser = async (user: IUser) => {
     const list = await this.projectService.getListProjectByRole(user)
 

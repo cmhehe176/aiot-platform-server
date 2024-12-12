@@ -24,6 +24,11 @@ export class DeviceController {
     return this.deviceService.getListDevice(user, query.projectId)
   }
 
+  @Get('free')
+  getListFree() {
+    return this.deviceService.getListDeviceFree()
+  }
+
   @Get('test')
   test(@User() user: IUser) {
     return this.deviceService.getDeviceOfUser(user)
