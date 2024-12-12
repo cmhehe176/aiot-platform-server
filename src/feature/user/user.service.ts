@@ -27,4 +27,8 @@ export class UserService {
 
     return { items, total }
   }
+
+  getAllUser() {
+    return this.userEntity.find()
+  }
 }

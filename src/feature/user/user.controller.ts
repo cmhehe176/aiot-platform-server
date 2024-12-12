@@ -9,4 +9,9 @@ export class UserController {
   getListUserByRole(@Param('id') id: number) {
     return this.userService.getListUserByRole(id)
   }
+
+  @Get()
+  getAllUser() {
+    return this.userService.getAllUser()
+  }
 }
