@@ -68,7 +68,10 @@ export class DeviceService {
   }
 
   getListDeviceFree = () => {
-    return this.deviceEntity.find({ where: { projectId: null } })
+    return this.deviceEntity
+      .createQueryBuilder('device')
+      .where('device.projectId IS NULL')
+      .getMany()
   }
 
   getDeviceOfUser = async (user: IUser) => {
