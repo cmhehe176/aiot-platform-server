@@ -119,16 +119,16 @@ export class AuthService {
   }
 
   async getProfile(id: number) {
-    const user = await this.userEntity.findOne({
-      where: { id: id },
-      relations: {
-        permissionProject: {
-          project: {
-            device: true,
-          },
-        },
-      },
-    })
+    const user = await this.userEntity
+      .createQueryBuilder('user')
+      .leftJoinAndSelect('user.permissionProject', 'permissionProject')
+      .leftJoinAndSelect('permissionProject.project', 'project')
+      .leftJoinAndSelect('project.device', 'device')
+      .where('user.id = :id', { id })
+      .orderBy('project.id', 'ASC')
+      .getOne()
+
+    // return user
 
     if (!user) throw new NotFoundException('User not exist or has been band')
 

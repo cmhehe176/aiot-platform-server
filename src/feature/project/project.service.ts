@@ -53,6 +53,9 @@ export class ProjectService {
     const projects = await this.projectEntity.find({
       where: query ? where : null,
       relations: { createdBy: true, device: true },
+      order: {
+        id: 'ASC',
+      },
     })
 
     projects.forEach((item) => delete item.createdBy.password)
