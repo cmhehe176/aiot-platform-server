@@ -129,15 +129,14 @@ export class ProjectService {
     adminId: number,
   ) {
     const { data } = await this.listUserOfProject(projectId)
-    const promises = []
-    const listUserInProject = data.map((item) => item.id)
-
-    promises.push(
+    const promises: any[] = [
       this.projectEntity.update(
         { id: projectId },
         { name: payload.name, description: payload.description },
       ),
-    )
+    ]
+
+    const listUserInProject = data.map((item) => item.id)
 
     if (payload.userIds) {
       const addUser = payload.userIds.map((userId) => {
@@ -151,6 +150,25 @@ export class ProjectService {
         .map((userId) => this.deleteUserOutProject(userId, adminId, projectId))
 
       promises.push(...addUser, ...dropUser)
+    }
+
+    if (payload.deviceIds) {
+      const project = await this.getDetailProject(projectId)
+      const listDeviceInProject = project.device.map((i) => i.id)
+
+      const addDevice = payload.deviceIds.map((deviceId) => {
+        if (listDeviceInProject.includes(deviceId)) return
+
+        this.deviceEntity.update({ id: deviceId }, { projectId: projectId })
+      })
+
+      const dropDevice = listDeviceInProject
+        .filter((deviceid) => !payload.deviceIds.includes(deviceid))
+        .map((deviceId) =>
+          this.deviceEntity.update({ id: deviceId }, { projectId: null }),
+        )
+
+      promises.push(...addDevice, ...dropDevice)
     }
 
     await Promise.all(promises.map((p) => p))
@@ -224,5 +242,12 @@ export class ProjectService {
 
     const userProjects = await this.listProjectByUser(user.id)
     return userProjects.data.map((item) => mapProjectDevices(item.project))
+  }
+
+  getDetailProject = (id: number) => {
+    return this.projectEntity.findOne({
+      where: { id },
+      relations: { device: true },
+    })
   }
 }
