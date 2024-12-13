@@ -33,9 +33,10 @@ export class ObjectService {
 
       const listDeviceId = listDevice.map((d) => d.id)
 
-      query.andWhere('object.device_id IN (:...device_ids)', {
-        device_ids: listDeviceId,
-      })
+      if (listDeviceId.length)
+        query.andWhere('object.device_id IN (:...device_ids)', {
+          device_ids: listDeviceId,
+        })
     }
 
     if (payload.device_id) {
