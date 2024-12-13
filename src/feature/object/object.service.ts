@@ -23,6 +23,9 @@ export class ObjectService {
       .leftJoinAndSelect('object.device', 'device')
 
     if (payload.project_id) {
+      if ((payload.project_id as any) === '-1' || payload.project_id === -1)
+        delete payload.project_id
+
       const listDevice = await this.deviceService.getListDevice(
         user,
         payload.project_id,
