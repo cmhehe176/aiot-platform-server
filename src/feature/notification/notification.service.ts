@@ -75,6 +75,7 @@ export class NotificationService {
     const [data, total] = await query
       .take(limit)
       .skip((page - 1) * limit)
+      .orderBy('notification.timestamp', 'DESC')
       .getManyAndCount()
 
     return { data, total }

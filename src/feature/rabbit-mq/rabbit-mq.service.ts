@@ -314,13 +314,16 @@ export class RabbitMqService implements OnModuleInit {
     return this.objectEntity.insert(object).catch(console.error)
   }
 
-  notificationMessage = (message: TNotification, deviceId: number) => {
+  notificationMessage = async (message: TNotification, deviceId: number) => {
     const noti = {
       device_id: deviceId,
       ...message,
     }
 
-    return this.notiEntity.insert(noti).catch(console.error)
+    const notification = await this.notiEntity.save(noti).catch(console.error)
+
+    this.socket.sendEmit('notificationMessage', notification)
+    return
   }
 
   sensorMessage = (message: TSensor, deviceId: number) => {
