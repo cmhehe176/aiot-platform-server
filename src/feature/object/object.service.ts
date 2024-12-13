@@ -55,6 +55,8 @@ export class ObjectService {
     }
 
     if (payload.type) {
+      if (payload.type === 'all') delete payload.type
+
       query.andWhere(
         `EXISTS (
        SELECT 1
