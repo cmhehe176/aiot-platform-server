@@ -4,7 +4,11 @@ import { lastValueFrom } from 'rxjs'
 import { HttpService } from '@nestjs/axios'
 import { ConfigService } from '@nestjs/config'
 import { QueueDetails, QueueInfo } from 'src/common/type'
-import { generateRandomSixDigitNumber, imageError } from 'src/common/util'
+import {
+  generateRandomSixDigitNumber,
+  genereateObject,
+  imageError,
+} from 'src/common/util'
 import { InjectRepository } from '@nestjs/typeorm'
 import {
   DeviceEntity,
@@ -306,12 +310,19 @@ export class RabbitMqService implements OnModuleInit {
         .catch(console.error)
     })
 
-    const object = {
-      device_id: deviceId,
-      ...message,
-    }
+    const object = await this.objectEntity
+      .save({
+        device_id: deviceId,
+        ...message,
+      })
+      .catch(console.error)
 
-    return this.objectEntity.insert(object).catch(console.error)
+    this.socket.sendEmit(
+      'objectMessdage',
+      genereateObject(object as ObjectEntity),
+    )
+
+    return
   }
 
   notificationMessage = async (message: TNotification, deviceId: number) => {
@@ -326,12 +337,15 @@ export class RabbitMqService implements OnModuleInit {
     return
   }
 
-  sensorMessage = (message: TSensor, deviceId: number) => {
-    const sensor = {
-      device_id: deviceId,
-      ...message,
-    }
+  sensorMessage = async (message: TSensor, deviceId: number) => {
+    const sensor = await this.sensorEntity
+      .save({
+        device_id: deviceId,
+        ...message,
+      })
+      .catch(console.error)
 
-    return this.sensorEntity.insert(sensor).catch(console.error)
+    this.socket.sendEmit('sensorMessage', sensor)
+    return
   }
 }
