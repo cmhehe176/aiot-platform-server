@@ -40,6 +40,9 @@ export class ObjectService {
     }
 
     if (payload.device_id) {
+      if ((payload.device_id as any) === '-1' || payload.device_id === -1)
+        delete payload.device_id
+
       query.andWhere('object.device_id = :device_id', {
         device_id: payload.device_id,
       })
