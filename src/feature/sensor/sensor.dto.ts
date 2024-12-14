@@ -4,5 +4,6 @@ export class getSensorDto {
   q?: string
   start?: Date | string
   end?: Date | string
-  device_id: number
+  device_id?: number
+  project_id?: number
 }
