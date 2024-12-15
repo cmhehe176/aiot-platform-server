@@ -80,4 +80,24 @@ export class NotificationService {
 
     return { data, total }
   }
+
+  async replyNotification(id: number, replied: number) {
+    await this.notiEntity
+      .update({ id }, { isReplied: replied })
+      .catch(console.error)
+
+    return true
+  }
+
+  // async deleteNotification(id: number) {
+  //   const notification = await this.notiEntity.findOneBy({ id })
+
+  //   if (!notification)
+  //     throw new NotFoundException('Khong tim thay notification')
+  //   // tim sensor va object de xoa.. upgrade for future
+
+  //   await this.notiEntity.delete({ id }).catch(console.error)
+
+  //   return true
+  // }
 }

@@ -106,4 +106,18 @@ export class ObjectService {
 
     return result
   }
+
+  async replyObject(id: number, replied: number) {
+    await this.objectEntity
+      .update({ id }, { isReplied: replied })
+      .catch(console.error)
+
+    return true
+  }
+
+  // async deleteObject(id: number) {
+  //   await this.objectEntity.delete({ id }).catch(console.error)
+
+  //   return true
+  // }
 }

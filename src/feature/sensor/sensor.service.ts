@@ -84,4 +84,18 @@ export class SensorService {
       .findOne({ where: { message_id: message_id } })
       .catch(console.error)
   }
+
+  async replySensor(id: number, replied: number) {
+    await this.sensorEntity
+      .update({ id }, { isReplied: replied })
+      .catch(console.error)
+
+    return true
+  }
+
+  // async deleteSensor(id: number) {
+  //   await this.sensorEntity.delete({ id }).catch(console.error)
+
+  //   return true
+  // }
 }

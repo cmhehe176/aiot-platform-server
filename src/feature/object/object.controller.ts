@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Query } from '@nestjs/common'
+import { Body, Controller, Get, Param, Put, Query } from '@nestjs/common'
 import { ObjectService } from './object.service'
 import { getObjectDto } from './object.dto'
 import { IUser, User } from 'src/common/decorators/user.decorator'
@@ -16,4 +16,14 @@ export class ObjectController {
   getDetailObject(@Body() payload: { message_id: string }) {
     return this.objectService.getDetailObject(payload.message_id)
   }
+
+  @Put('reply/:id')
+  reply(@Param('id') id: number, @Body() payload: { replied: number }) {
+    return this.objectService.replyObject(id, payload.replied)
+  }
+
+  // @Delete(':id')
+  // delete(@Param('id') id: number) {
+  //   return this.objectService.deleteObject(id)
+  // }
 }
