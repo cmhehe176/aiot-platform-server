@@ -21,6 +21,7 @@ export class NotificationService {
     const query = this.notiEntity
       .createQueryBuilder('notification')
       .leftJoinAndSelect('notification.device', 'device')
+      .where('notification.is_replied = 0')
 
     if (payload.project_id) {
       if ((payload.project_id as any) === '-1' || payload.project_id === -1)

@@ -21,6 +21,7 @@ export class ObjectService {
     const query = this.objectEntity
       .createQueryBuilder('object')
       .leftJoinAndSelect('object.device', 'device')
+      .where('object.is_replied = 0')
 
     if (payload.project_id) {
       if ((payload.project_id as any) === '-1' || payload.project_id === -1)

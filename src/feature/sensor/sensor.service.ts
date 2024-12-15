@@ -21,6 +21,7 @@ export class SensorService {
     const query = this.sensorEntity
       .createQueryBuilder('sensor')
       .leftJoinAndSelect('sensor.device', 'device')
+      .where('sensor.is_replied = 0')
 
     if (payload.project_id) {
       if ((payload.project_id as any) === '-1' || payload.project_id === -1)
