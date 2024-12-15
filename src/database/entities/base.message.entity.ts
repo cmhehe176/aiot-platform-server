@@ -27,6 +27,9 @@ export abstract class BaseMessageEntity {
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date
 
+  @Column({ type: 'boolean', name: 'is_replied', default: false })
+  isReplied: boolean
+
   @ManyToOne(() => DeviceEntity, (device) => device.id)
   @JoinColumn({ name: 'device_id' })
   device?: DeviceEntity
