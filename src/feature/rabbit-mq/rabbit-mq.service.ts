@@ -68,7 +68,7 @@ export class RabbitMqService implements OnModuleInit {
 
     const device = await this.deviceEntity.findOne({
       where: { deviceId: queue },
-      select: ['id', 'deviceId'],
+      select: ['id', 'deviceId', 'name', 'isActive'],
     })
 
     if (!device) {
@@ -80,13 +80,13 @@ export class RabbitMqService implements OnModuleInit {
     try {
       switch (message.message_type) {
         case 'notification':
-          this.notificationMessage(message.payload as TNotification, device.id)
+          this.notificationMessage(message.payload as TNotification, device)
           break
         case 'object':
-          this.objectMessage(message.payload as TObject, device.id)
+          this.objectMessage(message.payload as TObject, device)
           break
         case 'sensor':
-          this.sensorMessage(message.payload as TSensor, device.id)
+          this.sensorMessage(message.payload as TSensor, device)
           break
 
         default:
@@ -299,7 +299,7 @@ export class RabbitMqService implements OnModuleInit {
       .catch(console.error)
   }
 
-  objectMessage = async (message: TObject, deviceId: number) => {
+  objectMessage = async (message: TObject, device: DeviceEntity) => {
     message.object_list.forEach(async (object) => {
       await this.messageService
         .sendPhoto(
@@ -312,40 +312,49 @@ export class RabbitMqService implements OnModuleInit {
 
     const object = await this.objectEntity
       .save({
-        device_id: deviceId,
+        device_id: device.id,
         ...message,
       })
       .catch(console.error)
 
-    this.socket.sendEmit(
-      'objectMessdage',
-      genereateObject(object as ObjectEntity),
-    )
+    if (object)
+      this.socket.sendEmit('objectMessage', {
+        ...genereateObject(object as ObjectEntity),
+        device,
+      })
 
     return
   }
 
-  notificationMessage = async (message: TNotification, deviceId: number) => {
-    const noti = {
-      device_id: deviceId,
-      ...message,
-    }
+  notificationMessage = async (
+    message: TNotification,
+    device: DeviceEntity,
+  ) => {
+    const notification = await this.notiEntity
+      .save({
+        device_id: device.id,
+        ...message,
+      })
+      .catch(console.error)
 
-    const notification = await this.notiEntity.save(noti).catch(console.error)
+    if (notification)
+      this.socket.sendEmit('notificationMessage', {
+        ...notification,
+        device,
+      })
 
-    this.socket.sendEmit('notificationMessage', notification)
     return
   }
 
-  sensorMessage = async (message: TSensor, deviceId: number) => {
+  sensorMessage = async (message: TSensor, device: DeviceEntity) => {
     const sensor = await this.sensorEntity
       .save({
-        device_id: deviceId,
+        device_id: device.id,
         ...message,
       })
       .catch(console.error)
 
-    this.socket.sendEmit('sensorMessage', sensor)
+    if (sensor) this.socket.sendEmit('sensorMessage', { ...sensor, device })
     return
   }
 }
