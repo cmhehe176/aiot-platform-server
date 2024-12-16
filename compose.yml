@@ -73,58 +73,58 @@ services:
     ports:
       - 8080:8080/tcp
 
-  zabbix-server:
-    image: zabbix/zabbix-server-pgsql:latest
-    container_name: zabbix-server
-    restart: unless-stopped
-    environment:
-      - DB_SERVER_HOST=database
-      - POSTGRES_DB=zabbix_db
-      - POSTGRES_USER=${POSTGRES_USER}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-    depends_on:
-      - database
-    ports:
-      - 10051:10051
-    volumes:
-      - zabbix-data:/var/lib/zbx_env
-      - zabbix-data:/var/lib/zbx_env
-    networks:
-      - iot-server-net
+  # zabbix-server:
+  #   image: zabbix/zabbix-server-pgsql:latest
+  #   container_name: zabbix-server
+  #   restart: unless-stopped
+  #   environment:
+  #     - DB_SERVER_HOST=database
+  #     - POSTGRES_DB=zabbix_db
+  #     - POSTGRES_USER=${POSTGRES_USER}
+  #     - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+  #   depends_on:
+  #     - database
+  #   ports:
+  #     - 10051:10051
+  #   volumes:
+  #     - zabbix-data:/var/lib/zbx_env
+  #     - zabbix-data:/var/lib/zbx_env
+  #   networks:
+  #     - iot-server-net
 
-  # comment zabbix web and zabbix-agent if you only run zabbix server
-  zabbix-web:
-    image: zabbix/zabbix-web-nginx-pgsql:latest
-    container_name: zabbix-web
-    restart: unless-stopped
-    environment:
-      - ZBX_SERVER_HOST=zabbix-server
-      - DB_SERVER_HOST=database
-      - POSTGRES_DB=zabbix_db
-      - POSTGRES_USER=${POSTGRES_USER}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-    depends_on:
-      - zabbix-server
-    ports:
-      - 8081:8080/tcp
-    volumes:
-      - zabbix-data:/var/lib/zbx_env
-    networks:
-      - iot-server-net
+  # # comment zabbix web and zabbix-agent if you only run zabbix server
+  # zabbix-web:
+  #   image: zabbix/zabbix-web-nginx-pgsql:latest
+  #   container_name: zabbix-web
+  #   restart: unless-stopped
+  #   environment:
+  #     - ZBX_SERVER_HOST=zabbix-server
+  #     - DB_SERVER_HOST=database
+  #     - POSTGRES_DB=zabbix_db
+  #     - POSTGRES_USER=${POSTGRES_USER}
+  #     - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+  #   depends_on:
+  #     - zabbix-server
+  #   ports:
+  #     - 8081:8080/tcp
+  #   volumes:
+  #     - zabbix-data:/var/lib/zbx_env
+  #   networks:
+  #     - iot-server-net
 
-  zabbix-agent:
-    image: zabbix/zabbix-agent:latest
-    container_name: zabbix-agent
-    environment:
-      - ZBX_SERVER_HOST=zabbix-server
-    depends_on:
-      - zabbix-server
-    ports:
-      - 10050:10050
-    volumes:
-      - zabbix-data:/var/lib/zbx_env
-    networks:
-      - iot-server-net
+  # zabbix-agent:
+  #   image: zabbix/zabbix-agent:latest
+  #   container_name: zabbix-agent
+  #   environment:
+  #     - ZBX_SERVER_HOST=zabbix-server
+  #   depends_on:
+  #     - zabbix-server
+  #   ports:
+  #     - 10050:10050
+  #   volumes:
+  #     - zabbix-data:/var/lib/zbx_env
+  #   networks:
+  #     - iot-server-net
 
   # comment this container if you are HWer
   minio:

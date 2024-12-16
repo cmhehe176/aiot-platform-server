@@ -15,4 +15,15 @@ export class DashboardController {
       query.endDate,
     )
   }
+
+  // @Get('detail')
+  // get(
+  //   @Query() query: { projectId?: string; startDate: any; endDate: any },
+  // ) {
+  //   return this.dashboardService.getDashboard(
+  //     query.projectId,
+  //     query.startDate,
+  //     query.endDate,
+  //   )
+  // }
 }

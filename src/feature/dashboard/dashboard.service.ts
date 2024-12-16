@@ -47,6 +47,11 @@ export class DashboardService {
         startDate,
         endDate,
       ),
+      notificationStatus: await this.getNotificationStatus(
+        allDevice,
+        startDate,
+        endDate,
+      ),
     }
   }
 
@@ -244,5 +249,85 @@ export class DashboardService {
     }
 
     return result
+  }
+
+  getNotificationStatus = async (allDevice, startDate?, endDate?) => {
+    const deviceIds = allDevice.map((device) => device.id)
+
+    const objectQuery = this.objectEntity
+      .createQueryBuilder('object')
+      .select('object.isReplied', 'isReplied')
+      .addSelect('COUNT(*)', 'count')
+      .where('object.device_id IN (:...deviceIds)', { deviceIds })
+      .groupBy('object.isReplied')
+
+    const notificationQuery = this.notificationEntity
+      .createQueryBuilder('notification')
+      .select('notification.isReplied', 'isReplied')
+      .addSelect('COUNT(*)', 'count')
+      .where('notification.device_id IN (:...deviceIds)', { deviceIds })
+      .groupBy('notification.isReplied')
+
+    const sensorQuery = this.sensorEntity
+      .createQueryBuilder('sensor')
+      .select('sensor.isReplied', 'isReplied')
+      .addSelect('COUNT(*)', 'count')
+      .where('sensor.device_id IN (:...deviceIds)', { deviceIds })
+      .groupBy('sensor.isReplied')
+
+    if (startDate && endDate) {
+      objectQuery.andWhere('object.timestamp BETWEEN :start AND :end', {
+        start: startDate,
+        end: endDate,
+      })
+
+      notificationQuery.andWhere(
+        'notification.timestamp BETWEEN :start AND :end',
+        {
+          start: startDate,
+          end: endDate,
+        },
+      )
+
+      sensorQuery.andWhere('sensor.timestamp BETWEEN :start AND :end', {
+        start: startDate,
+        end: endDate,
+      })
+    }
+
+    const [objectCounts, notificationCounts, sensorCounts] = await Promise.all([
+      objectQuery.getRawMany(),
+      notificationQuery.getRawMany(),
+      sensorQuery.getRawMany(),
+    ])
+
+    return {
+      objects: objectCounts.map((object) => this.getStatus(object)),
+      notifications: notificationCounts.map((object) => this.getStatus(object)),
+      sensors: sensorCounts.map((object) => this.getStatus(object)),
+    }
+  }
+
+  getStatus = (status: any) => {
+    switch (status.isReplied) {
+      case 0:
+        return {
+          status: 'Not Replied',
+          count: status.count,
+        }
+      case 1:
+        return {
+          status: 'Accepted',
+          count: status.count,
+        }
+      case 2:
+        return {
+          status: 'Reject',
+          count: status.count,
+        }
+
+      default:
+        return
+    }
   }
 }
