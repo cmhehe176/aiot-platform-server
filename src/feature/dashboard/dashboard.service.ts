@@ -38,6 +38,8 @@ export class DashboardService {
       },
     })
 
+    if (!total) return []
+
     return {
       messageDevice: await this.getMessageDevice(allDevice, startDate, endDate),
       statusDevice: await this.getStatusDevice(allDevice, total),
