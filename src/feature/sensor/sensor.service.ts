@@ -93,10 +93,4 @@ export class SensorService {
 
     return true
   }
-
-  // async deleteSensor(id: number) {
-  //   await this.sensorEntity.delete({ id }).catch(console.error)
-
-  //   return true
-  // }
 }

@@ -20,12 +20,6 @@ export class DeviceService {
     private readonly dataSource: DataSource,
   ) {}
 
-  CreateDevice = (payload: any, adminId: number) => {
-    const data = { ...payload, createdId: adminId }
-
-    return this.deviceEntity.insert(data).catch(console.error)
-  }
-
   UpdateDevice = async (payload: any, id: number) => {
     await this.deviceEntity.update(
       { id: id },

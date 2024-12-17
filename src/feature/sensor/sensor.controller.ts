@@ -21,9 +21,4 @@ export class SensorController {
   reply(@Param('id') id: number, @Body() payload: { replied: number }) {
     return this.sensorService.replySensor(id, payload.replied)
   }
-
-  // @Delete(':id')
-  // delete(@Param('id') id: number) {
-  //   return this.sensorService.deleteSensor(id)
-  // }
 }

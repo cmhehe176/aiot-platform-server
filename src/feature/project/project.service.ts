@@ -15,12 +15,15 @@ export class ProjectService {
   constructor(
     @InjectRepository(ProjectEntity)
     private readonly projectEntity: Repository<ProjectEntity>,
+
     @InjectRepository(PermissionProjectEntity)
     private readonly permissionProjectEntity: Repository<PermissionProjectEntity>,
+
     @InjectRepository(DeviceEntity)
     private readonly deviceEntity: Repository<DeviceEntity>,
   ) {}
 
+  //can remove
   async listProjectByUser(id: number) {
     const [items, total] = await this.permissionProjectEntity.findAndCount({
       where: { userId: id },
@@ -130,6 +133,7 @@ export class ProjectService {
     adminId: number,
   ) {
     const { data } = await this.listUserOfProject(projectId)
+
     const promises: any[] = [
       this.projectEntity.update(
         { id: projectId },
@@ -141,7 +145,7 @@ export class ProjectService {
 
     if (payload.userIds) {
       const addUser = payload.userIds.map((userId) => {
-        if (listUserInProject.includes(userId)) return
+        if (listUserInProject.includes(userId)) return false
 
         this.addUserToProject(userId, adminId, projectId)
       })
@@ -158,7 +162,7 @@ export class ProjectService {
       const listDeviceInProject = project.device.map((i) => i.id)
 
       const addDevice = payload.deviceIds.map((deviceId) => {
-        if (listDeviceInProject.includes(deviceId)) return
+        if (listDeviceInProject.includes(deviceId)) return false
 
         this.deviceEntity.update({ id: deviceId }, { projectId: projectId })
       })
@@ -174,21 +178,19 @@ export class ProjectService {
 
     await Promise.all(promises.map((p) => p))
 
-    return { message: 'success' }
+    return true
   }
 
   async deleteProject(id: number) {
-    const promise = [
+    await Promise.all([
       this.deviceEntity.update({ projectId: id }, { projectId: null }),
 
       this.permissionProjectEntity.delete({ projectId: id }),
 
       this.projectEntity.delete({ id: id }),
-    ]
+    ])
 
-    await Promise.all(promise.map((p) => p))
-
-    return { message: 'success' }
+    return true
   }
 
   addUserToProject(userId: number, adminId: number, projectId: number) {
@@ -203,7 +205,7 @@ export class ProjectService {
   }
 
   deleteUserOutProject(userId: number, adminId: number, projectId: number) {
-    this.permissionProjectEntity
+    return this.permissionProjectEntity
       .softDelete({
         userId: userId,
         projectId: projectId,
@@ -217,8 +219,6 @@ export class ProjectService {
           { deletedId: adminId },
         ),
       )
-
-    return { message: 'success' }
   }
 
   getListProjectByRole = async (user: IUser) => {

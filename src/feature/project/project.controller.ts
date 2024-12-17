@@ -17,6 +17,7 @@ import { ERole, Roles } from 'src/common/decorators/role.decorator'
 export class ProjectController {
   constructor(private readonly projectService: ProjectService) {}
 
+  //can remove
   @Get()
   listProjectByUser(@User() user: IUser) {
     return this.projectService.listProjectByUser(user.id)
