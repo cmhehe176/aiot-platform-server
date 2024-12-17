@@ -72,61 +72,59 @@ export class MessageService {
         where: { telegramId: msg.from.id },
       })
 
-      if (!user) {
-        if (EMAIL_PATTERN.test(msg.text)) {
-          const checkUser = await this.userEntity
-            .findOne({
-              where: { email: msg.text },
-            })
-            .catch((err) => {
-              throw err
-            })
+      if (user) return
 
-          if (!checkUser)
-            return this.sendMessageToUser(
-              msg.from.id,
-              'You dont exist in my organization',
-            )
+      if (EMAIL_PATTERN.test(msg.text)) {
+        const checkUser = await this.userEntity
+          .findOne({
+            where: { email: msg.text },
+          })
+          .catch((err) => {
+            throw err
+          })
 
-          this.temp.email = msg.text
-
-          try {
-            const key = await generateRandomSixDigitNumber()
-            this.temp.key = key
-
-            const data: sendMailDto = {
-              to: [msg.text],
-              subject: 'Verify Telegram',
-              data: {
-                key: key,
-                name: checkUser.name,
-              },
-              html: SourceMailSecretKey,
-            }
-
-            this.sendMessageToUser(msg.from.id, 'Please wait to sending email')
-
-            await this.emailService.sendMail(data).catch((err) => {
-              console.error('Error sending email:', err)
-              throw err
-            })
-          } catch (error) {
-            console.error(error)
-          }
-
+        if (!checkUser)
           return this.sendMessageToUser(
             msg.from.id,
-            'Please check your email to input your key in here',
+            'You dont exist in my organization',
           )
+
+        this.temp.email = msg.text
+
+        try {
+          const key = await generateRandomSixDigitNumber()
+          this.temp.key = key
+
+          const data: sendMailDto = {
+            to: [msg.text],
+            subject: 'Verify Telegram',
+            data: {
+              key: key,
+              name: checkUser.name,
+            },
+            html: SourceMailSecretKey,
+          }
+
+          this.sendMessageToUser(msg.from.id, 'Please wait to sending email')
+
+          await this.emailService.sendMail(data).catch((err) => {
+            console.error('Error sending email:', err)
+            throw err
+          })
+        } catch (error) {
+          console.error(error)
         }
 
-        this.bot.sendMessage(
+        return this.sendMessageToUser(
           msg.from.id,
-          'You must be verify if you want to accept notification, please enter your email bellow here',
+          'Please check your email to input your key in here',
         )
-
-        return
       }
+
+      this.bot.sendMessage(
+        msg.from.id,
+        'You must be verify if you want to accept notification, please enter your email bellow here',
+      )
 
       if (msg.text === '/start') {
         this.sendMessageToUser(msg.from.id, 'hello')
