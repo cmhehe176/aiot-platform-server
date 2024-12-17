@@ -92,7 +92,6 @@ services:
   #   networks:
   #     - iot-server-net
 
-  # # comment zabbix web and zabbix-agent if you only run zabbix server
   # zabbix-web:
   #   image: zabbix/zabbix-web-nginx-pgsql:latest
   #   container_name: zabbix-web
@@ -126,26 +125,8 @@ services:
   #   networks:
   #     - iot-server-net
 
-  # # comment this container if you are HWer
-  
-  # minio:
-  #   image: minio/minio:latest
-  #   container_name: minio
-  #   command: server /data --console-address ":9001"
-  #   environment:
-  #     - MINIO_ROOT_USER=${MINIO_ROOT_USER}
-  #     - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD}
-  #     - MINIO_REGION_NAME=${MINIO_REGION_NAME}
-  #   ports:
-  #     - 9000:9000
-  #     - 9001:9001
-  #   restart: unless-stopped
-  #   volumes:
-  #     - minio-vol:/data
-
   rabbitmq:
     image: rabbitmq:management
-    #image: rabbitmq:latest   #rabbitMq server - if only want use rabbitMq server
     container_name: rabbitmq
     restart: unless-stopped
     ports:
