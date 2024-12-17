@@ -1,6 +1,5 @@
-import { Column, Entity, Index, OneToMany } from 'typeorm'
+import { Column, Entity, Index } from 'typeorm'
 import { BaseMessageEntity } from './base.message.entity'
-import { ObjectEntity } from './object.entity'
 
 @Entity({ name: 'notification' })
 @Index('IDX_noti_message_id_timestamp', ['timestamp'], {
