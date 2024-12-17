@@ -8,7 +8,6 @@ import { NRoles } from 'src/common/constants/roles.constant'
 import { IUser } from 'src/common/decorators/user.decorator'
 import { DeviceEntity, PermissionProjectEntity } from 'src/database/entities'
 import { DataSource, Repository } from 'typeorm'
-import { SocketGateway } from '../socket/socket.gateway'
 import { ProjectService } from '../project/project.service'
 
 @Injectable()
@@ -16,8 +15,7 @@ export class DeviceService {
   constructor(
     @InjectRepository(DeviceEntity)
     private readonly deviceEntity: Repository<DeviceEntity>,
-    @InjectRepository(PermissionProjectEntity)
-    private readonly socket: SocketGateway,
+
     private readonly projectService: ProjectService,
     private readonly dataSource: DataSource,
   ) {}
@@ -85,9 +83,5 @@ export class DeviceService {
         }
       }),
     )
-  }
-
-  sendDataUpdate = () => {
-    return this.socket.sendEmit('test', true)
   }
 }
