@@ -1,5 +1,6 @@
 import { Controller, Get, Query } from '@nestjs/common'
 import { DashboardService } from './dashboard.service'
+import { IUser, User } from 'src/common/decorators/user.decorator'
 
 @Controller('dashboard')
 export class DashboardController {
@@ -7,7 +8,7 @@ export class DashboardController {
 
   @Get()
   getDashboard(
-    @Query() query: { projectId?: string; startDate: any; endDate: any },
+    @Query() query: { projectId?: number; startDate?: any; endDate?: any },
   ) {
     return this.dashboardService.getDashboard(
       query.projectId,
@@ -16,14 +17,16 @@ export class DashboardController {
     )
   }
 
-  // @Get('detail')
-  // get(
-  //   @Query() query: { projectId?: string; startDate: any; endDate: any },
-  // ) {
-  //   return this.dashboardService.getDashboard(
-  //     query.projectId,
-  //     query.startDate,
-  //     query.endDate,
-  //   )
-  // }
+  @Get('detail')
+  get(
+    @Query() query: { deviceId: number; startDate?: any; endDate?: any },
+    @User() user: IUser,
+  ) {
+    return this.dashboardService.getDetail(
+      +query.deviceId,
+      query.startDate,
+      query.endDate,
+      user,
+    )
+  }
 }

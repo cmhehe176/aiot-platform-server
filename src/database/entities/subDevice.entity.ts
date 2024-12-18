@@ -22,6 +22,12 @@ export class SubDevice extends BaseEntity {
   @Column({ type: 'int', nullable: true })
   device_id: number
 
+  @Column({ type: 'jsonb', nullable: true })
+  permissions: unknown
+
+  @Column({ type: 'boolean', default: true })
+  publish: boolean
+
   @ManyToOne(() => DeviceEntity, (device) => device.id)
   @JoinColumn({ name: 'device_id' })
   device?: DeviceEntity

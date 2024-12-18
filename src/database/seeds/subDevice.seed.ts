@@ -9,7 +9,7 @@ export default class InitSubDevice implements Seeder {
         id: 1,
         name: 'YOLOv8_enginE',
         unit: 'RBG',
-        description: 'YOLOv8_enginE',
+        description: 'YOLOv8_engine',
         type: 'camera',
       },
       {

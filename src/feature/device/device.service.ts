@@ -73,8 +73,13 @@ export class DeviceService {
       .getMany()
   }
 
-  getSubDevice = () => {
-    return this.subDevice.find()
+  // role here to user and admin
+  getSubDevice = (type = 'sensor', user: IUser, select?: any) => {
+    if (user.role.id === NRoles.ADMIN)
+      return this.subDevice.find({ where: { type }, select })
+
+    //future update when done service
+    return []
   }
 
   updateSubDevice = (id: number, payload: SubDevice) => {

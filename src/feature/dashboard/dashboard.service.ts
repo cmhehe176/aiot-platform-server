@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common'
+import { BadRequestException, Injectable } from '@nestjs/common'
 import { DataSource, FindOptionsWhere, Repository } from 'typeorm'
 import {
   DeviceEntity,
@@ -7,6 +7,7 @@ import {
   SensorEntity,
 } from 'src/database/entities'
 import { DeviceService } from '../device/device.service'
+import { IUser } from 'src/common/decorators/user.decorator'
 
 @Injectable()
 export class DashboardService {
@@ -54,6 +55,57 @@ export class DashboardService {
         startDate,
         endDate,
       ),
+    }
+  }
+
+  getDetail = async (deviceId, startDate, endDate, user: IUser) => {
+    //prettier-ignore
+    const listSensor = await this.deviceService.getSubDevice('sensor', user, [ 'name' ])
+
+    if (!listSensor.length) return []
+
+    const listSensorName = listSensor.map((sensor) => sensor.name)
+
+    const query = this.sensorEntity
+      .createQueryBuilder('sensor')
+      .where('sensor.device_id = :device_id', { device_id: deviceId })
+
+    if (startDate && endDate) {
+      query.andWhere('sensor.timestamp BETWEEN :start AND :end', {
+        start: startDate,
+        end: endDate,
+      })
+    }
+
+    //prettier-ignore
+    const detailSensor = await query.getMany().catch(console.error) as SensorEntity[]
+
+    if (!detailSensor.length) return []
+
+    try {
+      const data = detailSensor.map((sensor) =>
+        (sensor.sensor_list as any).map((list) => ({
+          name: list.name,
+          payload: list.payload,
+        })),
+      )
+
+      const result = data.flat().reduce((acc, item) => {
+        //prettier-ignore
+        acc[item.name] ? acc[item.name].push(item.payload) : (acc[item.name] = [item.payload])
+
+        return acc
+      }, {})
+
+      const finalResult = Object.keys(result).map((name) => ({
+        name,
+        payload: result[name],
+      }))
+
+      //prettier-ignore
+      return finalResult.filter((result) => listSensorName.includes(result.name))
+    } catch (error) {
+      throw new BadRequestException('notFound')
     }
   }
 
