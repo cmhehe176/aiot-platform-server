@@ -6,7 +6,11 @@ import {
 import { InjectRepository } from '@nestjs/typeorm'
 import { NRoles } from 'src/common/constants/roles.constant'
 import { IUser } from 'src/common/decorators/user.decorator'
-import { DeviceEntity, PermissionProjectEntity } from 'src/database/entities'
+import {
+  DeviceEntity,
+  PermissionProjectEntity,
+  SubDevice,
+} from 'src/database/entities'
 import { DataSource, Repository } from 'typeorm'
 import { ProjectService } from '../project/project.service'
 
@@ -15,6 +19,9 @@ export class DeviceService {
   constructor(
     @InjectRepository(DeviceEntity)
     private readonly deviceEntity: Repository<DeviceEntity>,
+
+    @InjectRepository(SubDevice)
+    private readonly subDevice: Repository<SubDevice>,
 
     private readonly projectService: ProjectService,
     private readonly dataSource: DataSource,
@@ -66,16 +73,11 @@ export class DeviceService {
       .getMany()
   }
 
-  getDeviceOfUser = async (user: IUser) => {
-    const list = await this.projectService.getListProjectByRole(user)
+  getSubDevice = () => {
+    return this.subDevice.find()
+  }
 
-    return list.flatMap((i) =>
-      i.device.map((i) => {
-        return {
-          id: i.id,
-          name: i.name,
-        }
-      }),
-    )
+  updateSubDevice = (id: number, payload: SubDevice) => {
+    return this.subDevice.update({ id }, { ...payload })
   }
 }

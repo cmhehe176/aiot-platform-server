@@ -23,8 +23,8 @@ export class DeviceController {
     return this.deviceService.getListDeviceFree()
   }
 
-  @Get('test')
-  test(@User() user: IUser) {
-    return this.deviceService.getDeviceOfUser(user)
+  @Get('sub-device')
+  getSubDevice() {
+    return this.deviceService.getSubDevice()
   }
 }

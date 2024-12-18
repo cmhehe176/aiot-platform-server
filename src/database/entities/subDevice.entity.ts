@@ -8,15 +8,18 @@ export class SubDevice extends BaseEntity {
   name: string
 
   @Column({ type: 'varchar', nullable: true })
-  type: string
-
-  @Column({ type: 'varchar', nullable: true })
   unit: string
+
+  @Column({ type: 'varchar', nullable: false, default: 'sensor' })
+  type: string
 
   @Column({ type: 'varchar', nullable: true })
   description: string
 
-  @Column({ type: 'int', nullable: false })
+  @Column({ type: 'varchar', nullable: true })
+  limit: string
+
+  @Column({ type: 'int', nullable: true })
   device_id: number
 
   @ManyToOne(() => DeviceEntity, (device) => device.id)
