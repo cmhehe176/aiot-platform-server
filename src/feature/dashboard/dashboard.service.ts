@@ -77,33 +77,46 @@ export class DashboardService {
       })
     }
 
-    //prettier-ignore
-    const detailSensor = await query.getMany().catch(console.error) as SensorEntity[]
+    const detailSensor = await query.getMany()
 
     if (!detailSensor.length) return []
 
     try {
-      const data = detailSensor.map((sensor) =>
-        (sensor.sensor_list as any).map((list) => ({
-          name: list.name,
-          payload: list.payload,
-        })),
-      )
+      const data: any = detailSensor.map((sensor) => {
+        const { sensor_list, timestamp } = sensor as any
+
+        return sensor_list.map((sensor) => ({
+          ...sensor,
+          timestamp,
+        }))
+      })
 
       const result = data.flat().reduce((acc, item) => {
-        //prettier-ignore
-        acc[item.name] ? acc[item.name].push(item.payload) : (acc[item.name] = [item.payload])
+        if (acc[item.name]) {
+          acc[item.name].push({
+            payload: { data: item.payload, timestamp: item.timestamp },
+            unit: item.unit,
+          })
+        } else {
+          acc[item.name] = [
+            {
+              payload: { data: item.payload, timestamp: item.timestamp },
+              unit: item.unit,
+            },
+          ]
+        }
 
         return acc
       }, {})
 
       const finalResult = Object.keys(result).map((name) => ({
         name,
-        payload: result[name],
+        payload: result[name].map((entry) => entry.payload),
+        unit: result[name][0]?.unit,
       }))
 
       //prettier-ignore
-      return finalResult.filter((result) => listSensorName.includes(result.name))
+      return finalResult.filter((result) => listSensorName.includes(result.name));
     } catch (error) {
       throw new BadRequestException('notFound')
     }
@@ -127,8 +140,8 @@ export class DashboardService {
     const result = []
 
     const objectQuery = this.objectEntity.createQueryBuilder('object')
-    const notiQuery = this.objectEntity.createQueryBuilder('noti')
-    const sensorQuery = this.objectEntity.createQueryBuilder('sensor')
+    const notiQuery = this.notificationEntity.createQueryBuilder('noti')
+    const sensorQuery = this.sensorEntity.createQueryBuilder('sensor')
 
     if (startDate && endDate) {
       objectQuery.andWhere('object.timestamp BETWEEN :start AND :end', {
@@ -357,8 +370,8 @@ export class DashboardService {
 
     return {
       objects: objectCounts.map((object) => this.getStatus(object)),
-      notifications: notificationCounts.map((object) => this.getStatus(object)),
-      sensors: sensorCounts.map((object) => this.getStatus(object)),
+      notifications: notificationCounts.map((noti) => this.getStatus(noti)),
+      sensors: sensorCounts.map((sensor) => this.getStatus(sensor)),
     }
   }
 
