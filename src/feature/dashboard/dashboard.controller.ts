@@ -22,7 +22,7 @@ export class DashboardController {
     @Query() query: { deviceId: number; startDate?: any; endDate?: any },
     @User() user: IUser,
   ) {
-    return this.dashboardService.getDetail(
+    return this.dashboardService.getDetailSensor(
       +query.deviceId,
       query.startDate,
       query.endDate,

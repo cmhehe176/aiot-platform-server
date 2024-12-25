@@ -8,7 +8,7 @@ import {
 } from 'src/database/entities'
 import { DeviceService } from '../device/device.service'
 import { IUser } from 'src/common/decorators/user.decorator'
-
+import { startOfDate, endOfDate } from 'src/common/dayjs'
 @Injectable()
 export class DashboardService {
   private objectEntity: Repository<ObjectEntity>
@@ -27,6 +27,9 @@ export class DashboardService {
   }
 
   getDashboard = async (projectId, startDate, endDate) => {
+    const start = startDate
+    const end = endDate
+
     const whereCondition: FindOptionsWhere<DeviceEntity> = projectId
       ? { projectId }
       : {}
@@ -42,23 +45,20 @@ export class DashboardService {
     if (!total) return []
 
     return {
-      messageDevice: await this.getMessageDevice(allDevice, startDate, endDate),
+      messageDevice: await this.getMessageDevice(allDevice, start, end),
       statusDevice: await this.getStatusDevice(allDevice, total),
-      typeDetect: await this.getTypeDetect(allDevice, startDate, endDate),
-      notificationType: await this.getNotificationType(
-        allDevice,
-        startDate,
-        endDate,
-      ),
+      typeDetect: await this.getTypeDetect(allDevice, start, end),
+      notificationType: await this.getNotificationType(allDevice, start, end),
       notificationStatus: await this.getNotificationStatus(
         allDevice,
-        startDate,
-        endDate,
+        start,
+        end,
       ),
+      totalSensorByDate: await this.getTotalSensorByDate(allDevice, start, end),
     }
   }
 
-  getDetail = async (deviceId, startDate, endDate, user: IUser) => {
+  getDetailSensor = async (deviceId, startDate, endDate, user: IUser) => {
     //prettier-ignore
     const listSensor = await this.deviceService.getSubDevice('sensor', user, [ 'name' ])
 
@@ -379,7 +379,7 @@ export class DashboardService {
     switch (status.isReplied) {
       case 0:
         return {
-          status: 'Not Replied',
+          status: 'Pending',
           count: status.count,
         }
       case 1:
@@ -396,5 +396,27 @@ export class DashboardService {
       default:
         return
     }
+  }
+
+  getTotalSensorByDate = async (
+    allDevice: DeviceEntity[],
+    startDate: any = new Date(),
+    endDate: any = new Date(),
+  ) => {
+    const deviceIds = allDevice.map((device) => device.id)
+
+    const result = await this.sensorEntity
+      .createQueryBuilder('sensor')
+      .select('DATE(sensor.timestamp)', 'date')
+      .addSelect('COUNT(*)', 'count')
+      .where('sensor.device_id IN (:...deviceIds)', { deviceIds })
+      .andWhere('sensor.timestamp BETWEEN :start AND :end', {
+        start: startDate,
+        end: endDate,
+      })
+      .groupBy('DATE(sensor.timestamp)')
+      .getRawMany()
+
+    return result
   }
 }
