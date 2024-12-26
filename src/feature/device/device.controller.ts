@@ -2,6 +2,7 @@ import { Body, Controller, Get, Param, Put, Query } from '@nestjs/common'
 import { DeviceService } from './device.service'
 import { ERole, Roles } from 'src/common/decorators/role.decorator'
 import { IUser, User } from 'src/common/decorators/user.decorator'
+import { SubDevice } from 'src/database/entities'
 
 @Controller('device')
 export class DeviceController {
@@ -24,7 +25,13 @@ export class DeviceController {
   }
 
   @Get('sub-device/:type')
-  getSubDevice(@Param('type') type: string, @User() user: IUser) {
+  getSubDevice(@Param('type') type, @User() user: IUser) {
     return this.deviceService.getSubDevice(type, user)
+  }
+
+  @Put('sub-device/:id')
+  @Roles(ERole.ADMIN)
+  UpdateSubDevice(@Param('id') id: number, @Body() payload: SubDevice) {
+    return this.deviceService.updateSubDevice(id, payload)
   }
 }

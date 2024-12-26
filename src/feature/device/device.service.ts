@@ -73,13 +73,23 @@ export class DeviceService {
       .getMany()
   }
 
-  // role here to user and admin
-  getSubDevice = (type = 'sensor', user: IUser, select?: any) => {
-    if (user.role.id === NRoles.ADMIN)
-      return this.subDevice.find({ where: { type }, select })
+  getSubDevice = async (type = 'sensor', user: IUser, select?: any) => {
+    const listSubDevice = await this.subDevice.find({
+      where: { type },
+      select,
+      order: { id: 'ASC' },
+    })
 
-    //future update when done service
-    return []
+    if (user.role.id === NRoles.ADMIN) return listSubDevice
+
+    const accessibleDevices = listSubDevice.filter(
+      (device) =>
+        device.permissions &&
+        Array.isArray(device.permissions) &&
+        device.permissions.includes(user.id),
+    )
+
+    return accessibleDevices
   }
 
   updateSubDevice = (id: number, payload: SubDevice) => {
