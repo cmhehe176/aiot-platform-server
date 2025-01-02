@@ -60,7 +60,10 @@ export class DashboardService {
 
   getDetailSensor = async (deviceId, startDate, endDate, user: IUser) => {
     //prettier-ignore
-    const listSensor = await this.deviceService.getSubDevice('sensor', user, [ 'name' ])
+    const listSensor = await this.deviceService.getSubDevice('sensor', user, [
+      'name',
+      'permissions',
+    ])
 
     if (!listSensor.length) return []
 

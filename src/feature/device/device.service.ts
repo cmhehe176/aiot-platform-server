@@ -73,7 +73,9 @@ export class DeviceService {
       .getMany()
   }
 
-  getSubDevice = async (type = 'sensor', user: IUser, select?: any) => {
+  getSubDevice = async (type, user: IUser, select?: any) => {
+    if (type === 'all') type = undefined
+
     const listSubDevice = await this.subDevice.find({
       where: { type },
       select,
