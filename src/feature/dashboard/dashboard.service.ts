@@ -59,6 +59,8 @@ export class DashboardService {
   }
 
   getDetailSensor = async (deviceId, startDate, endDate, user: IUser) => {
+    if ((startDate && !endDate) || (!startDate && endDate)) return []
+
     //prettier-ignore
     const listSensor = await this.deviceService.getSubDevice('sensor', user, [
       'name',
