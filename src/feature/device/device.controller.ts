@@ -2,7 +2,7 @@ import { Body, Controller, Get, Param, Put, Query } from '@nestjs/common'
 import { DeviceService } from './device.service'
 import { ERole, Roles } from 'src/common/decorators/role.decorator'
 import { IUser, User } from 'src/common/decorators/user.decorator'
-import { SubDevice } from 'src/database/entities'
+import { UpdateSubDeviceDto } from './device.dto'
 
 @Controller('device')
 export class DeviceController {
@@ -31,7 +31,10 @@ export class DeviceController {
 
   @Put('sub-device/:id')
   @Roles(ERole.ADMIN)
-  UpdateSubDevice(@Param('id') id: number, @Body() payload: SubDevice) {
+  UpdateSubDevice(
+    @Param('id') id: number,
+    @Body() payload: UpdateSubDeviceDto,
+  ) {
     return this.deviceService.updateSubDevice(id, payload)
   }
 }

@@ -8,6 +8,7 @@ import {
   generateRandomSixDigitNumber,
   genereateObject,
   imageError,
+  syncDataSubDevice,
 } from 'src/common/util'
 import { InjectRepository } from '@nestjs/typeorm'
 import {
@@ -15,8 +16,9 @@ import {
   NotificationEntity,
   ObjectEntity,
   SensorEntity,
+  SubDevice,
 } from 'src/database/entities'
-import { Repository } from 'typeorm'
+import { DataSource, Repository } from 'typeorm'
 import { MessageService } from '../message/message.service'
 import { TNotification, TObject, TSensor } from 'src/common/type'
 import { SocketGateway } from '../socket/socket.gateway'
@@ -27,6 +29,7 @@ export class RabbitMqService implements OnModuleInit {
   private readonly username: string
   private readonly password: string
   private consumerTimers: Map<string, NodeJS.Timeout> = new Map()
+  private readonly subDevice: Repository<SubDevice>
 
   constructor(
     @InjectRepository(DeviceEntity)
@@ -37,15 +40,18 @@ export class RabbitMqService implements OnModuleInit {
     private readonly objectEntity: Repository<ObjectEntity>,
     @InjectRepository(SensorEntity)
     private readonly sensorEntity: Repository<SensorEntity>,
+
     private readonly amqpConnection: AmqpConnection,
     private readonly httpService: HttpService,
     private readonly configService: ConfigService,
     private readonly messageService: MessageService,
     private readonly socket: SocketGateway,
+    private readonly dataSoure: DataSource,
   ) {
     this.baseUrl = this.configService.get('RABBITMQ_MANAGEMENT_URL')
     this.username = this.configService.get('RABBITMQ_USER')
     this.password = this.configService.get('RABBITMQ_PASS')
+    this.subDevice = this.dataSoure.getRepository(SubDevice)
   }
 
   onModuleInit() {
@@ -353,6 +359,8 @@ export class RabbitMqService implements OnModuleInit {
         ...message,
       })
       .catch(console.error)
+
+    syncDataSubDevice(this.sensorEntity, this.subDevice)
 
     if (sensor) this.socket.sendEmit('sensorMessage', { ...sensor, device })
     return

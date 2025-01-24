@@ -44,5 +44,6 @@ import { SocketModule } from '../socket/socket.module'
   ],
   controllers: [RabbitMqController],
   providers: [RabbitMqService, MessageService, EmailService],
+  exports: [RabbitMqService],
 })
 export class RabbitMqModule {}

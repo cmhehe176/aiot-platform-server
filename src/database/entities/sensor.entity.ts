@@ -7,5 +7,5 @@ import { BaseMessageEntity } from './base.message.entity'
 })
 export class SensorEntity extends BaseMessageEntity {
   @Column({ type: 'jsonb', nullable: true })
-  sensor_list: unknown
+  sensor_list: any
 }

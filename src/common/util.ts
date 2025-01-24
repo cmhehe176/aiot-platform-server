@@ -6,7 +6,8 @@ import {
   ClientsProviderAsyncOptions,
 } from '@nestjs/microservices'
 import { TObject } from './type'
-import { ObjectEntity } from 'src/database/entities'
+import { ObjectEntity, SensorEntity, SubDevice } from 'src/database/entities'
+import { Repository } from 'typeorm'
 
 export const configureQueue = async (
   app: INestApplication<any>,
@@ -87,4 +88,22 @@ export const genereateObject = (object: ObjectEntity) => {
   delete object.event_list
 
   return object
+}
+
+export const syncDataSubDevice = async (
+  sensorEntity: Repository<SensorEntity>,
+  subDevice: Repository<SubDevice>,
+) => {
+  const [data] = await sensorEntity.find({
+    order: { id: 'DESC' },
+    take: 1,
+  })
+
+  const { sensor_list } = data
+
+  sensor_list.forEach((sensor) => {
+    subDevice.update({ name: sensor.name }, { device_id: data.device_id })
+  })
+
+  return data
 }

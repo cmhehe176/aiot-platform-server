@@ -17,7 +17,16 @@ export class SubDevice extends BaseEntity {
   description: string
 
   @Column({ type: 'varchar', nullable: true })
-  limit: string
+  lower_limit: string
+
+  @Column({ type: 'varchar', nullable: true })
+  upper_limit: string
+
+  @Column({ type: 'jsonb', nullable: true })
+  selected_area: unknown
+
+  @Column({ type: 'varchar', nullable: true })
+  detection_timer: string
 
   @Column({ type: 'int', nullable: true })
   device_id: number

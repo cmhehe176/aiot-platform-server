@@ -9,13 +9,21 @@ import { IUser } from 'src/common/decorators/user.decorator'
 import {
   DeviceEntity,
   PermissionProjectEntity,
+  SensorEntity,
   SubDevice,
 } from 'src/database/entities'
 import { DataSource, Repository } from 'typeorm'
 import { ProjectService } from '../project/project.service'
+import { UpdateSubDeviceDto } from './device.dto'
+import { RabbitMqService } from '../rabbit-mq/rabbit-mq.service'
+import { syncDataSubDevice } from 'src/common/util'
+import { QueueInfo } from 'src/common/type'
 
 @Injectable()
 export class DeviceService {
+  private readonly sensorEntity: Repository<SensorEntity>
+  private readonly permissionProjectEntity: Repository<PermissionProjectEntity>
+
   constructor(
     @InjectRepository(DeviceEntity)
     private readonly deviceEntity: Repository<DeviceEntity>,
@@ -25,7 +33,13 @@ export class DeviceService {
 
     private readonly projectService: ProjectService,
     private readonly dataSource: DataSource,
-  ) {}
+    private readonly rabitmqService: RabbitMqService,
+  ) {
+    this.sensorEntity = this.dataSource.getRepository(SensorEntity)
+    this.permissionProjectEntity = this.dataSource.getRepository(
+      PermissionProjectEntity,
+    )
+  }
 
   UpdateDevice = async (payload: any, id: number) => {
     await this.deviceEntity.update(
@@ -48,11 +62,9 @@ export class DeviceService {
         },
       })
 
-    const checkUser = await this.dataSource
-      .getRepository(PermissionProjectEntity)
-      .exists({
-        where: { userId: user.id, projectId: projectId },
-      })
+    const checkUser = await this.permissionProjectEntity.exists({
+      where: { userId: user.id, projectId: projectId },
+    })
 
     if (!checkUser && user.role.id === NRoles.USER)
       throw new BadRequestException('Not Found device in project ')
@@ -80,6 +92,7 @@ export class DeviceService {
       where: { type },
       select,
       order: { id: 'ASC' },
+      relations: { device: true },
     })
 
     if (user.role.id === NRoles.ADMIN) return listSubDevice
@@ -94,7 +107,80 @@ export class DeviceService {
     return accessibleDevices
   }
 
-  updateSubDevice = (id: number, payload: SubDevice) => {
-    return this.subDevice.update({ id }, { ...payload })
+  updateSubDevice = async (id: number, payload: UpdateSubDeviceDto) => {
+    syncDataSubDevice(this.sensorEntity, this.subDevice)
+
+    const subDeviceEntity = await this.subDevice.findOne({
+      where: { id },
+      relations: { device: true },
+    })
+
+    const listQueue = (await this.rabitmqService.getQueues()) as QueueInfo[]
+
+    if (
+      !listQueue.some((queue) =>
+        queue.name.includes(subDeviceEntity.device?.deviceId),
+      )
+    ) {
+      throw new BadRequestException('DeviceId queue not exist or not Active')
+    }
+
+    if (payload.type === 'sensor') {
+      this.rabitmqService.sendMessage(
+        {
+          message_type: 'workflow',
+          payload: {
+            type: 'sensor_limit',
+            sensor_list: [
+              {
+                sensor_name: subDeviceEntity.name,
+                lower_limit: payload.lower_limit,
+                upper_limit: payload.upper_limit,
+              },
+            ],
+          },
+        },
+        subDeviceEntity.device.deviceId,
+      )
+    }
+
+    if (payload.type === 'camera') {
+      const baseMessage = {
+        message_type: 'workflow',
+        payload: {},
+      }
+
+      if (payload.detection_timer) {
+        const timerMessage = {
+          ...baseMessage,
+          payload: {
+            type: 'detection_timer',
+            seconds: payload.detection_timer,
+          },
+        }
+
+        this.rabitmqService.sendMessage(
+          timerMessage,
+          subDeviceEntity.device.deviceId,
+        )
+      }
+
+      if (payload.selected_area) {
+        const areaMessage = {
+          ...baseMessage,
+          payload: {
+            type: 'detection_rage',
+            list_of_setpoint: payload.selected_area,
+          },
+        }
+
+        this.rabitmqService.sendMessage(
+          areaMessage,
+          subDeviceEntity.device.deviceId,
+        )
+      }
+    }
+
+    return this.subDevice.update({ id }, payload)
   }
 }
