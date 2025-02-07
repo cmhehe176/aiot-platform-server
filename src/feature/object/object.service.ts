@@ -95,7 +95,7 @@ export class ObjectService {
 
   async getDetailObject(message_id: string) {
     const object = await this.objectEntity
-      .findOne({ where: { message_id } })
+      .findOne({ where: { message_id }, relations: { device: true } })
       .catch(console.error)
 
     if (!object)
