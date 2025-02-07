@@ -95,12 +95,12 @@ export class ObjectService {
 
   async getDetailObject(message_id: string) {
     const object = await this.objectEntity
-      .findOne({ where: { message_id: message_id } })
+      .findOne({ where: { message_id } })
       .catch(console.error)
 
     if (!object)
       throw new BadRequestException(
-        'Object not found , please check message_id',
+        'Object not found , please recheck message_id',
       )
 
     const result = genereateObject(object)

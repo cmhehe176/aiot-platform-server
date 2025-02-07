@@ -65,7 +65,7 @@ export class RabbitMqService implements OnModuleInit {
   }
 
   handleMessage = async (message: any, queue: string) => {
-    if (!message.payload.message_id) return
+    if (!message.payload.message_id) return new Nack(true)
     // this.messageService.sendMessageToUser('-1002345395149', message.message_id)
 
     // This is not the best solution. If there is some free time, the flow needs to be improved.
@@ -364,5 +364,31 @@ export class RabbitMqService implements OnModuleInit {
 
     if (sensor) this.socket.sendEmit('sensorMessage', { ...sensor, device })
     return
+  }
+
+  // test
+  test = async () => {
+    setTimeout(() => {
+      this.amqpConnection
+        .createSubscriber(
+          async (message: any) => {
+            console.log(message)
+
+            return
+          },
+          {
+            exchange: '',
+            routingKey: '7F:86:88:83:CB:BA:ID106541',
+            queue: '7F:86:88:83:CB:BA:ID106541',
+            queueOptions: {
+              durable: false,
+              autoDelete: true,
+            },
+          },
+          `handleSubcribeFor7F:86:88:83:CB:BA:ID106541`,
+        )
+
+        .catch(console.error)
+    }, 10000)
   }
 }

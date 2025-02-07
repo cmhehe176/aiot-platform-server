@@ -1,0 +1,70 @@
+networks:
+  iot-server-net:
+    name: network
+
+volumes:
+  postgres-data: {}
+  zabbix-data: {}
+  rabbitmq-data: {}
+  minio-vol: {}
+
+services:
+  database:
+    image: timescale/timescaledb:latest-pg15
+    container_name: postgres
+    healthcheck:
+      test:
+        [
+          'CMD-SHELL',
+          'pg_isready -U $POSTGRES_USER -d $POSTGRES_DB -h localhost',
+        ]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+      start_period: 20s
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=
+      - PGDATA=/data/postgres
+
+    restart: unless-stopped
+    ports:
+      - 5432:5432
+    networks:
+      - iot-server-net
+    volumes:
+      - postgres-data:/data/postgres
+
+  adminer:
+    image: adminer
+    container_name: adminer
+    healthcheck:
+      interval: 5s
+      retries: 5
+      start_period: 20s
+      test: ['CMD', 'wget', '--no-verbose', '--spider', 'http://localhost:8080']
+      timeout: 5s
+    environment:
+      - ADMINER_DEFAULT_SERVER=database
+      - ADMINER_PLUGINS=dump-json dump-zip edit-foreign json-column tables-filter tinymce
+    restart: always
+    networks:
+      - iot-server-net
+    ports:
+      - 8080:8080/tcp
+
+  rabbitmq:
+    image: rabbitmq:management
+    container_name: rabbitmq
+    restart: unless-stopped
+    ports:
+      - 5672:5672
+      - 15672:15672/tcp
+    environment:
+      - RABBITMQ_DEFAULT_USER=${RABBITMQ_USER}
+      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_PASS}
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq/mnesia
+    networks:
+      - iot-server-net

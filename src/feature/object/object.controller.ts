@@ -13,7 +13,7 @@ export class ObjectController {
   }
 
   @Get('detail')
-  getDetailObject(@Body() payload: { message_id: string }) {
+  getDetailObject(@Query() payload: { message_id: string }) {
     return this.objectService.getDetailObject(payload.message_id)
   }
 

@@ -82,7 +82,7 @@ export class SensorService {
 
   getDetailSensor(message_id: string) {
     return this.sensorEntity
-      .findOne({ where: { message_id: message_id } })
+      .findOne({ where: { message_id } })
       .catch(console.error)
   }
 
