@@ -252,8 +252,8 @@ export class RabbitMqService implements OnModuleInit {
     }
   }
 
-  cancelConsume = (consume: string) => {
-    this.amqpConnection.cancelConsumer(consume)
+  cancelConsume = async (consume: string) => {
+    await this.amqpConnection.cancelConsumer(consume)
 
     if (this.consumerTimers.has(consume)) {
       clearTimeout(this.consumerTimers.get(consume))
@@ -264,13 +264,13 @@ export class RabbitMqService implements OnModuleInit {
     return { message: 'success' }
   }
 
-  resetConsumerTimer(tag: string, queue?: string, timeout = 300000) {
+  async resetConsumerTimer(tag: string, queue?: string, timeout = 300000) {
     if (this.consumerTimers.has(tag)) clearTimeout(this.consumerTimers.get(tag))
 
-    const timer = setTimeout(() => {
-      this.cancelConsume(tag)
+    const timer = setTimeout(async () => {
+      await this.cancelConsume(tag)
       this.consumerTimers.delete(tag)
-      this.deviceEntity
+      await this.deviceEntity
         .exists({ where: { deviceId: queue, isActive: true } })
         .then((check) => {
           if (check) {
