@@ -169,7 +169,7 @@ export class DeviceService {
         const areaMessage = {
           ...baseMessage,
           payload: {
-            type: 'detection_rage',
+            type: 'detection_range',
             list_of_setpoint: payload.selected_area,
           },
         }

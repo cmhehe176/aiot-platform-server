@@ -135,15 +135,15 @@ export class RabbitMqService implements OnModuleInit {
           (item) => item.name === device.deviceId,
         )
 
-        if (check) return
-
-        this.createSubcribe(device.deviceId)
-
         if (!device.isActive)
           this.deviceEntity.update(
             { mac_address: data.mac_address },
             { isActive: true },
           )
+
+        if (check) return
+
+        this.createSubcribe(device.deviceId)
 
         // ????????????
         return this.sendMessage(
