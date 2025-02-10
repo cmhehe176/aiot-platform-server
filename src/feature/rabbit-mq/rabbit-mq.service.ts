@@ -131,15 +131,7 @@ export class RabbitMqService implements OnModuleInit {
           (item) => item.name === device.deviceId,
         )
 
-        if (check)
-          return this.sendMessage(
-            {
-              mac_address: data.mac_address,
-              status: false,
-              message: `Queue for ${data.mac_address} was created, please use your ID !!`,
-            },
-            'accepted_devices',
-          )
+        if (check) return
 
         this.createSubcribe(device.deviceId)
 
