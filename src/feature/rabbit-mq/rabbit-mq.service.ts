@@ -109,7 +109,6 @@ export class RabbitMqService implements OnModuleInit {
 
   handleMessageDefault = async (message: any) => {
     if (!message.mac_address) return
-
     // This is not the best solution. If there is some free time, the flow needs to be improved.
     const uniqueId = generateRandomSixDigitNumber('ID')
 
@@ -178,7 +177,7 @@ export class RabbitMqService implements OnModuleInit {
     } catch (error) {
       console.error(error)
 
-      return new Nack(true)
+      return
     } finally {
       this.socket.sendEmit('refreshApi', true)
     }
@@ -268,22 +267,26 @@ export class RabbitMqService implements OnModuleInit {
     if (this.consumerTimers.has(tag)) clearTimeout(this.consumerTimers.get(tag))
 
     const timer = setTimeout(async () => {
-      await this.cancelConsume(tag)
-      this.consumerTimers.delete(tag)
-      await this.deviceEntity
-        .exists({ where: { deviceId: queue, isActive: true } })
-        .then((check) => {
-          if (check) {
-            this.deviceEntity.update({ deviceId: queue }, { isActive: false })
+      try {
+        await this.cancelConsume(tag)
+        this.consumerTimers.delete(tag)
+        await this.deviceEntity
+          .exists({ where: { deviceId: queue, isActive: true } })
+          .then((check) => {
+            if (check) {
+              this.deviceEntity.update({ deviceId: queue }, { isActive: false })
 
-            this.socket.sendEmit('refreshApi', true)
-          }
-        })
-        .catch(console.error)
+              this.socket.sendEmit('refreshApi', true)
+            }
+          })
+          .catch(console.error)
 
-      console.log(
-        `Consumer cho queue : ${queue} - ${tag} đã bị huỷ do không nhận được tin nhắn.`,
-      )
+        console.log(
+          `Consumer cho queue : ${queue} - ${tag} đã bị huỷ do không nhận được tin nhắn.`,
+        )
+      } catch (error) {
+        console.error(error)
+      }
     }, timeout)
 
     this.consumerTimers.set(tag, timer)
@@ -364,31 +367,5 @@ export class RabbitMqService implements OnModuleInit {
 
     if (sensor) this.socket.sendEmit('sensorMessage', { ...sensor, device })
     return
-  }
-
-  // test
-  test = async () => {
-    setTimeout(() => {
-      this.amqpConnection
-        .createSubscriber(
-          async (message: any) => {
-            console.log(message)
-
-            return
-          },
-          {
-            exchange: '',
-            routingKey: '7F:86:88:83:CB:BA:ID106541',
-            queue: '7F:86:88:83:CB:BA:ID106541',
-            queueOptions: {
-              durable: false,
-              autoDelete: true,
-            },
-          },
-          `handleSubcribeFor7F:86:88:83:CB:BA:ID106541`,
-        )
-
-        .catch(console.error)
-    }, 10000)
   }
 }
