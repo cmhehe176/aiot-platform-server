@@ -65,6 +65,8 @@ export class RabbitMqService implements OnModuleInit {
   }
 
   handleMessage = async (message: any, queue: string) => {
+    console.log('message', message)
+
     if (!message.payload.message_id) return new Nack(true)
     // this.messageService.sendMessageToUser('-1002345395149', message.message_id)
 
@@ -108,6 +110,8 @@ export class RabbitMqService implements OnModuleInit {
   }
 
   handleMessageDefault = async (message: any) => {
+    console.log('messageDefault', message)
+
     if (!message.mac_address) return
     // This is not the best solution. If there is some free time, the flow needs to be improved.
     const uniqueId = generateRandomSixDigitNumber('ID')
@@ -306,7 +310,7 @@ export class RabbitMqService implements OnModuleInit {
         .sendPhoto(
           this.configService.get('TELEGRAM_ID_GROUP'),
           object.image_URL ?? imageError,
-          `${message.timestamp} - ${message.specs.description} - ${object.object.type} - ${object.object.type === 'human' ? object.object.age + '-' + object.object.gender : object.object.brand + '-' + object.object.category + '-' + object.object.color + '-' + object.object.licence}`,
+          `${message?.timestamp} - ${message?.specs?.description} - ${object?.object?.type} - ${object?.object?.type === 'human' ? object?.object?.age + '-' + object?.object?.gender : object?.object?.brand + '-' + object?.object?.category + '-' + object?.object?.color + '-' + object?.object?.licence}`,
         )
         .catch(console.error)
     })

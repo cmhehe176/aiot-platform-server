@@ -35,7 +35,7 @@ import { SocketModule } from '../socket/socket.module'
           heartbeatIntervalInSeconds: 30,
           reconnectTimeInSeconds: 10,
         },
-        // prefetchCount: 1,
+        prefetchCount: 1,
       }),
       inject: [ConfigService],
     }),
