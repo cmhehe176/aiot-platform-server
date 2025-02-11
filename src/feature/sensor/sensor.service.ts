@@ -80,10 +80,12 @@ export class SensorService {
     return { data, total }
   }
 
-  getDetailSensor(message_id: string) {
-    return this.sensorEntity
+  async getDetailSensor(message_id: string) {
+    const a = await this.sensorEntity
       .findOne({ where: { message_id }, relations: { device: true } })
       .catch(console.error)
+
+    return a
   }
 
   async replySensor(id: number, replied: number) {

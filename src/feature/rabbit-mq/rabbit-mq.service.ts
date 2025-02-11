@@ -352,16 +352,51 @@ export class RabbitMqService implements OnModuleInit {
   }
 
   sensorMessage = async (message: TSensor, device: DeviceEntity) => {
-    const sensor = await this.sensorEntity
-      .save({
-        device_id: device.id,
-        ...message,
-      })
-      .catch(console.error)
+    try {
+      const [sensor, listSubDevice] = await Promise.all([
+        this.sensorEntity.save({
+          device_id: device.id,
+          ...message,
+        }),
 
-    syncDataSubDevice(this.sensorEntity, this.subDevice)
+        this.subDevice.find({
+          where: { type: 'sensor' },
+        }),
+      ])
 
-    if (sensor) this.socket.sendEmit('sensorMessage', { ...sensor, device })
-    return
+      // const listSubDeviceName = listSubDevice.map((sub) => sub.name)
+      // const sensorName = sensor.sensor_list.map((sub) => sub.name)
+
+      // await Promise.all(
+      //   listSubDeviceName.map((sub) => {
+      //     if (sensor.sensor_list.some((sen) => sen.name === sub)) {
+      //       return this.subDevice.save({ name: sub, device_id: device.id })
+      //     }
+
+      //     return this.subDevice.softDelete({ name: sub })
+      //   }),
+      // )
+
+      // await Promise.all(
+      //   sensor.sensor_list.map((sen) => {
+      //     if (listSubDeviceName.includes(sen.name)) return
+
+      //     return this.subDevice.save({
+      //       device_id: device.id,
+      //       name: sen.name,
+      //       payload: sen.payload,
+      //       description: sen.description,
+      //       unit: sen.unit,
+      //     })
+      //   }),
+      // )
+
+      syncDataSubDevice(this.sensorEntity, this.subDevice)
+
+      if (sensor) this.socket.sendEmit('sensorMessage', { ...sensor, device })
+      return
+    } catch (error) {
+      console.error(error)
+    }
   }
 }

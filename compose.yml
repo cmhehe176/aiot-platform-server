@@ -18,15 +18,16 @@ services:
     depends_on:
       database:
         condition: service_healthy
+    restart: unless-stopped
     networks:
       - iot-server-net
     ports:
       - 3000:${PORT}/tcp
     volumes:
-      - .:/iot-server
-      # - ./src:/iot-server/src
-      # - ./.env:/iot-server/.env
-      # - /iot-server/node_modules
+      # - .:/iot-server
+      - ./src:/iot-server/src
+      - ./.env:/iot-server/.env
+      - /iot-server/node_modules
 
   database:
     image: timescale/timescaledb:latest-pg15

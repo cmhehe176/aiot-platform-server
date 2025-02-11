@@ -14,6 +14,7 @@ export class SensorController {
 
   @Get('detail')
   getDetailSensor(@Query() payload: { message_id: string }) {
+    console.log(payload)
     return this.sensorService.getDetailSensor(payload.message_id)
   }
 
