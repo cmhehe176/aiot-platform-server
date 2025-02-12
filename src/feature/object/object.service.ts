@@ -6,6 +6,8 @@ import { getObjectDto } from './object.dto'
 import { genereateObject } from 'src/common/util'
 import { DeviceService } from '../device/device.service'
 import { IUser } from 'src/common/decorators/user.decorator'
+import dayjs from 'dayjs'
+
 @Injectable()
 export class ObjectService {
   constructor(
@@ -22,6 +24,14 @@ export class ObjectService {
       .createQueryBuilder('object')
       .leftJoinAndSelect('object.device', 'device')
       .where('object.is_replied = 0')
+
+    const start = payload.start
+      ? dayjs(payload.start).startOf('date').format()
+      : undefined
+
+    const end = payload.end
+      ? dayjs(payload.end).endOf('date').format()
+      : undefined
 
     if (payload.project_id) {
       if ((payload.project_id as any) === '-1' || payload.project_id === -1)
@@ -69,18 +79,18 @@ export class ObjectService {
       )
     }
 
-    if (payload.start) {
-      query.andWhere('object.timestamp >= :start', { start: payload.start })
+    if (start) {
+      query.andWhere('object.timestamp >= :start', { start })
     }
 
-    if (payload.end) {
-      query.andWhere('object.timestamp <= :end', { end: payload.end })
+    if (end) {
+      query.andWhere('object.timestamp <= :end', { end })
     }
 
-    if (payload.start && payload.end) {
+    if (start && end) {
       query.andWhere('object.timestamp BETWEEN :start AND :end', {
-        start: payload.start,
-        end: payload.end,
+        start,
+        end,
       })
     }
 

@@ -5,6 +5,7 @@ import { Repository } from 'typeorm'
 import { getNotificationDto } from './notification.dtio'
 import { DeviceService } from '../device/device.service'
 import { IUser } from 'src/common/decorators/user.decorator'
+import dayjs from 'dayjs'
 
 @Injectable()
 export class NotificationService {
@@ -17,6 +18,14 @@ export class NotificationService {
   async getNotifitacion(payload: getNotificationDto, user: IUser) {
     const page = payload.page || 1
     const limit = payload.limit || 20
+
+    const start = payload.start
+      ? dayjs(payload.start).startOf('date').format()
+      : undefined
+
+    const end = payload.end
+      ? dayjs(payload.end).endOf('date').format()
+      : undefined
 
     const query = this.notiEntity
       .createQueryBuilder('notification')
@@ -56,20 +65,18 @@ export class NotificationService {
         })
     }
 
-    if (payload.start) {
-      query.andWhere('notification.timestamp >= :start', {
-        start: payload.start,
-      })
+    if (start) {
+      query.andWhere('notification.timestamp >= :start', { start })
     }
 
-    if (payload.end) {
-      query.andWhere('notification.timestamp <= :end', { end: payload.end })
+    if (end) {
+      query.andWhere('notification.timestamp <= :end', { end })
     }
 
-    if (payload.start && payload.end) {
+    if (start && end) {
       query.andWhere('notification.timestamp BETWEEN :start AND :end', {
-        start: payload.start,
-        end: payload.end,
+        start,
+        end,
       })
     }
 

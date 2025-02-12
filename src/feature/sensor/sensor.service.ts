@@ -5,6 +5,7 @@ import { Repository } from 'typeorm'
 import { getSensorDto } from './sensor.dto'
 import { DeviceService } from '../device/device.service'
 import { IUser } from 'src/common/decorators/user.decorator'
+import dayjs from 'dayjs'
 
 @Injectable()
 export class SensorService {
@@ -22,6 +23,14 @@ export class SensorService {
       .createQueryBuilder('sensor')
       .leftJoinAndSelect('sensor.device', 'device')
       .where('sensor.is_replied = 0')
+
+    const start = payload.start
+      ? dayjs(payload.start).startOf('date').format()
+      : undefined
+
+    const end = payload.end
+      ? dayjs(payload.end).endOf('date').format()
+      : undefined
 
     if (payload.project_id) {
       if ((payload.project_id as any) === '-1' || payload.project_id === -1)
@@ -56,18 +65,18 @@ export class SensorService {
         })
     }
 
-    if (payload.start) {
-      query.andWhere('sensor.timestamp >= :start', { start: payload.start })
+    if (start) {
+      query.andWhere('sensor.timestamp >= :start', { start })
     }
 
-    if (payload.end) {
-      query.andWhere('sensor.timestamp <= :end', { end: payload.end })
+    if (end) {
+      query.andWhere('sensor.timestamp <= :end', { end })
     }
 
-    if (payload.start && payload.end) {
+    if (start && end) {
       query.andWhere('sensor.timestamp BETWEEN :start AND :end', {
-        start: payload.start,
-        end: payload.end,
+        start,
+        end,
       })
     }
 
@@ -80,12 +89,10 @@ export class SensorService {
     return { data, total }
   }
 
-  async getDetailSensor(message_id: string) {
-    const a = await this.sensorEntity
+  getDetailSensor(message_id: string) {
+    return this.sensorEntity
       .findOne({ where: { message_id }, relations: { device: true } })
       .catch(console.error)
-
-    return a
   }
 
   async replySensor(id: number, replied: number) {

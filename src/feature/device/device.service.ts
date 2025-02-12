@@ -16,7 +16,6 @@ import { DataSource, Repository } from 'typeorm'
 import { ProjectService } from '../project/project.service'
 import { UpdateSubDeviceDto } from './device.dto'
 import { RabbitMqService } from '../rabbit-mq/rabbit-mq.service'
-import { syncDataSubDevice } from 'src/common/util'
 import { QueueInfo } from 'src/common/type'
 
 @Injectable()
@@ -108,7 +107,8 @@ export class DeviceService {
   }
 
   updateSubDevice = async (id: number, payload: UpdateSubDeviceDto) => {
-    syncDataSubDevice(this.sensorEntity, this.subDevice)
+    if (payload.permissions && Object.keys(payload).length === 2)
+      return this.subDevice.update({ id }, { permissions: payload.permissions })
 
     const subDeviceEntity = await this.subDevice.findOne({
       where: { id },

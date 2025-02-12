@@ -1,5 +1,5 @@
 import { BadRequestException, Injectable } from '@nestjs/common'
-import { DataSource, FindOptionsWhere, Repository } from 'typeorm'
+import { Between, DataSource, FindOptionsWhere, Repository } from 'typeorm'
 import {
   DeviceEntity,
   NotificationEntity,
@@ -8,6 +8,7 @@ import {
 } from 'src/database/entities'
 import { DeviceService } from '../device/device.service'
 import { IUser } from 'src/common/decorators/user.decorator'
+import dayjs from 'dayjs'
 
 @Injectable()
 export class DashboardService {
@@ -28,7 +29,10 @@ export class DashboardService {
 
   getDashboard = async (projectId, startDate, endDate) => {
     const start = startDate
-    const end = endDate
+      ? dayjs(startDate).startOf('date').format()
+      : undefined
+
+    const end = endDate ? dayjs(endDate).endOf('date').format() : undefined
 
     const whereCondition: FindOptionsWhere<DeviceEntity> = projectId
       ? { projectId }
@@ -61,25 +65,32 @@ export class DashboardService {
   getDetailSensor = async (deviceId, startDate, endDate, user: IUser) => {
     if ((startDate && !endDate) || (!startDate && endDate)) return []
 
+    const start = startDate
+      ? dayjs(startDate).startOf('date').format()
+      : undefined
+
+    const end = endDate ? dayjs(endDate).endOf('date').format() : undefined
+
     //prettier-ignore
     const listSensor = await this.deviceService.getSubDevice('sensor', user, [
       'name',
       'permissions',
+      'lower_limit',
+      'upper_limit',
     ])
 
     if (!listSensor.length) return []
 
-    const listSensorName = listSensor.map((sensor) => sensor.name)
+    const listSensorMap = new Map(
+      listSensor.map((sensor) => [sensor.name, sensor]),
+    )
 
     const query = this.sensorEntity
       .createQueryBuilder('sensor')
       .where('sensor.device_id = :device_id', { device_id: deviceId })
 
-    if (startDate && endDate) {
-      query.andWhere('sensor.timestamp BETWEEN :start AND :end', {
-        start: startDate,
-        end: endDate,
-      })
+    if (start && end) {
+      query.andWhere('sensor.timestamp BETWEEN :start AND :end', { start, end })
     }
 
     const detailSensor = await query.getMany()
@@ -114,14 +125,20 @@ export class DashboardService {
         return acc
       }, {})
 
-      const finalResult = Object.keys(result).map((name) => ({
-        name,
-        payload: result[name].map((entry) => entry.payload),
-        unit: result[name][0]?.unit,
-      }))
+      const finalResult = Object.keys(result).map((name) => {
+        const sensorInfo = listSensorMap.get(name) // Lấy thông tin `abc` từ listSensor
+
+        return {
+          name,
+          payload: result[name].map((entry) => entry.payload),
+          unit: result[name][0]?.unit,
+          lower_limit: sensorInfo?.lower_limit,
+          upper_limit: sensorInfo?.upper_limit,
+        }
+      })
 
       //prettier-ignore
-      return finalResult.filter((result) => listSensorName.includes(result.name));
+      return finalResult.filter((result) => listSensorMap.has(result.name))
     } catch (error) {
       throw new BadRequestException('notFound')
     }
@@ -197,73 +214,56 @@ export class DashboardService {
     return result
   }
 
-  getTypeDetect = async (allDevice, startDate?, endDate?) => {
-    const result = []
+  async getTypeDetect(allDevice, startDate?: string, endDate?: string) {
+    try {
+      const result = []
 
-    const objectQuery = this.objectEntity.createQueryBuilder('object')
+      for (const device of allDevice) {
+        const data = await this.objectEntity.find({
+          where: {
+            device_id: device.id,
+            timestamp:
+              startDate && endDate ? Between(startDate, endDate) : undefined,
+          } as any,
+        })
 
-    if (startDate && endDate) {
-      objectQuery.andWhere('object.timestamp BETWEEN :start AND :end', {
-        start: startDate,
-        end: endDate,
-      })
+        let humanCount = 0
+        let vehicleCount = 0
+        let bothCount = 0
+
+        data.forEach((record) => {
+          const objectList: any = record.object_list || []
+          const hasHuman = objectList.some(
+            (obj) => obj.object?.type === 'human',
+          )
+          const hasVehicle = objectList.some(
+            (obj) => obj.object?.type === 'vehicle',
+          )
+
+          if (hasHuman && hasVehicle) {
+            bothCount++
+          } else if (hasHuman) {
+            humanCount++
+          } else if (hasVehicle) {
+            vehicleCount++
+          }
+        })
+
+        result.push({
+          id: device.id,
+          projectId: device.projectId,
+          name: device.name,
+          human: humanCount,
+          vehicle: vehicleCount,
+          all: bothCount,
+        })
+      }
+
+      return result
+    } catch (error) {
+      console.error(error)
+      throw error
     }
-
-    for (const device of allDevice) {
-      objectQuery.andWhere('object.device_id = :device_id', {
-        device_id: device.id,
-      })
-
-      const [human, vehicle, all] = await Promise.all([
-        objectQuery
-          .andWhere(
-            `EXISTS (
-       SELECT 1
-       FROM jsonb_array_elements(object.object_list::jsonb) AS type
-       WHERE type->'object'->>'type' = :type
-    )`,
-            { type: 'human' },
-          )
-          .getCount(),
-
-        objectQuery
-          .andWhere(
-            `EXISTS (
-       SELECT 1
-       FROM jsonb_array_elements(object.object_list::jsonb) AS type
-       WHERE type->'object'->>'type' = :type
-    )`,
-            { type: 'vehicle' },
-          )
-          .getCount(),
-
-        objectQuery
-          .andWhere(
-            `EXISTS (
-      SELECT 1
-      FROM jsonb_array_elements(object.object_list::jsonb) AS type
-      WHERE type->'object'->>'type' = :type1
-    ) AND EXISTS (
-      SELECT 1
-      FROM jsonb_array_elements(object.object_list::jsonb) AS type
-      WHERE type->'object'->>'type' = :type2
-    )`,
-            { type1: 'human', type2: 'vehicle' },
-          )
-          .getCount(),
-      ])
-
-      result.push({
-        id: device.id,
-        projectId: device.projectId,
-        name: device.name,
-        human,
-        vehicle,
-        all,
-      })
-    }
-
-    return result
   }
 
   getNotificationType = async (allDevice, startDate?, endDate?) => {
