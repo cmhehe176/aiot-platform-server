@@ -318,7 +318,7 @@ export class RabbitMqService implements OnModuleInit {
         ...message,
       })
 
-      if (object.id)
+      if (object)
         this.socket.sendEmit('objectMessage', {
           ...genereateObject(object as ObjectEntity),
           device,
@@ -340,7 +340,7 @@ export class RabbitMqService implements OnModuleInit {
         ...message,
       })
 
-      if (notification.id)
+      if (notification)
         this.socket.sendEmit('notificationMessage', { ...notification, device })
     } catch (error) {
       console.error(error)
@@ -399,8 +399,7 @@ export class RabbitMqService implements OnModuleInit {
 
       await Promise.all(promises.map((promise) => promise()))
 
-      if (sensor.id)
-        this.socket.sendEmit('sensorMessage', { ...sensor, device })
+      if (sensor) this.socket.sendEmit('sensorMessage', { ...sensor, device })
       return
     } catch (error) {
       console.error(error)
