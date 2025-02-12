@@ -305,48 +305,47 @@ export class RabbitMqService implements OnModuleInit {
   }
 
   objectMessage = async (message: TObject, device: DeviceEntity) => {
-    message.object_list.forEach(async (object) => {
-      await this.messageService
-        .sendPhoto(
+    try {
+      message.object_list.forEach(async (object) => {
+        await this.messageService.sendPhoto(
           this.configService.get('TELEGRAM_ID_GROUP'),
           object.image_URL ?? imageError,
           `${message?.timestamp} - ${message?.specs?.description} - ${object?.object?.type} - ${object?.object?.type === 'human' ? object?.object?.age + '-' + object?.object?.gender : object?.object?.brand + '-' + object?.object?.category + '-' + object?.object?.color + '-' + object?.object?.licence}`,
         )
-        .catch(console.error)
-    })
+      })
 
-    const object = await this.objectEntity
-      .save({
+      const object = await this.objectEntity.save({
         device_id: device.id,
         ...message,
       })
-      .catch(console.error)
 
-    if (object)
-      this.socket.sendEmit('objectMessage', {
-        ...genereateObject(object as ObjectEntity),
-        device,
-      })
+      if (object.id)
+        this.socket.sendEmit('objectMessage', {
+          ...genereateObject(object as ObjectEntity),
+          device,
+        })
 
-    return
+      return
+    } catch (error) {
+      console.error(error)
+    }
   }
 
   notificationMessage = async (
     message: TNotification,
     device: DeviceEntity,
   ) => {
-    const notification = await this.notiEntity
-      .save({
+    try {
+      const notification = await this.notiEntity.save({
         device_id: device.id,
         ...message,
       })
-      .catch(console.error)
 
-    if (notification)
-      this.socket.sendEmit('notificationMessage', {
-        ...notification,
-        device,
-      })
+      if (notification.id)
+        this.socket.sendEmit('notificationMessage', { ...notification, device })
+    } catch (error) {
+      console.error(error)
+    }
 
     return
   }
@@ -354,46 +353,55 @@ export class RabbitMqService implements OnModuleInit {
   sensorMessage = async (message: TSensor, device: DeviceEntity) => {
     try {
       const [sensor, listSubDevice] = await Promise.all([
-        this.sensorEntity.save({
-          device_id: device.id,
-          ...message,
-        }),
+        this.sensorEntity.save({ device_id: device.id, ...message }),
 
-        this.subDevice.find({
-          where: { type: 'sensor' },
-        }),
+        this.subDevice.find({ where: { type: 'sensor' } }),
       ])
 
-      // const listSubDeviceName = listSubDevice.map((sub) => sub.name)
-      // const sensorName = sensor.sensor_list.map((sub) => sub.name)
+      const { sensor_list } = sensor
 
-      // await Promise.all(
-      //   listSubDeviceName.map((sub) => {
-      //     if (sensor.sensor_list.some((sen) => sen.name === sub)) {
-      //       return this.subDevice.save({ name: sub, device_id: device.id })
-      //     }
+      const promises = []
 
-      //     return this.subDevice.softDelete({ name: sub })
-      //   }),
-      // )
+      // get list remove
+      const listRemove = listSubDevice.filter(
+        (sub) => !sensor_list.some((sen) => sen.name === sub.name),
+      )
 
-      // await Promise.all(
-      //   sensor.sensor_list.map((sen) => {
-      //     if (listSubDeviceName.includes(sen.name)) return
+      if (listRemove.length)
+        promises.push(() =>
+          listRemove.map((item) =>
+            this.subDevice.softDelete({ name: item.name }),
+          ),
+        )
 
-      //     return this.subDevice.save({
-      //       device_id: device.id,
-      //       name: sen.name,
-      //       payload: sen.payload,
-      //       description: sen.description,
-      //       unit: sen.unit,
-      //     })
-      //   }),
-      // )
+      // get list updated
+      const listUpdated = listSubDevice.filter((sub) =>
+        sensor_list.some((sen) => sen.name === sub.name),
+      )
 
-      syncDataSubDevice(this.sensorEntity, this.subDevice)
+      if (listUpdated.length)
+        promises.push(() =>
+          listUpdated.map((item) =>
+            this.subDevice.update({ id: item.id }, { device_id: device.id }),
+          ),
+        )
 
-      if (sensor) this.socket.sendEmit('sensorMessage', { ...sensor, device })
+      // get list insert
+      const listInsert = sensor_list.filter(
+        (sen) => !listSubDevice.some((sub) => sub.name === sen.name),
+      )
+
+      if (listInsert.length)
+        promises.push(() =>
+          listInsert.map((item) =>
+            this.subDevice.save({ device_id: device.id, ...item }),
+          ),
+        )
+
+      await Promise.all(promises.map((promise) => promise()))
+
+      if (sensor.id)
+        this.socket.sendEmit('sensorMessage', { ...sensor, device })
       return
     } catch (error) {
       console.error(error)
