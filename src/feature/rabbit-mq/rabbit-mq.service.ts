@@ -304,13 +304,13 @@ export class RabbitMqService implements OnModuleInit {
   }
 
   objectMessage = async (message: TObject, device: DeviceEntity) => {
-    message.object_list.forEach(async (object) => {
-      await this.messageService.sendPhoto(
-        this.configService.get('TELEGRAM_ID_GROUP'),
-        object.image_URL ?? imageError,
-        `${message?.timestamp} - ${message?.specs?.description} - ${object?.object?.type} - ${object?.object?.type === 'human' ? object?.object?.age + '-' + object?.object?.gender : object?.object?.brand + '-' + object?.object?.category + '-' + object?.object?.color + '-' + object?.object?.licence}`,
-      )
-    })
+    // message.object_list.forEach(async (object) => {
+    //   await this.messageService.sendPhoto(
+    //     this.configService.get('TELEGRAM_ID_GROUP'),
+    //     object.image_URL ?? imageError,
+    //     `${message?.timestamp} - ${message?.specs?.description} - ${object?.object?.type} - ${object?.object?.type === 'human' ? object?.object?.age + '-' + object?.object?.gender : object?.object?.brand + '-' + object?.object?.category + '-' + object?.object?.color + '-' + object?.object?.licence}`,
+    //   )
+    // })
 
     const object = await this.objectEntity.save({
       device_id: device.id,
