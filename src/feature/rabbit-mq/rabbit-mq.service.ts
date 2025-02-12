@@ -8,7 +8,6 @@ import {
   generateRandomSixDigitNumber,
   genereateObject,
   imageError,
-  syncDataSubDevice,
 } from 'src/common/util'
 import { InjectRepository } from '@nestjs/typeorm'
 import {

@@ -89,10 +89,16 @@ export class SensorService {
     return { data, total }
   }
 
-  getDetailSensor(message_id: string) {
-    return this.sensorEntity
-      .findOne({ where: { message_id }, relations: { device: true } })
-      .catch(console.error)
+  async getDetailSensor(message_id: string) {
+    try {
+      const sensor = await this.sensorEntity.find({
+        where: { message_id },
+        relations: { device: true },
+        order: { id: 'DESC' },
+      })
+
+      return sensor[0]
+    } catch (error) {}
   }
 
   async replySensor(id: number, replied: number) {
