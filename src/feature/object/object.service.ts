@@ -103,19 +103,24 @@ export class ObjectService {
     return { data: data.map((d) => genereateObject(d)), total }
   }
 
-  async getDetailObject(message_id: string) {
-    const object = await this.objectEntity
-      .findOne({ where: { message_id }, relations: { device: true } })
-      .catch(console.error)
+  async getDetailObject(message_id: string, device_id: number) {
+    try {
+      const object = await this.objectEntity.findOne({
+        where: { message_id, device_id },
+        relations: { device: true },
+      })
 
-    if (!object)
-      throw new BadRequestException(
-        'Object not found , please recheck message_id',
-      )
+      if (!object)
+        throw new BadRequestException(
+          'Object not found , please recheck message_id',
+        )
 
-    const result = genereateObject(object)
+      const result = genereateObject(object)
 
-    return result
+      return result
+    } catch (error) {
+      console.error(error)
+    }
   }
 
   async replyObject(id: number, replied: number) {

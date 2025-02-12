@@ -7,6 +7,7 @@ import { QueueDetails, QueueInfo } from 'src/common/type'
 import {
   generateRandomSixDigitNumber,
   genereateObject,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   imageError,
 } from 'src/common/util'
 import { InjectRepository } from '@nestjs/typeorm'
@@ -64,10 +65,9 @@ export class RabbitMqService implements OnModuleInit {
   }
 
   handleMessage = async (message: any, queue: string) => {
-    console.log('message', message)
-
     if (!message.payload.message_id) return new Nack(true)
-    // this.messageService.sendMessageToUser('-1002345395149', message.message_id)
+
+    console.log('message', message.payload.message_id)
 
     // This is not the best solution. If there is some free time, the flow needs to be improved.
     const tag = ((await this.getQueues(queue)) as QueueDetails)
@@ -109,8 +109,6 @@ export class RabbitMqService implements OnModuleInit {
   }
 
   handleMessageDefault = async (message: any) => {
-    console.log('messageDefault', message)
-
     if (!message.mac_address) return
     // This is not the best solution. If there is some free time, the flow needs to be improved.
     const uniqueId = generateRandomSixDigitNumber('ID')
@@ -304,37 +302,49 @@ export class RabbitMqService implements OnModuleInit {
   }
 
   objectMessage = async (message: TObject, device: DeviceEntity) => {
-    // message.object_list.forEach(async (object) => {
-    //   await this.messageService.sendPhoto(
-    //     this.configService.get('TELEGRAM_ID_GROUP'),
-    //     object.image_URL ?? imageError,
-    //     `${message?.timestamp} - ${message?.specs?.description} - ${object?.object?.type} - ${object?.object?.type === 'human' ? object?.object?.age + '-' + object?.object?.gender : object?.object?.brand + '-' + object?.object?.category + '-' + object?.object?.color + '-' + object?.object?.licence}`,
-    //   )
-    // })
+    try {
+      // message.object_list.forEach(async (object) => {
+      //   await this.messageService.sendPhoto(
+      //     this.configService.get('TELEGRAM_ID_GROUP'),
+      //     object.image_URL ?? imageError,
+      //     `${message?.timestamp} - ${message?.specs?.description} - ${object?.object?.type} - ${object?.object?.type === 'human' ? object?.object?.age + '-' + object?.object?.gender : object?.object?.brand + '-' + object?.object?.category + '-' + object?.object?.color + '-' + object?.object?.licence}`,
+      //   )
+      // })
 
-    const object = await this.objectEntity.save({
-      device_id: device.id,
-      ...message,
-    })
+      const object = await this.objectEntity.save({
+        device_id: device.id,
+        ...message,
+      })
 
-    if (object) this.socket.sendEmit('objectMessage', { ...object, device })
+      if (object)
+        this.socket.sendEmit('objectMessage', {
+          ...genereateObject(object),
+          device,
+        })
 
-    return
+      return
+    } catch (error) {
+      console.error(error)
+    }
   }
 
   notificationMessage = async (
     message: TNotification,
     device: DeviceEntity,
   ) => {
-    const notification = await this.notiEntity.save({
-      device_id: device.id,
-      ...message,
-    })
+    try {
+      const notification = await this.notiEntity.save({
+        device_id: device.id,
+        ...message,
+      })
 
-    if (notification)
-      this.socket.sendEmit('notificationMessage', { ...notification, device })
+      if (notification)
+        this.socket.sendEmit('notificationMessage', { ...notification, device })
 
-    return
+      return
+    } catch (error) {
+      console.error(error)
+    }
   }
 
   sensorMessage = async (message: TSensor, device: DeviceEntity) => {
@@ -349,43 +359,43 @@ export class RabbitMqService implements OnModuleInit {
 
       const promises = []
 
-      // get list remove
       const listRemove = listSubDevice.filter(
         (sub) => !sensor_list.some((sen) => sen.name === sub.name),
       )
 
-      if (listRemove.length)
+      const listUpdated = listSubDevice.filter((sub) =>
+        sensor_list.some((sen) => sen.name === sub.name),
+      )
+
+      const listInsert = sensor_list.filter(
+        (sen) => !listSubDevice.some((sub) => sub.name === sen.name),
+      )
+
+      if (listRemove.length) {
         promises.push(() =>
           listRemove.map((item) =>
             this.subDevice.softDelete({ name: item.name }),
           ),
         )
+      }
 
-      // get list updated
-      const listUpdated = listSubDevice.filter((sub) =>
-        sensor_list.some((sen) => sen.name === sub.name),
-      )
-
-      if (listUpdated.length)
+      if (listUpdated.length) {
         promises.push(() =>
           listUpdated.map((item) =>
             this.subDevice.update({ id: item.id }, { device_id: device.id }),
           ),
         )
+      }
 
-      // get list insert
-      const listInsert = sensor_list.filter(
-        (sen) => !listSubDevice.some((sub) => sub.name === sen.name),
-      )
-
-      if (listInsert.length)
+      if (listInsert.length) {
         promises.push(() =>
           listInsert.map((item) =>
             this.subDevice.save({ device_id: device.id, ...item }),
           ),
         )
+      }
 
-      await Promise.all(promises.map((promise) => promise()))
+      Promise.all(promises.map((promise) => promise()))
 
       if (sensor) this.socket.sendEmit('sensorMessage', { ...sensor, device })
       return

@@ -13,9 +13,12 @@ export class ObjectController {
   }
 
   @Get('detail')
-  getDetailObject(@Query() payload: { message_id: string }) {
+  getDetailObject(@Query() payload: { message_id: string; device_id: number }) {
     console.log('object', payload)
-    return this.objectService.getDetailObject(payload.message_id)
+    return this.objectService.getDetailObject(
+      payload.message_id,
+      payload.device_id,
+    )
   }
 
   @Put('reply/:id')

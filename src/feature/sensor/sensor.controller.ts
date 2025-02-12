@@ -13,9 +13,12 @@ export class SensorController {
   }
 
   @Get('detail')
-  getDetailSensor(@Query() payload: { message_id: string }) {
+  getDetailSensor(@Query() payload: { message_id: string; device_id: number }) {
     console.log(payload)
-    return this.sensorService.getDetailSensor(payload.message_id)
+    return this.sensorService.getDetailSensor(
+      payload.message_id,
+      payload.device_id,
+    )
   }
 
   @Put('reply/:id')
