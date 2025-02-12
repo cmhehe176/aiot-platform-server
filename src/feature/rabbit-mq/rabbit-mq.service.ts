@@ -258,7 +258,7 @@ export class RabbitMqService implements OnModuleInit {
     return { message: 'success' }
   }
 
-  async resetConsumerTimer(tag: string, queue?: string, timeout = 300000) {
+  async resetConsumerTimer(tag: string, queue?: string, timeout = 30000000) {
     if (this.consumerTimers.has(tag)) clearTimeout(this.consumerTimers.get(tag))
 
     const timer = setTimeout(async () => {
@@ -317,11 +317,7 @@ export class RabbitMqService implements OnModuleInit {
       ...message,
     })
 
-    if (object)
-      this.socket.sendEmit('objectMessage', {
-        ...genereateObject(object as ObjectEntity),
-        device,
-      })
+    if (object) this.socket.sendEmit('objectMessage', { ...object, device })
 
     return
   }

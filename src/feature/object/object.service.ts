@@ -97,7 +97,7 @@ export class ObjectService {
     const [data, total] = await query
       .take(limit)
       .skip((page - 1) * limit)
-      .orderBy('object.id', 'DESC')
+      .orderBy('object.timestamp', 'DESC')
       .getManyAndCount()
 
     return { data: data.map((d) => genereateObject(d)), total }
