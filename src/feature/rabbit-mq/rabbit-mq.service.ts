@@ -304,47 +304,39 @@ export class RabbitMqService implements OnModuleInit {
   }
 
   objectMessage = async (message: TObject, device: DeviceEntity) => {
-    try {
-      message.object_list.forEach(async (object) => {
-        await this.messageService.sendPhoto(
-          this.configService.get('TELEGRAM_ID_GROUP'),
-          object.image_URL ?? imageError,
-          `${message?.timestamp} - ${message?.specs?.description} - ${object?.object?.type} - ${object?.object?.type === 'human' ? object?.object?.age + '-' + object?.object?.gender : object?.object?.brand + '-' + object?.object?.category + '-' + object?.object?.color + '-' + object?.object?.licence}`,
-        )
+    message.object_list.forEach(async (object) => {
+      await this.messageService.sendPhoto(
+        this.configService.get('TELEGRAM_ID_GROUP'),
+        object.image_URL ?? imageError,
+        `${message?.timestamp} - ${message?.specs?.description} - ${object?.object?.type} - ${object?.object?.type === 'human' ? object?.object?.age + '-' + object?.object?.gender : object?.object?.brand + '-' + object?.object?.category + '-' + object?.object?.color + '-' + object?.object?.licence}`,
+      )
+    })
+
+    const object = await this.objectEntity.save({
+      device_id: device.id,
+      ...message,
+    })
+
+    if (object)
+      this.socket.sendEmit('objectMessage', {
+        ...genereateObject(object as ObjectEntity),
+        device,
       })
 
-      const object = await this.objectEntity.save({
-        device_id: device.id,
-        ...message,
-      })
-
-      if (object)
-        this.socket.sendEmit('objectMessage', {
-          ...genereateObject(object as ObjectEntity),
-          device,
-        })
-
-      return
-    } catch (error) {
-      console.error(error)
-    }
+    return
   }
 
   notificationMessage = async (
     message: TNotification,
     device: DeviceEntity,
   ) => {
-    try {
-      const notification = await this.notiEntity.save({
-        device_id: device.id,
-        ...message,
-      })
+    const notification = await this.notiEntity.save({
+      device_id: device.id,
+      ...message,
+    })
 
-      if (notification)
-        this.socket.sendEmit('notificationMessage', { ...notification, device })
-    } catch (error) {
-      console.error(error)
-    }
+    if (notification)
+      this.socket.sendEmit('notificationMessage', { ...notification, device })
 
     return
   }
