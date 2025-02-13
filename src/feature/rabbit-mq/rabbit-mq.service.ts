@@ -344,29 +344,27 @@ export class RabbitMqService implements OnModuleInit {
         for (const noti of notification.external_messages) {
           if (noti.type === 'object') {
             const [objectNoti] = await this.objectEntity.find({
-              where: { message_id: noti.message_id, device_id: device.id },
+              where: { message_id: noti.message_id },
               order: { id: 'DESC' },
             })
-
-            if (objectNoti?.object_list)
-              // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-              // @ts-expect-error
-              objectNoti.object_list.forEach((objects) => {
-                const { object } = objects
-                const description = `
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-expect-error
+            objectNoti.object_list.forEach((objects) => {
+              const { object } = objects
+              const description = `
                         <b>📸 Object Detected!</b>\n
                       <b>🎯Age:</b> 23
                       <b>🎯Type:</b> ${object?.type || 'Unknown'}
                       <b>🎯Gender:</b> Male
                       `
 
-                sendImageToTelegram(objects.image_URL, description)
+              sendImageToTelegram(objects.image_URL, description)
 
-                return
-              })
+              return
+            })
           } else {
             const [sensorNoti] = await this.sensorEntity.find({
-              where: { message_id: noti.message_id, device_id: device.id },
+              where: { message_id: noti.message_id },
               order: { id: 'DESC' },
             })
 
