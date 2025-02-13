@@ -67,12 +67,11 @@ export class RabbitMqService implements OnModuleInit {
 
   handleMessage = async (message: any, queue: string) => {
     if (!message.payload.message_id) return new Nack(true)
-
     console.log('message', message.payload.message_id)
 
     // This is not the best solution. If there is some free time, the flow needs to be improved.
-    const tag = ((await this.getQueues(queue)) as QueueDetails)
-      .consumer_details[0].consumer_tag
+    // const tag = ((await this.getQueues(queue)) as QueueDetails)
+    //   .consumer_details[0].consumer_tag
 
     const device = await this.deviceEntity.findOne({
       where: { deviceId: queue },
@@ -105,7 +104,7 @@ export class RabbitMqService implements OnModuleInit {
 
       return new Nack(true)
     } finally {
-      this.resetConsumerTimer(tag, queue)
+      // this.resetConsumerTimer(tag, queue)
     }
   }
 
@@ -201,7 +200,7 @@ export class RabbitMqService implements OnModuleInit {
         },
         `handleSubcribeFor${queue}`,
       )
-      .then((tag) => this.resetConsumerTimer(tag.consumerTag, queue))
+      // .then((tag) => this.resetConsumerTimer(tag.consumerTag, queue))
       .catch(console.error)
 
     return { message: 'success' }
