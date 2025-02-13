@@ -9,6 +9,7 @@ import {
   genereateObject,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   imageError,
+  sendDataSensorToTelegram,
   sendImageToTelegram,
 } from 'src/common/util'
 import { InjectRepository } from '@nestjs/typeorm'
@@ -303,14 +304,14 @@ export class RabbitMqService implements OnModuleInit {
 
   objectMessage = async (message: TObject, device: DeviceEntity) => {
     try {
-      message.object_list.forEach((objects) => {
-        const { object } = objects
-        const description = `📸 Age: ${object?.age || ''} - Type: ${object?.type || ''} - Gender: ${object?.gender || ''}`
+      // message.object_list.forEach((objects) => {
+      //   const { object } = objects
+      //   const description = `📸 Age: ${object?.age || ''} Type: ${object?.type || ''} Gender: ${object?.gender || ''}`
 
-        sendImageToTelegram(objects.image_URL, description)
+      //   sendImageToTelegram(objects.image_URL, description)
 
-        return
-      })
+      //   return
+      // })
 
       const object = await this.objectEntity.save({
         device_id: device.id,
@@ -338,6 +339,40 @@ export class RabbitMqService implements OnModuleInit {
         device_id: device.id,
         ...message,
       })
+
+      if (notification.external_messages.length) {
+        for (const noti of notification.external_messages) {
+          if (noti.type === 'object') {
+            const [objectNoti] = await this.objectEntity.find({
+              where: { message_id: noti.message_id },
+              order: { id: 'DESC' },
+            })
+
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-expect-error
+            objectNoti.object_list.forEach((objects) => {
+              const { object } = objects
+              const description = `
+                        <b>📸 Object Detected!</b>\n
+                        <b>🎯Age:</b> ${object?.age || 'Unknown'}\n
+                        <b>🎯Type:</b> ${object?.type || 'Unknown'}\n
+                        <b>🎯Gender:</b> ${object?.gender || 'Unknown'}
+                      `
+
+              sendImageToTelegram(objects.image_URL, description)
+
+              return
+            })
+          } else {
+            const [sensorNoti] = await this.sensorEntity.find({
+              where: { message_id: noti.message_id },
+              order: { id: 'DESC' },
+            })
+
+            sendDataSensorToTelegram(sensorNoti.sensor_list)
+          }
+        }
+      }
 
       if (notification)
         this.socket.sendEmit('notificationMessage', { ...notification, device })

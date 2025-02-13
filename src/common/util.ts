@@ -147,6 +147,7 @@ export const sendImageToTelegram = async (imageUrl, caption) => {
     form.append('chat_id', CHAT_ID)
     form.append('photo', fs.createReadStream(filePath))
     form.append('caption', caption)
+    form.append('parse_mode', 'HTML')
 
     const telegramResponse = await axios.post(
       `https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`,
@@ -173,5 +174,27 @@ export const sendImageToTelegram = async (imageUrl, caption) => {
     console.error('Lỗi tải hoặc gửi ảnh:', error.errors)
   } finally {
     console.log(formatDate(new Date()))
+  }
+}
+
+export const sendDataSensorToTelegram = async (data) => {
+  try {
+    let message = `<b>🚀 Dữ liệu cảm biến:</b>\n\n`
+
+    data.forEach((sensor) => {
+      message += `🎯 <b>${sensor.name}</b>\n`
+      message += `   - 📝 <b>Giá trị:</b> <code>${sensor.payload} ${sensor.unit}</code>\n\n`
+      // message += `   - 📝 <i>${sensor.description}</i>\n\n`;
+    })
+
+    await axios.post(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+      chat_id: CHAT_ID,
+      text: message,
+      parse_mode: 'HTML',
+    })
+
+    console.log('🚀 Đã gửi dữ liệu sensor lên Telegram!')
+  } catch (error) {
+    console.error('❌ Lỗi khi gửi tin nhắn:', error)
   }
 }
