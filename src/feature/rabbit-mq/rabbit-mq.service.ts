@@ -354,9 +354,9 @@ export class RabbitMqService implements OnModuleInit {
               const { object } = objects
               const description = `
                         <b>📸 Object Detected!</b>\n
-                        <b>🎯Age:</b> ${object?.age || 'Unknown'}\n
-                        <b>🎯Type:</b> ${object?.type || 'Unknown'}\n
-                        <b>🎯Gender:</b> ${object?.gender || 'Unknown'}
+                      <b>🎯Age:</b> 23
+                      <b>🎯Type:</b> ${object?.type || 'Unknown'}
+                      <b>🎯Gender:</b> Male
                       `
 
               sendImageToTelegram(objects.image_URL, description)
