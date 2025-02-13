@@ -344,7 +344,7 @@ export class RabbitMqService implements OnModuleInit {
         for (const noti of notification.external_messages) {
           if (noti.type === 'object') {
             const [objectNoti] = await this.objectEntity.find({
-              where: { message_id: noti.message_id },
+              where: { message_id: noti.message_id, device_id: device.id },
               order: { id: 'DESC' },
             })
 
@@ -365,7 +365,7 @@ export class RabbitMqService implements OnModuleInit {
             })
           } else {
             const [sensorNoti] = await this.sensorEntity.find({
-              where: { message_id: noti.message_id },
+              where: { message_id: noti.message_id, device_id: device.id },
               order: { id: 'DESC' },
             })
 
