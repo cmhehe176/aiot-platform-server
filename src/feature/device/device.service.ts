@@ -183,4 +183,19 @@ export class DeviceService {
 
     return this.subDevice.update({ id }, payload)
   }
+
+  turnOffDevice = async (id: number) => {
+    try {
+      const device = await this.deviceEntity.findOneBy({ id })
+      if (!device || !device.isActive) return false
+
+      await this.rabitmqService.deleteQueue(device.deviceId)
+      await this.deviceEntity.update({ id: device.id }, { isActive: false })
+      return true
+    } catch (error) {
+      console.error(error)
+
+      return false
+    }
+  }
 }

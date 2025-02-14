@@ -29,6 +29,12 @@ export class DeviceController {
     return this.deviceService.getSubDevice(type, user)
   }
 
+  @Put('/status/:id')
+  @Roles(ERole.ADMIN)
+  turnOffDevice(@Param('id') id: number) {
+    return this.deviceService.turnOffDevice(id)
+  }
+
   @Put('sub-device/:id')
   @Roles(ERole.ADMIN)
   UpdateSubDevice(
