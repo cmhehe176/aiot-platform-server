@@ -340,6 +340,12 @@ export class RabbitMqService implements OnModuleInit {
         ...message,
       })
 
+      if (notification)
+        this.socket.sendEmit('notificationMessage', {
+          ...notification,
+          device,
+        })
+
       if (notification.external_messages.length) {
         for (const noti of notification.external_messages) {
           if (noti.type === 'object') {
@@ -373,9 +379,6 @@ export class RabbitMqService implements OnModuleInit {
           }
         }
       }
-
-      if (notification)
-        this.socket.sendEmit('notificationMessage', { ...notification, device })
 
       return
     } catch (error) {
