@@ -1,0 +1,157 @@
+networks:
+  iot-server-net:
+    name: network
+
+volumes:
+  postgres-data: {}
+  zabbix-data: {}
+  rabbitmq-data: {}
+  minio-vol: {}
+
+services:
+  iot-server:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    command: ["sh", "-c", "yarn migration && yarn seed && yarn dev"]
+    container_name: server
+    depends_on:
+      database:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - iot-server-net
+    ports:
+      - 3000:${PORT}/tcp
+    volumes:
+      - .:/iot-server
+      # - ./src:/iot-server/src
+      # - ./.env:/iot-server/.env
+      # - /iot-server/node_modules
+
+  database:
+    image: timescale/timescaledb:latest-pg15
+    container_name: postgres
+    healthcheck:
+      test:
+        [
+          'CMD-SHELL',
+          'pg_isready -U $POSTGRES_USER -d $POSTGRES_DB -h localhost',
+        ]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+      start_period: 20s
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - PGDATA=/data/postgres
+
+    restart: unless-stopped
+    ports:
+      - 5432:5432
+    networks:
+      - iot-server-net
+    volumes:
+      - postgres-data:/data/postgres
+
+  adminer:
+    image: adminer
+    container_name: adminer
+    healthcheck:
+      interval: 5s
+      retries: 5
+      start_period: 20s
+      test: ['CMD', 'wget', '--no-verbose', '--spider', 'http://localhost:8080']
+      timeout: 5s
+    environment:
+      - ADMINER_DEFAULT_SERVER=database
+      - ADMINER_PLUGINS=dump-json dump-zip edit-foreign json-column tables-filter tinymce
+    restart: always
+    networks:
+      - iot-server-net
+    ports:
+      - 8080:8080/tcp
+
+  # zabbix-server:
+  #   image: zabbix/zabbix-server-pgsql:latest
+  #   container_name: zabbix-server
+  #   restart: unless-stopped
+  #   environment:
+  #     - DB_SERVER_HOST=database
+  #     - POSTGRES_DB=zabbix_db
+  #     - POSTGRES_USER=${POSTGRES_USER}
+  #     - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+  #   depends_on:
+  #     - database
+  #   ports:
+  #     - 10051:10051
+  #   volumes:
+  #     - zabbix-data:/var/lib/zbx_env
+  #     - zabbix-data:/var/lib/zbx_env
+  #   networks:
+  #     - iot-server-net
+
+  # zabbix-web:
+  #   image: zabbix/zabbix-web-nginx-pgsql:latest
+  #   container_name: zabbix-web
+  #   restart: unless-stopped
+  #   environment:
+  #     - ZBX_SERVER_HOST=zabbix-server
+  #     - DB_SERVER_HOST=database
+  #     - POSTGRES_DB=zabbix_db
+  #     - POSTGRES_USER=${POSTGRES_USER}
+  #     - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+  #   depends_on:
+  #     - zabbix-server
+  #   ports:
+  #     - 8081:8080/tcp
+  #   volumes:
+  #     - zabbix-data:/var/lib/zbx_env
+  #   networks:
+  #     - iot-server-net
+
+  # zabbix-agent:
+  #   image: zabbix/zabbix-agent:latest
+  #   container_name: zabbix-agent
+  #   environment:
+  #     - ZBX_SERVER_HOST=zabbix-server
+  #   depends_on:
+  #     - zabbix-server
+  #   ports:
+  #     - 10050:10050
+  #   volumes:
+  #     - zabbix-data:/var/lib/zbx_env
+  #   networks:
+  #     - iot-server-net
+
+  rabbitmq:
+    image: rabbitmq:management
+    container_name: rabbitmq
+    restart: unless-stopped
+    ports:
+      - 5672:5672
+      - 15672:15672/tcp
+    environment:
+      - RABBITMQ_DEFAULT_USER=${RABBITMQ_USER}
+      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_PASS}
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq/mnesia
+    networks:
+      - iot-server-net
+
+  minio:
+    image: minio/minio:latest
+    container_name: minio
+    command: server /data --console-address ":9001"
+    environment:
+      - MINIO_ROOT_USER=${MINIO_ROOT_USER}
+      - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD}
+      - MINIO_REGION_NAME=${MINIO_REGION_NAME}
+    ports:
+      - 9000:9000
+      - 9001:9001
+    restart: unless-stopped
+    volumes:
+      - minio-vol:/data

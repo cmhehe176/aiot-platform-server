@@ -1,0 +1,15 @@
+FROM node:20.17.0-alpine
+
+WORKDIR /iot-server
+
+RUN set -eux; \
+	apk add --update --no-cache git build-base; \
+	corepack enable
+
+COPY --chown=node:node package.json yarn.lock ./
+
+RUN yarn global add @nestjs/cli
+
+RUN yarn install --frozen-lockfile
+
+CMD ["yarn", "dev"]

@@ -1,4 +1,4 @@
-FROM node:20.17.0-alpine as base
+FROM node:20.17.0-alpine AS base
 
 WORKDIR /app
 
@@ -16,7 +16,6 @@ COPY . .
 
 RUN yarn build
 
-# =====================================Production==============================================
 
 FROM base as production
 

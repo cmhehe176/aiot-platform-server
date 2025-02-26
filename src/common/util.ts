@@ -12,6 +12,7 @@ import axios from 'axios'
 import fs from 'fs'
 import FormData from 'form-data'
 import { formatDate } from './dayjs'
+import { Client } from 'pg'
 
 // lấy từ .env
 const BOT_TOKEN = '8170639669:AAEZzoMa_VG_MaODQVPicn6SivoAas4Kszo'
@@ -196,5 +197,34 @@ export const sendDataSensorToTelegram = async (data) => {
     console.log('🚀 Đã gửi dữ liệu sensor lên Telegram!')
   } catch (error) {
     console.error('❌ Lỗi khi gửi tin nhắn:', error)
+  }
+}
+
+export const createDatabase = async (dbName) => {
+  try {
+    const client = new Client({
+      host: process.env.HOST || 'localhost',
+      port: Number(process.env.POSTGRES_DB_PORT) || 5432,
+      user: process.env.POSTGRES_USER || 'admin',
+      password: process.env.POSTGRES_PASSWORD || 'yourpassword',
+      database: 'postgres',
+    })
+
+    await client.connect()
+
+    const res = await client.query(
+      `SELECT 1 FROM pg_database WHERE datname = '${dbName}'`,
+    )
+    if (res.rowCount === 0) {
+      console.log(`⏳ Creating database "${dbName}"...`)
+      await client.query(`CREATE DATABASE ${dbName}`)
+      console.log(`✅ Database "${dbName}" created successfully!`)
+    } else {
+      console.log(`✅ Database "${dbName}" already exists.`)
+    }
+
+    await client.end()
+  } catch (error) {
+    console.error(`❌ Error creating database "${dbName}":`, error)
   }
 }

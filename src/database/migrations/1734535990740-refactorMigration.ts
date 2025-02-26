@@ -1,9 +1,10 @@
+
 import { MigrationInterface, QueryRunner } from "typeorm";
 
 export class RefactorMigration1734535990740 implements MigrationInterface {
     name = 'RefactorMigration1734535990740'
-
     public async up(queryRunner: QueryRunner): Promise<void> {
+        await queryRunner.createDatabase(`aiot_platform`, true)
         await queryRunner.query(`CREATE TABLE "object" ("id" SERIAL NOT NULL, "device_id" integer NOT NULL, "message_id" character varying NOT NULL, "timestamp" TIMESTAMP NOT NULL, "location" jsonb NOT NULL, "created_at" TIMESTAMP NOT NULL DEFAULT now(), "is_replied" integer NOT NULL DEFAULT '0', "specs" jsonb NOT NULL, "object_list" jsonb, "event_list" jsonb, CONSTRAINT "PK_05142ce7a16e83c128dab91dfd8" PRIMARY KEY ("id", "timestamp"))`);
         await queryRunner.query(`CREATE UNIQUE INDEX "IDX_object_message_id_timestamp" ON "object" ("timestamp") `);
         await queryRunner.query(`CREATE TABLE "notification" ("id" SERIAL NOT NULL, "device_id" integer NOT NULL, "message_id" character varying NOT NULL, "timestamp" TIMESTAMP NOT NULL, "location" jsonb NOT NULL, "created_at" TIMESTAMP NOT NULL DEFAULT now(), "is_replied" integer NOT NULL DEFAULT '0', "CAT" character varying, "payload" jsonb, "external_messages" jsonb, CONSTRAINT "PK_778bab81f1d62286228a6f36047" PRIMARY KEY ("id", "timestamp"))`);
