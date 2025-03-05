@@ -15,6 +15,7 @@ export class MessageService {
   private readonly bot: TelegramBot
   private logger = new Logger(MessageService.name)
   private temp: { email: string; key: string } = { email: '', key: '' }
+
   constructor(
     @InjectRepository(UserEntity)
     private readonly userEntity: Repository<UserEntity>,
@@ -36,6 +37,7 @@ export class MessageService {
     // this.sendMessageToUser('7616244643', `Server started at ${new Date()}`);
   }
 
+  // this logic must be refactor
   onReceiveMessage = async (msg: any) => {
     if (!msg.text) return
     //disable group chat

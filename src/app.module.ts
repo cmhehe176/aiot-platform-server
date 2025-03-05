@@ -13,7 +13,7 @@ import { DeviceModule } from './feature/device/device.module'
 import { RabbitMqModule } from './feature/rabbit-mq/rabbit-mq.module'
 import { EmailModule } from './feature/email/email.module'
 import { SupportModule } from './feature/support/support.module'
-// import { MessageModule } from './feature/message/message.module'
+import { MessageModule } from './feature/message/message.module'
 import { StorageModule } from './feature/storage/storage.module'
 import { DashboardModule } from './feature/dashboard/dashboard.module'
 import { SocketModule } from './feature/socket/socket.module'
@@ -35,7 +35,7 @@ import { ObjectModule } from './feature/object/object.module'
     RabbitMqModule,
     EmailModule,
     SupportModule,
-    // MessageModule,
+    MessageModule,
     StorageModule,
     DashboardModule,
     DeviceModule,

@@ -7,10 +7,9 @@ import { QueueDetails, QueueInfo } from 'src/common/type'
 import {
   generateRandomSixDigitNumber,
   genereateObject,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  imageError,
-  sendDataSensorToTelegram,
-  sendImageToTelegram,
+  // imageError,
+  // sendDataSensorToTelegram,
+  // sendImageToTelegram,
 } from 'src/common/util'
 import { InjectRepository } from '@nestjs/typeorm'
 import {
@@ -56,6 +55,8 @@ export class RabbitMqService implements OnModuleInit {
     this.subDevice = this.dataSoure.getRepository(SubDevice)
   }
 
+  // this module must be refactor
+
   onModuleInit() {
     this.createQueue('accepted_devices')
   }
@@ -71,8 +72,8 @@ export class RabbitMqService implements OnModuleInit {
     console.log('message', message.payload.message_id)
 
     // This is not the best solution. If there is some free time, the flow needs to be improved.
-    // const tag = ((await this.getQueues(queue)) as QueueDetails)
-    //   .consumer_details[0].consumer_tag
+    const tag = ((await this.getQueues(queue)) as QueueDetails)
+      .consumer_details[0].consumer_tag
 
     const device = await this.deviceEntity.findOne({
       where: { deviceId: queue },
@@ -105,7 +106,7 @@ export class RabbitMqService implements OnModuleInit {
 
       return new Nack(true)
     } finally {
-      // this.resetConsumerTimer(tag, queue)
+      this.resetConsumerTimer(tag, queue)
     }
   }
 
@@ -201,7 +202,7 @@ export class RabbitMqService implements OnModuleInit {
         },
         `handleSubcribeFor${queue}`,
       )
-      // .then((tag) => this.resetConsumerTimer(tag.consumerTag, queue))
+      .then((tag) => this.resetConsumerTimer(tag.consumerTag, queue))
       .catch(console.error)
 
     return { message: 'success' }
@@ -257,13 +258,14 @@ export class RabbitMqService implements OnModuleInit {
     return { message: 'success' }
   }
 
-  async resetConsumerTimer(tag: string, queue?: string, timeout = 30000000) {
+  async resetConsumerTimer(tag: string, queue?: string, timeout = 300000) {
     if (this.consumerTimers.has(tag)) clearTimeout(this.consumerTimers.get(tag))
 
     const timer = setTimeout(async () => {
       try {
         await this.cancelConsume(tag)
         this.consumerTimers.delete(tag)
+
         await this.deviceEntity
           .exists({ where: { deviceId: queue, isActive: true } })
           .then((check) => {
@@ -273,7 +275,6 @@ export class RabbitMqService implements OnModuleInit {
               this.socket.sendEmit('refreshApi', true)
             }
           })
-          .catch(console.error)
 
         console.log(
           `Consumer cho queue : ${queue} - ${tag} đã bị huỷ do không nhận được tin nhắn.`,
@@ -304,15 +305,6 @@ export class RabbitMqService implements OnModuleInit {
 
   objectMessage = async (message: TObject, device: DeviceEntity) => {
     try {
-      // message.object_list.forEach((objects) => {
-      //   const { object } = objects
-      //   const description = `📸 Age: ${object?.age || ''} Type: ${object?.type || ''} Gender: ${object?.gender || ''}`
-
-      //   sendImageToTelegram(objects.image_URL, description)
-
-      //   return
-      // })
-
       const object = await this.objectEntity.save({
         device_id: device.id,
         ...message,
@@ -357,6 +349,7 @@ export class RabbitMqService implements OnModuleInit {
             // @ts-expect-error
             objectNoti.object_list.forEach((objects) => {
               const { object } = objects
+              // eslint-disable-next-line @typescript-eslint/no-unused-vars
               const description = `
                         <b>📸 Object Detected!</b>\n
                       <b>🎯Age:</b> 23
@@ -364,7 +357,8 @@ export class RabbitMqService implements OnModuleInit {
                       <b>🎯Gender:</b> Male
                       `
 
-              sendImageToTelegram(objects.image_URL, description)
+              // write other func to send image with module
+              // sendImageToTelegram(objects.image_URL, description)
 
               return
             })
@@ -374,8 +368,12 @@ export class RabbitMqService implements OnModuleInit {
               order: { id: 'DESC' },
             })
 
-            if (sensorNoti.sensor_list)
-              sendDataSensorToTelegram(sensorNoti.sensor_list)
+            if (sensorNoti.sensor_list) {
+              // write other func to send image with module
+              // sendDataSensorToTelegram(sensorNoti.sensor_list)
+
+              return
+            }
           }
         }
       }
@@ -398,6 +396,7 @@ export class RabbitMqService implements OnModuleInit {
 
       const promises = []
 
+      // cái đống bên dưới dùng lodash được , đ hiểu sao ngày xưa viết được cái này
       const listRemove = listSubDevice.filter(
         (sub) => !sensor_list.some((sen) => sen.name === sub.name),
       )

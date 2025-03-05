@@ -16,7 +16,7 @@ import { Client } from 'pg'
 
 // lấy từ .env
 const BOT_TOKEN = '8170639669:AAEZzoMa_VG_MaODQVPicn6SivoAas4Kszo'
-const CHAT_ID = '-1002345395149'
+const TELEGRAM_ID_GROUP = '-1002345395149'
 
 export const configureQueue = async (
   app: INestApplication<any>,
@@ -145,7 +145,7 @@ export const sendImageToTelegram = async (imageUrl, caption) => {
 
     const form = new FormData()
 
-    form.append('chat_id', CHAT_ID)
+    form.append('chat_id', TELEGRAM_ID_GROUP)
     form.append('photo', fs.createReadStream(filePath))
     form.append('caption', caption)
     form.append('parse_mode', 'HTML')
@@ -166,7 +166,7 @@ export const sendImageToTelegram = async (imageUrl, caption) => {
   } catch (error) {
     await axios
       .post(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`, {
-        chat_id: CHAT_ID,
+        chat_id: TELEGRAM_ID_GROUP,
         photo: imageError,
         caption: ` ❌ Error Image`,
       })
@@ -189,7 +189,7 @@ export const sendDataSensorToTelegram = async (data) => {
     })
 
     await axios.post(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
-      chat_id: CHAT_ID,
+      chat_id: TELEGRAM_ID_GROUP,
       text: message,
       parse_mode: 'HTML',
     })

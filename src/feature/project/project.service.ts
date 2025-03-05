@@ -93,6 +93,8 @@ export class ProjectService {
     }
 
     if (payload.deviceIds) {
+      // khi dùng for await thì mỗi phần tử trong for sẽ phải chờ thằng trước chạy xong
+      // => chậm => dùng map rồi ném vào Promise.all
       for (const devciceId of payload.deviceIds) {
         await this.deviceEntity.update(
           { id: devciceId },
