@@ -18,6 +18,9 @@ $ cp .env.example .env
 # use this command for build or rebuild this images
 $ docker compose up -d --build
 
+# sync database and create seed
+$ yarn sync
+
 # only use this command for first time run images , use command below this command to pull lib and migration database to server
 $ docker exec -it server sh -c "yarn && yarn migration && yarn seed && exit"
 
